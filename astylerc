@@ -1,0 +1,19 @@
+#
+# Usage of astyle:
+#       astyle [options] < OriginalSourceFile > BeautifiedSourceFile
+#
+
+--style=kr                  # use K&R style
+--add-brackets              # add brackets to one-line cases
+--indent=force-tab=8        # indent only using tabs with size 8
+--indent-col1-comments      # indent C++ comments properly
+--break-blocks              # add empty line around blocks
+--pad-oper                  # add padding around operators
+--pad-header                # add padding before block name
+--unpad-paren               # remove extra spaces inside parantheses
+--delete-empty-lines        # remove extra empty lines
+--align-pointer=name        # add pointer reference operator to variable name
+--max-code-length=80        # set maximum line length
+--break-after-logical       # when breaking long conditionals, keep the logical
+                            # operator on the same line
+--lineend=linux             # because Linux is the best! :)
