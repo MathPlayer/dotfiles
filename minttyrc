@@ -1,0 +1,18 @@
+#
+# ~/.minttyrc
+#
+# Configuration file for mintty (useful for cygwin).
+#
+#
+
+
+BoldAsFont=no
+Columns=80
+Rows=24
+ScrollbackLines=20000
+Blue=100,100,255
+BoldBlue=140,140,255
+RightClickAction=paste
+Scrollbar=none
+Font=Consolas
+FontHeight=11
