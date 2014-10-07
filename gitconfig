@@ -21,3 +21,5 @@
 	dump = cat-file -p
 	lg = log --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %Cred%d%Creset %s %C(bold blue)[%an]'
 	hist = log --graph --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %Cred%d%Creset %s %C(bold blue)[%an]'
+	track = "! git branch -vv | cut -d ']' -f 1 | tr -d '['"
+	commit-files = diff-tree --no-commit-id --name-only -r

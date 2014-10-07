@@ -82,6 +82,8 @@ set smartcase
 highlight Search cterm=NONE ctermfg=grey ctermbg=blue
 " change TODO highlight color
 highlight TODO cterm=NONE ctermfg=black ctermbg=darkgreen
+" change bracket match highlight color
+highlight MatchParen ctermfg=red ctermbg=black
 
 
 "----- menu and status -----"
@@ -114,6 +116,9 @@ set splitbelow
 set splitright
 " use mouse (=a -> anywhere possible)
 set mouse=a
+" set timeout between consecutive characters type when entering a command
+" sequence
+set timeoutlen=500
 " set key for paste toogle (when active, the pasted text formatting is not
 " modified by any indent feature)
 set pastetoggle=<F2>
@@ -122,11 +127,17 @@ set pastetoggle=<F2>
 "----- key mappings -----"
 " more efficient command mapping of :
 nnoremap ; :
+" more efficient mapping of <ESC> from insert mode
+inoremap jj <ESC>
 " remap arrow keys to nothing --- still learning to use vi :)
 map <up> <nop>
 map <down> <nop>
 map <left> <nop>
 map <right> <nop>
+inoremap <up> <nop>
+inoremap <down> <nop>
+inoremap <left> <nop>
+inoremap <right> <nop>
 " map sudo save command
 cmap w!! w !sudo tee % >/dev/null
 " Outline overview of file toogle key
@@ -134,7 +145,15 @@ cmap w!! w !sudo tee % >/dev/null
 nnoremap <silent> <F8> :TagbarToggle<CR>
 " Clear search results by pressing Enter
 nnoremap <CR> :noh<CR><CR>
-
+" Have <esc> leave cmdline-window (I do not use it)
+autocmd CmdwinEnter * nnoremap <buffer> <esc> :q\|echo ""<cr>
+" set key for paste toogle (when active, the pasted text formatting is not
+" modified by any indent feature)
+set pastetoggle=<F2>
+" keys for NERDTree and Tagbar
+nnoremap <silent> <F3> :TagbarToggle<CR>
+nnoremap <silent> <F9> :NERDTreeToggle<CR>
+nnoremap <silent> <F10> :NERDTreeFind<CR>
 
 "----- function to remove trailing whitespace -----"
 fun! <SID>StripTrailingWhitespaces()
@@ -199,12 +218,6 @@ let g:tagbar_compact = 1
 " set indentation for folds
 let g:tagbar_indent = 1
 
-
-" OmniCppComplete
-"let OmniCpp_NamespaceSearch = 1
-"let OmniCpp_GlobalScopeSearch = 1
-"let OmniCpp_ShowAccess = 1
-let OmniCpp_MayCompleteDot = 1
-let OmniCpp_MayCompleteArrow = 1
-let OmniCpp_MayCompleteScope = 1
-let OmniCpp_DisplayMode = 1
+" automatically open and close the popup menu / preview window
+" au CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
+" set completeopt=menuone,menu,longest,preview

@@ -16,4 +16,6 @@
 --max-code-length=80        # set maximum line length
 --break-after-logical       # when breaking long conditionals, keep the logical
                             # operator on the same line
+#-xC 80
+-XL
 --lineend=linux             # because Linux is the best! :)

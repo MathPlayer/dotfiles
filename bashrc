@@ -30,7 +30,7 @@ shopt -s nocaseglob
 shopt -s cdspell
 
 # Execute cd if a command name that is the name of a directory
-shopt -s autocd
+shopt -s autocd 2>/dev/null
 
 # Ignore some controlling instructions
 # HISTIGNORE is a colon-delimited list of patterns which should be excluded.
