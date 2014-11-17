@@ -8,6 +8,7 @@ EXCLUDES=(
 "README.md"
 "contributors.txt"
 ".gitmodules"
+"bin/ssh-agent-init"
 ${SCRIPT_NAME}
 )
 

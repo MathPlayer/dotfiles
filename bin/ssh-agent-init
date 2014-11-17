@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+# ~/.ssh-agent-init
+#
+# User ssh-agent initialization file (for cygwin).
+
+STOP=0
+START=1
+
+ssh_agent_find_sockets () {
+  find "/tmp" -uid $(id -u) -type s -name "agent.\*" 2>/dev/null
+}
+
+ssh_agent_add_keys () {
+  echo "Start  adding keys from '${HOME}/.ssh'"
+  for keyfile in $(find "${HOME}/.ssh" -type f -name "*.pub"); do
+    echo "Adding key ${keyfile%.pub}"
+    ssh-add ${keyfile%.pub}
+  done
+  echo "Finish adding keys from '${HOME}/.ssh'."
+  return 0
+}
+
+ssh_agent_status () {
+  echo -ne "Check ssh-agent status ... "
+  line=$(ps aux | grep "[s]sh-agent")
+  if [ -z "${line}" ]; then
+    echo "stopped."
+    return $STOP
+  fi
+  echo "running: "
+  echo "${line}"
+  return $START
+}
+
+ssh_agent_start () {
+  echo -ne "Start SSH agent ..."
+  eval `ssh-agent -s`
+  status=$?
+  if [ ${status} -ne 0 ]; then
+    echo "FAIL with code ${status}."
+    return $status
+  fi
+  echo "OK."
+  ssh_agent_add_keys
+  return $?
+}
+
+ssh_agent_stop () {
+  ssh_agent_status
+  if [ $? -eq $STOP ]; then
+    echo "Nothing to do"
+  else
+    echo "You should kill it. (kill -9 <pid>)"
+  fi
+  return 0
+}
+
+ssh_agent_restart () {
+  ssh_agent_stop && ssh_agent_start
+  return $?
+}
+
