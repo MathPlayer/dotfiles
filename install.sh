@@ -18,6 +18,7 @@ mkdir -p ${OLD_DIR}
 # Get files to install.
 FILES=$(find "${CRT_DIR}" \
   -type f \
+  -not -path "${CRT_DIR}/putty_regs/*" \
   -not -path "${CRT_DIR}/.git/*" \
   -not -path "${CRT_DIR}/backup/*" \
   -not -path "${OLD_DIR}/*" \
