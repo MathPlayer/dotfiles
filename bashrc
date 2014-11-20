@@ -11,8 +11,8 @@
 # The source commands are here because bashrc may use some commands from the
 # library
 # Source the users commands library if it exists.
-if [[ -f "${HOME}/bin/commands.sh" ]]; then
-  source "${HOME}/bin/commands.sh"
+if [[ -f "${HOME}/.bin/commands.sh" ]]; then
+  source "${HOME}/.bin/commands.sh"
 fi
 
 ###############################################################################
