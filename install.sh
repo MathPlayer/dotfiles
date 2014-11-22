@@ -11,6 +11,7 @@ EXCLUDES=(
 "bin/ssh-agent-init"
 ${SCRIPT_NAME}
 )
+NO_CHANGES=true
 
 # Create backup dir.
 mkdir -p ${OLD_DIR}
@@ -69,4 +70,10 @@ for filename in ${FILES}; do
   fi
   mkdir -p "$(dirname ${home_file})"
   cp "${CRT_DIR}/${relative_file}" "${home_file}"
+  NO_CHANGES=false
 done
+
+if [ ${NO_CHANGES} == true ]; then
+  echo "No changes."
+  rmdir ${OLD_DIR}
+fi
