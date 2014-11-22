@@ -84,6 +84,8 @@ highlight Search cterm=NONE ctermfg=grey ctermbg=blue
 highlight TODO cterm=NONE ctermfg=black ctermbg=darkgreen
 " change bracket match highlight color
 highlight MatchParen ctermfg=red ctermbg=black
+highlight clear SpellBad
+highlight SpellBad cterm=underline
 
 
 "----- menu and status -----"
