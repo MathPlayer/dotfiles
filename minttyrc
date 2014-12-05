@@ -13,6 +13,9 @@ RightClickAction=paste
 Scrollbar=none
 Font=Consolas
 FontHeight=11
+FontSmoothing=full
+Term=xterm
+CopyAsRTF=no
 
 # Theme adapted from google color scheme taken from:
 # https://github.com/chriskempson/base16-xfce4-terminal
