@@ -42,7 +42,7 @@ set_prompt () {
   local LIGHT_PURPLE="\[\033[1;35m\]"
   local YELLOW="\[\033[1;33m\]"
   local WHITE="\[\033[1;37m\]"
-  export PS1="${GREEN}\u${LIGHT_GRAY}@${GREEN}\H ${CYAN}\W${LIGHT_GRAY} $ "
+  export PS1="${GREEN}\u${LIGHT_GRAY}@${GREEN}\H ${CYAN}\w${LIGHT_GRAY} $ "
 }
 
 # Set display for Cygwin X11 forwarding.
