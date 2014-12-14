@@ -223,3 +223,8 @@ let g:tagbar_indent = 1
 " automatically open and close the popup menu / preview window
 " au CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
 " set completeopt=menuone,menu,longest,preview
+
+" Set specific syntax
+augroup filetypedetect
+	au! BufRead, BufNewFile *.m,*.oct set filetype=octave
+augroup END
