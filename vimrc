@@ -65,8 +65,8 @@ set softtabstop=8
 " display whitespace characters
 set list
 " characters to show for tab, trailing whitespace and normal space
-" set listchars=tab:→\ ,trail:~,nbsp:·
-set listchars=tab:>\ ,trail:~,nbsp:·
+set listchars=tab:→\ ,trail:~,nbsp:·
+"set listchars=tab:>\ ,trail:~,nbsp:·
 
 
 "----- search -----"
