@@ -1,0 +1,28 @@
+#!/bin/bash -x
+#
+# Download an entire web site for offline usage.
+# For now, there is no limit to recursion level and speed limit.
+#
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $0 <URL>" >&2
+  exit 1
+fi
+
+SITE=$1
+LOCAL_WEBSITES="${HOME}/Websites"
+mkdir -p "${LOCAL_WEBSITES}"
+wget \
+  --limit-rate=200k \
+  --no-clobber \
+  --page-requisites \
+  --no-parent \
+  --convert-links \
+  --random-wait \
+  --recursive \
+  --adjust-extension \
+  --execute robots=off \
+  --user-agent="mozilla" \
+  --directory-prefix="${LOCAL_WEBSITES}" \
+  "${SITE}"
+
