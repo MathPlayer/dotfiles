@@ -228,3 +228,5 @@ let g:tagbar_indent = 1
 augroup filetypedetect
 	au! BufRead, BufNewFile *.m,*.oct set filetype=octave
 augroup END
+
+set background=dark
