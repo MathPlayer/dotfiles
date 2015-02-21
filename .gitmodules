@@ -1,12 +1,12 @@
-[submodule "vim/bundle/nerdtree"]
-	path = vim/bundle/nerdtree
+[submodule "common/vim/bundle/nerdtree"]
+	path = common/vim/bundle/nerdtree
 	url = https://github.com/scrooloose/nerdtree.git
-[submodule "vim/bundle/nerdtree-tabs"]
-	path = vim/bundle/nerdtree-tabs
+[submodule "common/vim/bundle/nerdtree-tabs"]
+	path = common/vim/bundle/nerdtree-tabs
 	url = https://github.com/jistr/vim-nerdtree-tabs.git
-[submodule "vim/bundle/tagbar"]
-	path = vim/bundle/tagbar
+[submodule "common/vim/bundle/tagbar"]
+	path = common/vim/bundle/tagbar
 	url = https://github.com/majutsushi/tagbar.git
-[submodule "vim/bundle/toogle-mouse"]
-	path = vim/bundle/toogle-mouse
+[submodule "common/vim/bundle/toogle-mouse"]
+	path = common/vim/bundle/toogle-mouse
 	url = https://github.com/nvie/vim-togglemouse.git
