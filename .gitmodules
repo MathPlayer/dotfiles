@@ -10,3 +10,6 @@
 [submodule "common/vim/bundle/toogle-mouse"]
 	path = common/vim/bundle/toogle-mouse
 	url = https://github.com/nvie/vim-togglemouse.git
+[submodule "common/vim/bundle/vim-flake8"]
+	path = common/vim/bundle/vim-flake8
+	url = https://github.com/nvie/vim-flake8.git
