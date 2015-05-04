@@ -1,0 +1,164 @@
+#!/bin/bash
+
+usage () {
+  echo -e "Usage: $0 [-h, -e] -t <compute/gather> [-d <dir>]
+
+  Available arguments:
+  -h       - show this message
+  -t [compute/gather]
+           - if 'compute' option is given, use all files from cscope.files
+             and build tags for them; if 'gather' option is given, get files
+             from specified path into cscope.files
+  -e       - gather source files from directories inside CFLAGS environment
+  -d <dir> - specify the source directory for which to generate tags;
+             argument required only if -t option is 'gather'
+  -s <dir> - run in simple mode; the following actions are done:
+             1. go to relative directory <dir>
+             2. gather source files from all directories inside <dir>
+             3. gather source files from CFLAGS environment variables
+             4. compute tags
+
+"
+}
+
+get_env_files () {
+  echo "${SCRIPT_LOG} Get files from environment variables"
+  for include in $(printenv | grep "CFLAGS" | cut -d "=" -f 2 |
+    sed "s/-I\|[[:space:]]\+-D[[:space:]]\?.\+\([[:space:]]\|$\)//g"); do
+    echo "${SCRIPT_LOG} Get files from ${include}"
+    find ${include} -type f -name "*.[ch]" -print >> "cscope.files"
+  done
+}
+
+get_kernel_files () {
+  echo "${SCRIPT_LOG} Get files from kernel directory ${SRC_DIR}"
+  find ${SRC_DIR} \
+    -path "${SRC_DIR}/arch/*" ! -path "$LINUX_DIR/arch/powerpc*" -prune -o  \
+    -path "${SRC_DIR}/tmp*" -prune -o \
+    -path "${SRC_DIR}/Documentation*" -prune -o \
+    -path "${SRC_DIR}/scripts*" -prune -o \
+    -name "*.[ch]" -print >> "cscope.files"
+}
+
+get_dir_files () {
+  echo "${SCRIPT_LOG} Get files from source directory ${SRC_DIR}"
+  find ${SRC_DIR} -name "*.[ch]" -print >> "cscope.files"
+}
+
+sort_files () {
+  echo "${SCRIPT_LOG} Sort files from cscope.files"
+  sort -u "cscope.files" > "cscope.files.sorted"
+  mv "cscope.files.sorted" "cscope.files"
+}
+
+clean_nonexisting_files () {
+  echo "${SCRIPT_LOG} Clean nonexisting files from cscope.files"
+  while read filename; do
+    if [[ ! -f ${filename} ]]; then
+      echo "${SCRIPT_LOG}: File '${filename}' does not exist."
+    else
+      echo ${filename} >> "cscope.files.cleaned"
+    fi
+  done < "cscope.files"
+  if [[ ! -f "cscope.files.cleaned" ]]; then
+    echo "${SCRIPT_LOG} No files found"
+  else
+    mv "cscope.files.cleaned" "cscope.files"
+  fi
+}
+
+generate_tag_database () {
+  echo "${SCRIPT_LOG} Generate cscope database"
+  cscope -b -q -k
+  echo "${SCRIPT_LOG} Generate ctags database"
+  ctags -L cscope.files --c-kinds=+px --extra=+q --fields=+iaS -f cscope.ctags
+}
+
+gentags_simple_mode () {
+  echo "${SCRIPT_LOG} Generate tags in simple mode for directory ${SRC_DIR}"
+  cd ${SRC_DIR}
+  directories=$(find ${SRC_DIR} \
+    -maxdepth 1 \
+    -path "${SRC_DIR}/.*" -prune -o \
+    -type d -print)
+  for directory in ${directories}; do
+    if [[ ${directory} == ${SRC_DIR} ]]; then
+      continue
+    fi
+    gentags -t gather -d ${directory}
+  done
+  gentags -t gather -e
+  gentags -t compute
+}
+
+SIMPLE_MODE=false
+TYPE=
+SRC_DIR=false
+ENVIRONMENT=false
+
+while getopts "ht:d:es:" opt; do
+  case ${opt} in
+    h)
+      usage
+      exit 1
+      ;;
+    d)
+      # TODO: try to use other function to get absolute path, this one is not
+      # installed by default on many Linux systems
+      SRC_DIR=$(realpath $OPTARG)
+      if [[ ! -d ${SRC_DIR} ]]; then
+        echo "Option -d requires an existing directory as argument." >&2
+        exit 1
+      fi
+      ;;
+    s)
+      SIMPLE_MODE=true
+      # TODO: try to use other function to get absolute path, this one is not
+      # installed by default on many Linux systems
+      SRC_DIR=$(realpath $OPTARG)
+      if [[ ! -d ${SRC_DIR} ]]; then
+        echo "Option -s requires an existing directory as argument." >&2
+        exit 1
+      fi
+      ;;
+    e)
+      ENVIRONMENT=true
+      ;;
+    t)
+      TYPE=$OPTARG
+      ;;
+    \?)
+      echo "Run with -h for usage." >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires arguments." >&2
+      exit 1
+      ;;
+  esac
+done
+
+if ${SIMPLE_MODE}; then
+  gentags_simple_mode
+  exit 0
+fi
+
+if [[ ${TYPE} == "gather" ]]; then
+  if ${ENVIRONMENT}; then
+    get_env_files
+  fi
+  if [[ -d ${SRC_DIR} ]]; then
+    if [[ ${SRC_DIR##*/} == *linux* ]]; then
+      get_kernel_files
+    else
+      get_dir_files
+    fi
+  fi
+  sort_files
+  clean_nonexisting_files
+elif [[ ${TYPE} == "compute" ]]; then
+  generate_tag_database
+else
+  usage
+  exit 1
+fi
