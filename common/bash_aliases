@@ -9,19 +9,34 @@ if [[ -x "/usr/bin/dircolors" ]]; then
   test -r "~/.dircolors" && \
   eval "$(dircolors -b ~/.dircolors)" || \
   eval "$(dircolors -b)"
-
-  # ls alias
-  if ls --group-directories-first >/dev/null 2>&1; then
-    alias ls='ls -hF --color=auto --group-directories-first'
-  else
-    alias ls='ls -hF --color=auto'
-  fi
-
-  # other color aliases
-  alias grep='grep --color=auto'
-  alias fgrep='fgrep --color=auto'
-  alias egrep='egrep --color=auto'
 fi
+
+### ls alias
+
+# Human-readeable size
+alias ls_human='ls -hF'
+
+# Add color
+if ls --color=auto >/dev/null 2>&1; then
+  alias ls_color='ls_human --color=auto'
+elif ls -G >/dev/null 2>&1; then
+  alias ls_color='ls_human -G'
+else
+  alias ls_color='ls_human'
+fi
+
+# Try to show the directories first
+if ls --group-directories-first >/dev/null 2>&1; then
+  alias ls='ls_color --group-directories-first'
+else
+  alias ls='ls_color'
+fi
+
+# other color aliases
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
 
 # More ls aliases
 alias l='ls -CF'
