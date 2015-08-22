@@ -102,6 +102,9 @@ if [[ "${OSTYPE}" == "linux-gnu" ]]; then
 elif [[ "${OSTYPE}" == "cygwin" ]]; then
   install_files "${COMMON_DIR}"
   install_files "${WINDOWS_DIR}"
+elif [[ "${OSTYPE}" == "msys" ]]; then
+  install_files "${COMMON_DIR}"
+  install_files "${WINDOWS_DIR}"
 else
   echo "No idea how to install files on this system."
   exit 1
