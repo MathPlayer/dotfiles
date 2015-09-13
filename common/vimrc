@@ -142,9 +142,6 @@ inoremap <left> <nop>
 inoremap <right> <nop>
 " map sudo save command
 cmap w!! w !sudo tee % >/dev/null
-" Outline overview of file toogle key
-" nnoremap <silent> <F8> :TlistToggle<CR>
-nnoremap <silent> <F8> :TagbarToggle<CR>
 " Clear search results by pressing Enter
 nnoremap <CR> :noh<CR><CR>
 " Have <esc> leave cmdline-window (I do not use it)
@@ -154,8 +151,8 @@ autocmd CmdwinEnter * nnoremap <buffer> <esc> :q\|echo ""<cr>
 set pastetoggle=<F2>
 " keys for NERDTree and Tagbar
 nnoremap <silent> <F3> :TagbarToggle<CR>
-nnoremap <silent> <F9> :NERDTreeToggle<CR>
-nnoremap <silent> <F10> :NERDTreeFind<CR>
+nnoremap <silent> <F4> :NERDTreeToggle<CR>
+nnoremap <silent> <F5> :NERDTreeFind<CR>
 
 "----- function to remove trailing whitespace -----"
 fun! <SID>StripTrailingWhitespaces()
