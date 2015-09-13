@@ -5,3 +5,6 @@
 
 # C object files
 *.o
+
+# Python files
+*.pyc
