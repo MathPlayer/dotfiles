@@ -122,3 +122,6 @@ complete -F _complete_ssh_hosts ssh
 
 # Force ssh-agent running and add all keys
 ssh_agent_add_keys
+
+# Set text editor
+export EDITOR="vim"
