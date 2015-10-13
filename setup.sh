@@ -5,7 +5,8 @@
 
 # Declare global variables.
 readonly SCRIPT="$(basename "${BASH_SOURCE[0]}")"
-readonly SRC_DIR="$(readlink -e "$(dirname "${BASH_SOURCE[0]}")")"
+#readonly SRC_DIR="$(readlink -e "$(dirname "${BASH_SOURCE[0]}")")"
+readonly SRC_DIR="."
 readonly BAK_DIR="$(mktemp -d -p "${SRC_DIR}" \
   -t "backup-$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXX")"
 DST_DIR=""
@@ -105,6 +106,8 @@ elif [[ "${OSTYPE}" == "cygwin" ]]; then
 elif [[ "${OSTYPE}" == "msys" ]]; then
   install_files "${COMMON_DIR}"
   install_files "${WINDOWS_DIR}"
+elif [[ ${OSTYPE} == darwin* ]]; then
+  install_files "${COMMON_DIR}"
 else
   echo "No idea how to install files on this system."
   exit 1
