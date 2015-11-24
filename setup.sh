@@ -93,6 +93,11 @@ if [[ -z "${DST_DIR}" ]]; then
 fi
 readonly DST_DIR
 
+cd ${SRC_DIR}
+git submodule update --init
+cd -
+
+
 echo "INFO:  Source      ${SRC_DIR}"
 echo "INFO:  Destination ${DST_DIR}"
 echo "INFO:  Backup      ${BAK_DIR}"
