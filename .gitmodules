@@ -22,3 +22,6 @@
 [submodule "common/vim/bundle/molokai"]
 	path = common/vim/bundle/molokai
 	url = https://github.com/tomasr/molokai.git
+[submodule "common/vim/bundle/colorschemes"]
+	path = common/vim/bundle/colorschemes
+	url = https://github.com/flazz/vim-colorschemes.git
