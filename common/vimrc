@@ -65,6 +65,7 @@ set softtabstop=8
 " display whitespace characters
 set list
 " characters to show for tab, trailing whitespace and normal space
+" keep the second line around for compatibility problems
 set listchars=tab:→\ ,trail:~,nbsp:·
 "set listchars=tab:>\ ,trail:~,nbsp:·
 
@@ -101,7 +102,7 @@ set showcmd
 
 "----- miscellaneous -----"
 " use smart backspaces over enumerated elements
-set backspace=indent,eol,start
+set backspace=eol,start,indent
 " don't wrap lines
 set nowrap
 " do not save backup files
@@ -130,18 +131,31 @@ set pastetoggle=<F2>
 " more efficient command mapping of :
 nnoremap ; :
 " more efficient mapping of <ESC> from insert mode
-inoremap jj <ESC>
-" remap arrow keys to nothing --- still learning to use vi :)
-map <up> <nop>
-map <down> <nop>
-map <left> <nop>
-map <right> <nop>
-inoremap <up> <nop>
-inoremap <down> <nop>
-inoremap <left> <nop>
-inoremap <right> <nop>
+inoremap jk <esc>
+inoremap kj <esc>
+inoremap jj <esc>
+" remap different keys to nothing --- still learning to use vi :)
+noremap <up> <nop>
+noremap <down> <nop>
+noremap <left> <nop>
+noremap <right> <nop>
+inoremap <esc> <nop>
 " map sudo save command
 cmap w!! w !sudo tee % >/dev/null
+" map line moving up and down
+" TODO: find a way to be able to use the mapping in conjunction with numbers
+map - ddp
+map _ dhd2kp
+" surround word by quotes or double quotes
+nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
+nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
+" go to beginning of the current line
+nnoremap H ^
+" go to the end of the current line
+nnoremap L $
+" Edit and reload vimrc
+map <leader>ev :vs $MYVIMRC<cr>
+map <leader>sv :so $MYVIMRC<cr>
 " Clear search results by pressing Enter
 nnoremap <CR> :noh<CR><CR>
 " Have <esc> leave cmdline-window (I do not use it)

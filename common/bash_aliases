@@ -39,7 +39,7 @@ alias egrep='egrep --color=auto'
 
 
 # More ls aliases
-alias l='ls -CF'
+alias l='ls -lCF'
 alias sl='ls'
 alias LS='ls'
 alias la='ls -A'
@@ -64,3 +64,6 @@ alias less='less -F'
 
 # Force showing all output using tail
 alias ftail='tail -f -n+1'
+
+# SSH with logging
+alias logssh='ssh > >(tee ssh-$(date +"%Y-%m-%d-%H-%M").out) 2> >(tee ssh-$(date +"%Y-%m-%d-%H-%M").err >&2)'
