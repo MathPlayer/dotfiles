@@ -4,11 +4,11 @@
 #
 
 # Declare global variables.
+readonly DATE="$(date +%Y-%m-%d_%H-%M-%S)"
 readonly SCRIPT="$(basename "${BASH_SOURCE[0]}")"
-#readonly SRC_DIR="$(readlink -e "$(dirname "${BASH_SOURCE[0]}")")"
-readonly SRC_DIR="."
-readonly BAK_DIR="$(mktemp -d -p "${SRC_DIR}" \
-  -t "backup-$(date +%Y-%m-%d-%H-%M-%S)-XXXXXXX")"
+readonly SRC_DIR="$(realpath -e "$(dirname "${BASH_SOURCE[0]}")")"
+readonly BAK_DIR="$(mktemp -d)"
+readonly REPO_BAK_DIR="${SRC_DIR}/backup_${DATE}_$(basename ${BAK_DIR})"
 DST_DIR=""
 NO_BACKUP=true
 
@@ -29,6 +29,7 @@ usage() {
   echo " -h    Show this help message."
   exit 1
 }
+
 
 # Install files from a specified directory
 install_files() {
@@ -71,7 +72,7 @@ install_files() {
 while getopts ":d:h" flag; do
   case ${flag} in
     d)
-      DST_DIR="$(readlink -e "${OPTARG}")"
+      DST_DIR="$(realpath -e "${OPTARG}")"
       if [[ ! -d "${DST_DIR}" ]]; then
         echo "Error: Destination is not a directory."
         usage
@@ -101,6 +102,7 @@ cd -
 echo "INFO:  Source      ${SRC_DIR}"
 echo "INFO:  Destination ${DST_DIR}"
 echo "INFO:  Backup      ${BAK_DIR}"
+echo "INFO:  Repo backup ${REPO_BAK_DIR}"
 
 if [[ "${OSTYPE}" == "linux-gnu" ]]; then
   install_files "${COMMON_DIR}"
@@ -121,4 +123,8 @@ fi
 if [[ ${NO_BACKUP} == true ]]; then
   echo "INFO:  No files were saved for backup."
   rmdir "${BAK_DIR}"
+else
+  echo "INFO: Found files with differences during install."
+  echo "      These files will be saved to ${REPO_BAK_DIR}"
+  mv "${BAK_DIR}" "${REPO_BAK_DIR}"
 fi
