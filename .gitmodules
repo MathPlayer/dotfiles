@@ -25,3 +25,6 @@
 [submodule "common/vim/bundle/colorschemes"]
 	path = common/vim/bundle/colorschemes
 	url = https://github.com/flazz/vim-colorschemes.git
+[submodule "common/vim/bundle/Color-Scheme-Explorer"]
+	path = common/vim/bundle/Color-Scheme-Explorer
+	url = https://github.com/jlanzarotta/colorSchemeExplorer
