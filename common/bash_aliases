@@ -11,25 +11,32 @@ if [[ -x "/usr/bin/dircolors" ]]; then
   eval "$(dircolors -b)"
 fi
 
-### ls alias
+# Check if grm is available and switch to it
+if grm --version > /dev/null 2>&1; then
+  alias rm="grm"
+fi
+
+### ls local variable used for concatenation
+ls_command="ls"
+
+# Check if gls is available and switch to it
+if gls --version > /dev/null 2>&1; then
+  ls_command="gls"
+fi
 
 # Human-readeable size
-alias ls_human='ls -hF'
+ls_command="${ls_command} -hF"
 
 # Add color
-if ls --color=auto >/dev/null 2>&1; then
-  alias ls_color='ls_human --color=auto'
-elif ls -G >/dev/null 2>&1; then
-  alias ls_color='ls_human -G'
-else
-  alias ls_color='ls_human'
+if ${ls_command} --color=auto >/dev/null 2>&1; then
+  ls_command="${ls_command} --color=auto"
+elif ${ls_command} -G >/dev/null 2>&1; then
+  ls_command="${ls_command} -G"
 fi
 
 # Try to show the directories first
-if ls --group-directories-first >/dev/null 2>&1; then
-  alias ls='ls_color --group-directories-first'
-else
-  alias ls='ls_color'
+if ${ls_command} --group-directories-first >/dev/null 2>&1; then
+  ls_command="${ls_command} --group-directories-first"
 fi
 
 # other color aliases
@@ -39,13 +46,14 @@ alias egrep='egrep --color=auto'
 
 
 # More ls aliases
-alias l='ls -lCF'
-alias sl='ls'
-alias LS='ls'
-alias la='ls -A'
-alias ll='ls -lF'
-alias la='ls -A'
-alias lla='ll -A'
+alias ls="${ls_command}"
+alias sl="${ls_command}"
+alias LS="${ls_command}"
+alias l="${ls_command} -l"
+alias ll="${ls_command} -l"
+alias la="${ls_command} -A"
+alias la="${ls_command} -A"
+alias lla="${ls_command} -lA"
 
 # Default to human readable figures
 alias df='df -h'
