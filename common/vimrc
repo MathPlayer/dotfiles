@@ -2,8 +2,37 @@
 " ~/.vimrc
 "
 
-" pathogen load
-execute pathogen#infect()
+" load plugins using vim-plug
+call plug#begin('~/.vim/pluged')
+
+" Syntax plugins
+Plug 'https://github.com/sheerun/vim-polyglot'
+Plug 'https://github.com/vim-syntastic/syntastic'
+
+" Color-related plugins
+Plug 'https://github.com/altercation/vim-colors-solarized.git'
+Plug 'https://github.com/tomasr/molokai.git'
+Plug 'https://github.com/flazz/vim-colorschemes.git'
+Plug 'https://github.com/jlanzarotta/colorSchemeExplorer'
+
+" Misc plugins
+Plug 'https://github.com/scrooloose/nerdtree.git', {'on': ['NERDTreeToggle', 'NERDTreeFind']}
+Plug 'https://github.com/jistr/vim-nerdtree-tabs.git'
+Plug 'https://github.com/majutsushi/tagbar.git'
+Plug 'https://github.com/nvie/vim-togglemouse.git'
+Plug 'https://github.com/valloric/youcompleteme'
+
+" Javascript related plugins
+Plug 'https://github.com/jelera/vim-javascript-syntax', {'for': 'javascript'}
+Plug 'https://github.com/ternjs/tern_for_vim', {'for': 'javascript'}
+Plug 'https://github.com/pangloss/vim-javascript', {'for': 'javascript'}
+Plug 'https://github.com/maksimr/vim-jsbeautify', {'for': 'javascript'}
+
+" Own configuration plugins
+Plug '~/.vim/my-config'
+
+call plug#end()
+
 
 " explicitly get out of vi-compatible mode
 set nocompatible
