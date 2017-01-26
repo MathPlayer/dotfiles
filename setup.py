@@ -37,24 +37,6 @@ def get_os_type():
     '''
     return platform.system().lower()
 
-def get_submodules():
-    ''' Retrieve all submodules on this repository.
-    '''
-    cmd = ["git", "submodule", "update", "--init"]
-    log.info(">>> Run: {}".format(" ".join(cmd)))
-    child = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
-    while True:
-        line = child.stdout.readline()
-        exitcode = child.poll()
-        if not line:
-            if exitcode is not None:
-                break
-            continue
-        log.info(">>> " + line[:-1])
-    child.wait()
-    log.info("<<< End")
-
 
 def mkdir_p(name):
     ''' Try to create a path of directories without throwing an error if the
@@ -122,7 +104,6 @@ def install(src_dir, dst_dir, bak_dir=None, append=False, add_dot=False):
 if __name__ == "__main__":
     # Sanity check
     check_run()
-    get_submodules()
 
     # Parser-specific arguments
     dst_dir = os.path.expanduser("~")
