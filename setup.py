@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import urllib
 
 logging.basicConfig(format="%(asctime)-23s %(levelname)-8s %(message)s")
 log = logging.getLogger("")
@@ -85,6 +86,7 @@ def do_copy(src, dst, bak, rel, append, dot):
     if bak:
         log.debug("Doing backup of destination")
         bak = os.path.join(bak, dot + rel)
+        mkdir_p(os.path.dirname(bak))
         if os.path.isfile(bak):
             shutil.copy(bak, bak+bak[-1])
         shutil.copy(dst, bak)
@@ -122,6 +124,7 @@ if __name__ == "__main__":
     check_run()
     get_submodules()
 
+    # Parser-specific arguments
     dst_dir = os.path.expanduser("~")
     parser = argparse.ArgumentParser(
             description="Install dotfiles to a given directory")
@@ -132,8 +135,8 @@ if __name__ == "__main__":
                         help="Show detailed info")
     args = parser.parse_args()
 
+    # Prepare install
     log.setLevel(logging.DEBUG if args.verbose else logging.INFO)
-
     dst_dir = os.path.abspath(args.directory)
     aux_dir = tempfile.mkdtemp(
         dir=os.getcwd(),
@@ -142,12 +145,20 @@ if __name__ == "__main__":
         dir=os.getcwd(),
         prefix="bak_{}".format(datetime.datetime.now().isoformat("_")))
 
-    # Create temporary directory with files to be installed
+    # Create auxiliary directory with files to be installed
     install(os.path.abspath("common"), aux_dir)
     install(os.path.abspath(get_os_type()), aux_dir, append=True)
 
-    # Install files from temporary directory to destination
+    # Install files from auxiliary directory to destination
     install(aux_dir, dst_dir, bak_dir=bak_dir, add_dot=True)
+
+    # Custom install to destination for vim-plug and all vim plugins
+    vim_plug_file = os.path.join(aux_dir, "vim", "autoload", "plug.vim")
+    mkdir_p(os.path.dirname(vim_plug_file))
+    urllib.urlretrieve(
+        "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim",
+        vim_plug_file)
+    subprocess.check_call(["vim", "+silent", "+PlugInstall", "+qall"])
 
     # Cleanup
     shutil.rmtree(aux_dir)
