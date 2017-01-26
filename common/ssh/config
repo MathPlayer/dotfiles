@@ -22,3 +22,7 @@ User bpopescu
 ForwardAgent yes
 ServerAliveInterval 200
 ServerAliveCountMax 100
+
+Host *.labs.overthewire.org
+SendEnv WECHALLTOKEN
+SendEnv WECHALLUSER
