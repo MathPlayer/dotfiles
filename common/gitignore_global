@@ -8,3 +8,6 @@
 
 # Python files
 *.pyc
+
+# PyCharm IDE
+*.idea/
