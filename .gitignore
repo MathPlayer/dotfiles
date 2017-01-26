@@ -1,0 +1,3 @@
+# ignore auxiliary and backup directories
+aux_*
+bak_*
