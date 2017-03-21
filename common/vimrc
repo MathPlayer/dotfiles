@@ -6,27 +6,30 @@
 call plug#begin('~/.vim/pluged')
 
 " Syntax plugins
-Plug 'https://github.com/sheerun/vim-polyglot'
-Plug 'https://github.com/vim-syntastic/syntastic'
+Plug 'sheerun/vim-polyglot'
+Plug 'vim-syntastic/syntastic'
 
 " Color-related plugins
-Plug 'https://github.com/altercation/vim-colors-solarized.git'
-Plug 'https://github.com/tomasr/molokai.git'
-Plug 'https://github.com/flazz/vim-colorschemes.git'
-Plug 'https://github.com/jlanzarotta/colorSchemeExplorer'
+Plug 'altercation/vim-colors-solarized'
+Plug 'tomasr/molokai'
+Plug 'flazz/vim-colorschemes'
+Plug 'ScrollColors'
 
 " Misc plugins
-Plug 'https://github.com/scrooloose/nerdtree.git', {'on': ['NERDTreeToggle', 'NERDTreeFind']}
-Plug 'https://github.com/jistr/vim-nerdtree-tabs.git'
-Plug 'https://github.com/majutsushi/tagbar.git'
-Plug 'https://github.com/nvie/vim-togglemouse.git'
-Plug 'https://github.com/valloric/youcompleteme'
+Plug 'scrooloose/nerdtree', {'on': ['NERDTreeToggle', 'NERDTreeFind']}
+Plug 'Xuyuanp/nerdtree-git-plugin', {'on': ['NERDTreeToggle', 'NERDTreeFind']}
+Plug 'majutsushi/tagbar'
+Plug 'nvie/vim-togglemouse'
+Plug 'valloric/youcompleteme', {'do': './install.py'}
 
 " Javascript related plugins
-Plug 'https://github.com/jelera/vim-javascript-syntax', {'for': 'javascript'}
-Plug 'https://github.com/ternjs/tern_for_vim', {'for': 'javascript'}
-Plug 'https://github.com/pangloss/vim-javascript', {'for': 'javascript'}
-Plug 'https://github.com/maksimr/vim-jsbeautify', {'for': 'javascript'}
+Plug 'jelera/vim-javascript-syntax', {'for': 'javascript'}
+Plug 'ternjs/tern_for_vim', {'for': 'javascript'}
+Plug 'pangloss/vim-javascript', {'for': 'javascript'}
+Plug 'maksimr/vim-jsbeautify', {'for': 'javascript'}
+
+" Git plugin
+Plug 'tpope/vim-fugitive'
 
 " Own configuration plugins
 Plug '~/.vim/my-config'
@@ -146,6 +149,10 @@ set undolevels=2000
 set splitbelow
 " splitting a window will put the new one right to the current one
 set splitright
+" use mouse with the new sgr protocol (i.e. useful to scroll on big terminals)
+if has('mouse_sgr')
+  set ttymouse=sgr
+endif
 " use mouse (=a -> anywhere possible)
 set mouse=a
 " set timeout between consecutive characters type when entering a command
@@ -159,7 +166,6 @@ nnoremap ; :
 " more efficient mapping of <ESC> from insert mode
 inoremap jk <esc>
 inoremap kj <esc>
-inoremap jj <esc>
 " remap different keys to nothing --- still learning to use vi :)
 noremap <up> <nop>
 noremap <down> <nop>
@@ -222,10 +228,6 @@ function! LoadCscope()
 	endif
 endfunction
 autocmd BufEnter /* call LoadCscope()
-
-"-- nerdtree-tabs --"
-" open NERDTreeTabs automatically
-let g:nerdtree_tabs_open_on_console_startup = 1
 
 "-- tagbar --"
 " Do not show any element unfolded
