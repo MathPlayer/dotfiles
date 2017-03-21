@@ -14,7 +14,9 @@ corresponding library.
 
 In order to install the dotfiles, run from the root directory of the repository
 the setup script:
+
     ./setup.py
 
 For additional options availble check the help:
+
     ./setup.py --help
