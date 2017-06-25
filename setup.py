@@ -129,16 +129,17 @@ if __name__ == "__main__":
     # Create auxiliary directory with files to be installed
     install(os.path.abspath("common"), aux_dir)
     install(os.path.abspath(get_os_type()), aux_dir, append=True)
-
-    # Install files from auxiliary directory to destination
-    install(aux_dir, dst_dir, bak_dir=bak_dir, add_dot=True)
-
+    
     # Custom install to destination for vim-plug and all vim plugins
     vim_plug_file = os.path.join(aux_dir, "vim", "autoload", "plug.vim")
     mkdir_p(os.path.dirname(vim_plug_file))
     urllib.urlretrieve(
         "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim",
         vim_plug_file)
+
+    # Install files from auxiliary directory to destination
+    install(aux_dir, dst_dir, bak_dir=bak_dir, add_dot=True)
+
     subprocess.check_call(["vim", "+silent", "+PlugInstall", "+qall"])
 
     # Cleanup

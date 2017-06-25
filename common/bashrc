@@ -129,3 +129,5 @@ export EDITOR="vim"
 ### Locale export
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
+
+umask 0077
