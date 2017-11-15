@@ -13,7 +13,7 @@ Plug 'vim-syntastic/syntastic'
 Plug 'altercation/vim-colors-solarized'
 Plug 'tomasr/molokai'
 Plug 'flazz/vim-colorschemes'
-Plug 'ScrollColors'
+Plug 'vim-scripts/ScrollColors'
 
 " Misc plugins
 Plug 'scrooloose/nerdtree', {'on': ['NERDTreeToggle', 'NERDTreeFind']}
@@ -27,6 +27,12 @@ Plug 'jelera/vim-javascript-syntax', {'for': 'javascript'}
 Plug 'ternjs/tern_for_vim', {'for': 'javascript'}
 Plug 'pangloss/vim-javascript', {'for': 'javascript'}
 Plug 'maksimr/vim-jsbeautify', {'for': 'javascript'}
+
+" Python related plugins
+Plug 'nvie/vim-flake8', {'for': 'python'}
+
+" HTML plugins
+Plug 'othree/html5.vim', {'for': 'html'}
 
 " Git plugin
 Plug 'tpope/vim-fugitive'
@@ -63,9 +69,9 @@ set showtabline=2
 " set text maximum width to 80
 set textwidth=80
 if exists('+colorcolumn')
-	set colorcolumn=81
+  set colorcolumn=81
 else
-	au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
+  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
 endif
 
 
@@ -80,17 +86,17 @@ set smartindent
 
 "----- tabs -----"
 " spaces a tab counts for
-set tabstop=8
+set tabstop=2
 " spaces inserted when hitting tab in Insert mode
-set noexpandtab
+set expandtab
 " spaces inserted with reindent operations
-set shiftwidth=8
+set shiftwidth=2
 " spaces vim uses when hitting Tab in insert mode
 "   - if not equal to tabstop, vim will use a combination of tabs and spaces to
 "       make up the desired spacing
 "   - if equal to tabstop, vimm will insert spaces/tabs for it, depending
 "       whether expandtab in on or off
-set softtabstop=8
+set softtabstop=2
 
 
 "----- whitespace -----"
@@ -195,6 +201,8 @@ autocmd CmdwinEnter * nnoremap <buffer> <esc> :q\|echo ""<cr>
 " set key for paste toogle (when active, the pasted text formatting is not
 " modified by any indent feature)
 set pastetoggle=<F2>
+" easy search highlighted text (visual highlight and press //)
+vnoremap <expr> // 'y/\V'.escape(@",'\').'<CR>'
 " keys for NERDTree and Tagbar
 nnoremap <silent> <F3> :TagbarToggle<CR>
 nnoremap <silent> <F4> :NERDTreeToggle<CR>
@@ -202,14 +210,14 @@ nnoremap <silent> <F5> :NERDTreeFind<CR>
 
 "----- function to remove trailing whitespace -----"
 fun! <SID>StripTrailingWhitespaces()
-	let L = line(".")
-	let C = col(".")
-	%s/\s\+$//e
-	call cursor(L, C)
+  let L = line(".")
+  let C = col(".")
+  %s/\s\+$//e
+  call cursor(L, C)
 endfun
 "---- call above function on each write;
 " Internet says it's unsafe if you edit binary files
-" FIXME: call it on exit for file, not on each write
+" XXX: call it on exit for file, not on each write
 " FIXME: strip trailing whitespace only on edited lines
 autocmd BufWrite  * :call <SID>StripTrailingWhitespaces()
 
@@ -219,13 +227,13 @@ autocmd BufWrite  * :call <SID>StripTrailingWhitespaces()
 "-- cscope --"
 set nocscopeverbose " suppress 'duplicate connection' error
 function! LoadCscope()
-	let db = findfile("cscope.out", ".;")
-	if (!empty(db))
-		let path = strpart(db, 0, match(db, "/cscope.out$"))
-		set nocscopeverbose " suppress 'duplicate connection' error
-		exe "cs add " . db . " " . path
-		set cscopeverbose
-	endif
+  let db = findfile("cscope.out", ".;")
+  if (!empty(db))
+    let path = strpart(db, 0, match(db, "/cscope.out$"))
+    set nocscopeverbose " suppress 'duplicate connection' error
+    exe "cs add " . db . " " . path
+    set cscopeverbose
+  endif
 endfunction
 autocmd BufEnter /* call LoadCscope()
 
@@ -239,8 +247,17 @@ let g:tagbar_indent = 1
 
 " Set specific syntax
 augroup filetypedetect
-	au! BufRead, BufNewFile *.m,*.oct set filetype=octave
+  au! BufRead, BufNewFile *.m,*.oct set filetype=octave
 augroup END
+
+"-- NERDTree --"
+let NERDTreeShowHidden=1
+
+"-- YouCompleteMe --"
+let g:ycm_autoclose_preview_window_after_insertion = 1
 
 " always use a dark background
 set background=dark
+let g:solarized_visibility = "high"
+let g:solarized_contrast = "high"
+colorscheme solarized

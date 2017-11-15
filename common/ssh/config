@@ -23,6 +23,7 @@ ForwardAgent yes
 ServerAliveInterval 200
 ServerAliveCountMax 100
 
+# Export variables in bashrc in order to be useful
 Host *.labs.overthewire.org
 SendEnv WECHALLTOKEN
 SendEnv WECHALLUSER

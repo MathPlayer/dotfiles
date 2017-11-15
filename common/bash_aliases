@@ -4,19 +4,27 @@
 # This file contains user-specific aliases.
 #
 
-# enable color support of ls and also add handy aliases
+
+# enable color support of ls
+dircolors_command="dircolors"
+if gdircolors --version > /dev/null 2>&1; then
+  dircolors_command="gdircolors"
+fi
+
 if [[ -x "/usr/bin/dircolors" ]]; then
   test -r "~/.dircolors" && \
   eval "$(dircolors -b ~/.dircolors)" || \
   eval "$(dircolors -b)"
 fi
+unset dircolors_command
 
 # Check if grm is available and switch to it
 if grm --version > /dev/null 2>&1; then
   alias rm="grm"
 fi
 
-### ls local variable used for concatenation
+
+# ls aliases; use a local variable instead of the real command
 ls_command="ls"
 
 # Check if gls is available and switch to it
@@ -39,12 +47,6 @@ if ${ls_command} --group-directories-first >/dev/null 2>&1; then
   ls_command="${ls_command} --group-directories-first"
 fi
 
-# other color aliases
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
-
-
 # More ls aliases
 alias ls="${ls_command}"
 alias sl="${ls_command}"
@@ -54,24 +56,37 @@ alias ll="${ls_command} -l"
 alias la="${ls_command} -A"
 alias la="${ls_command} -A"
 alias lla="${ls_command} -lA"
+unset ls_command
+
+
+# Other color aliases
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
 
 # Default to human readable figures
 alias df='df -h'
 alias du='du -h'
 
+
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
 
 # List only users processes
 alias myps="ps axo user,tty,ppid,pid,command | grep -vE \"grep|ps axo\" | grep -E \"(USER\s*PPID)|$USER\""
 alias mypsa="ps aux | grep -vE \"grep|ps aux\" | grep -E \"(USER\s*PID)|$USER\""
 
+
 # Exit less if the output is small enough for only one screen
 alias less='less -F'
 
+
 # Force showing all output using tail
 alias ftail='tail -f -n+1'
+
 
 # SSH with logging
 alias logssh='ssh > >(tee ssh-$(date +"%Y-%m-%d-%H-%M").out) 2> >(tee ssh-$(date +"%Y-%m-%d-%H-%M").err >&2)'
