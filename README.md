@@ -10,6 +10,7 @@ The installation is based on default installed Python libraries. In case the
 setup script is failing because of an import, you can try to install the
 corresponding library.
 
+
 # Installing
 
 In order to install the dotfiles, run from the root directory of the repository
