@@ -1,0 +1,6 @@
+#!/bin/bash -eux
+
+while True; do
+  afplay "$(find ~/Music -type f -name "*.mp3" -print0 | gshuf -zn1)"
+done
+

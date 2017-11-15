@@ -1,0 +1,3 @@
+#!/bin/bash -eux
+
+sudo networksetup -setnetworkserviceenabled ethernet off

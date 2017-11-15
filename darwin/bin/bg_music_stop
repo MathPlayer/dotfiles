@@ -1,0 +1,8 @@
+#!/bin/bash -eux
+
+p=$(ps axo pid,command | grep bg_music | sort -n | head -n 1 | \
+  sed -e 's/^\ //' | cut -f 1 -d ' ')
+kill -9 ${p}
+killall -KILL afplay
+
+
