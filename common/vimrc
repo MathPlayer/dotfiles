@@ -207,6 +207,11 @@ vnoremap <expr> // 'y/\V'.escape(@",'\').'<CR>'
 nnoremap <silent> <F3> :TagbarToggle<CR>
 nnoremap <silent> <F4> :NERDTreeToggle<CR>
 nnoremap <silent> <F5> :NERDTreeFind<CR>
+"split navigations
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
 
 "----- function to remove trailing whitespace -----"
 fun! <SID>StripTrailingWhitespaces()
