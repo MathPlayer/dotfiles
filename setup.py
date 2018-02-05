@@ -18,6 +18,7 @@ import urllib
 logging.basicConfig(format="%(asctime)-23s %(levelname)-8s %(message)s")
 log = logging.getLogger("")
 
+SHELLS = ["bash", "zsh"]
 
 def check_run():
     ''' Determine if the setup script is started from the root directory
@@ -25,7 +26,8 @@ def check_run():
     '''
     cmd = ["git", "rev-parse", "--show-toplevel"]
     log.info(">>> Run: {}".format(" ".join(cmd)))
-    d = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0].rstrip()
+    d = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE).communicate()[0].rstrip()
 
     if d != os.getcwd():
         log.error("This script must be run from repository root directory")
@@ -82,7 +84,8 @@ def do_copy(src, dst, bak, rel, append, dot):
     return True
 
 
-def install(src_dir, dst_dir, bak_dir=None, append=False, add_dot=False):
+def install(src_dir, dst_dir, skip_shells=[], bak_dir=None, append=False,
+            add_dot=False):
     ''' Install files from src_dir to dst_dir.
     '''
     dot = "." if add_dot else ""
@@ -96,7 +99,11 @@ def install(src_dir, dst_dir, bak_dir=None, append=False, add_dot=False):
     for rel_path in [os.path.relpath(os.path.join(dirname, filename), src_dir)
                      for (dirname, _, filenames) in os.walk(src_dir)
                      for filename in filenames]:
-        do_copy(src_dir, dst_dir, bak_dir, rel_path, append, dot)
+        log.info("check if {} is a shell file".format(rel_path))
+        if any(map(rel_path.startswith, skip_shells)):
+            log.info("Skip file {}".format(rel_path))
+        else:
+            do_copy(src_dir, dst_dir, bak_dir, rel_path, append, dot)
     log.info("done")
     log.info("----")
 
@@ -109,12 +116,20 @@ if __name__ == "__main__":
     dst_dir = os.path.expanduser("~")
     parser = argparse.ArgumentParser(
             description="Install dotfiles to a given directory")
-    parser.add_argument("-d", "--directory", default=dst_dir,
-                        help="directory to install into; default is the home "
-                             "directory, namingly '%(default)s'")
-    parser.add_argument("-v", "--verbose", action="store_true",
-                        help="Show detailed info")
+    parser.add_argument(
+        "-d", "--directory", default=dst_dir,
+        help="directory to install into; default is the home directory, "
+             "namingly '%(default)s'")
+    parser.add_argument(
+        "-s", "--shell", default=[], action="append", choices=SHELLS,
+        help="install shell-specific files only for specified shells. Must be "
+             "one of %(default)s. Can be provided multiple times. If not "
+             "provided, all files are installed")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Show detailed info")
     args = parser.parse_args()
+    if args.shell:
+        skip_shells = set(SHELLS) - set(args.shell)
 
     # Prepare install
     log.setLevel(logging.DEBUG if args.verbose else logging.INFO)
@@ -127,8 +142,9 @@ if __name__ == "__main__":
         prefix="bak_{}".format(datetime.datetime.now().isoformat("_")))
 
     # Create auxiliary directory with files to be installed
-    install(os.path.abspath("common"), aux_dir)
-    install(os.path.abspath(get_os_type()), aux_dir, append=True)
+    install(os.path.abspath("common"), aux_dir, skip_shells=skip_shells)
+    install(os.path.abspath(get_os_type()), aux_dir, skip_shells=skip_shells, append=True)
+
 
     # Retrieve vim-plug
     vim_plug_file = os.path.join(aux_dir, "vim", "autoload", "plug.vim")
@@ -138,7 +154,7 @@ if __name__ == "__main__":
         vim_plug_file)
 
     # Install files from auxiliary directory to destination
-    install(aux_dir, dst_dir, bak_dir=bak_dir, add_dot=True)
+    install(aux_dir, dst_dir, skip_shells=skip_shells, bak_dir=bak_dir, add_dot=True)
 
     # Install vim plugins using vim-plug
     subprocess.check_call(["vim", "+silent", "+PlugInstall", "+qall"])
