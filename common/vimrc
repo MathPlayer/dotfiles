@@ -16,11 +16,17 @@ Plug 'flazz/vim-colorschemes'
 Plug 'vim-scripts/ScrollColors'
 
 " Misc plugins
+Plug 'yuttie/comfortable-motion.vim'
 Plug 'scrooloose/nerdtree', {'on': ['NERDTreeToggle', 'NERDTreeFind']}
 Plug 'Xuyuanp/nerdtree-git-plugin', {'on': ['NERDTreeToggle', 'NERDTreeFind']}
 Plug 'majutsushi/tagbar'
 Plug 'nvie/vim-togglemouse'
 Plug 'valloric/youcompleteme', {'do': './install.py'}
+Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
+Plug 'wincent/command-t', {
+  \ 'do': 'cd ruby/command-t/ext/command-t && ruby extconf.rb && make'
+  \ }
+Plug 'kien/ctrlp.vim'
 
 " Javascript related plugins
 Plug 'jelera/vim-javascript-syntax', {'for': 'javascript'}
@@ -67,11 +73,11 @@ set showmatch
 " show tabline if there are at least two tab pages
 set showtabline=2
 " set text maximum width to 80
-set textwidth=80
+set textwidth=79
 if exists('+colorcolumn')
-  set colorcolumn=81
+  set colorcolumn=80
 else
-  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
+  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>81v.\+', -1)
 endif
 
 
@@ -170,21 +176,17 @@ set timeoutlen=500
 " more efficient command mapping of :
 nnoremap ; :
 " more efficient mapping of <ESC> from insert mode
-inoremap jk <esc>
-inoremap kj <esc>
 " remap different keys to nothing --- still learning to use vi :)
 noremap <up> <nop>
 noremap <down> <nop>
 noremap <left> <nop>
 noremap <right> <nop>
-inoremap <esc> <nop>
 " map sudo save command
 cmap w!! w !sudo tee % >/dev/null
 " map line moving up and down
-" TODO: find a way to be able to use the mapping in conjunction with numbers
-map - ddp
-map _ dhd2kp
-" surround word by quotes or double quotes
+nnoremap _ @='ddkP'<CR>
+nnoremap - @='ddp'<CR>
+" surround word by quotes or double quotes; TODO: fix if cursor at end of word
 nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
 nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
 " go to beginning of the current line
@@ -260,9 +262,20 @@ let NERDTreeShowHidden=1
 
 "-- YouCompleteMe --"
 let g:ycm_autoclose_preview_window_after_insertion = 1
+let g:ycm_always_populate_location_list = 1
+let g:ycm_error_symbol = '⇨'
+map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+" add a dummy sign to always have the column shown
+sign define dummy
+execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
+highlight SignColumn ctermbg=black guibg=darkgrey
 
 " always use a dark background
 set background=dark
 let g:solarized_visibility = "high"
 let g:solarized_contrast = "high"
 colorscheme solarized
+
+" comfortable-motion
+let g:comfortable_motion_scroll_down_key = "j"
+let g:comfortable_motion_scroll_up_key = "k"
