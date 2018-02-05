@@ -3,5 +3,26 @@ if [ -e "${HOME}/.iterm2_shell_integration.bash" ] ; then
   source "${HOME}/.iterm2_shell_integration.bash"
 fi
 
+# Use homebrew local paths
+if [ -d "`brew --prefix`/sbin" ]; then
+  PATH="`brew --prefix`/sbin:${PATH}"
+fi
+
+if [ -d "`brew --prefix`/bin" ]; then
+  PATH="`brew --prefix`/bin:${PATH}"
+fi
+
+if [ -d "`brew --prefix`/opt/python/libexec/bin" ]; then
+  PATH="`brew --prefix`/opt/python/libexec/bin:${PATH}"
+fi
+
+if [ -d "`brew --prefix`/opt/curl/bin" ]; then
+  PATH="`brew --prefix`/opt/curl/bin:${PATH}"
+fi
+
+if [ -d "`brew --prefix`/opt/sqlite/bin" ]; then
+  PATH="`brew --prefix`/opt/sqlite/bin:${PATH}"
+fi
+
 # Automatically added when installing n
 #export N_PREFIX="$HOME/n"; [[ :$PATH: == *":$N_PREFIX/bin:"* ]] || PATH+=":$N_PREFIX/bin"  # Added by n-install (see http://git.io/n-install-repo).
