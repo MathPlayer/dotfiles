@@ -4,59 +4,61 @@
 # This file contains user-specific aliases.
 #
 
+# ls aliases
+# On some platforms, this can be used with alternative tools
+ls_alias_set() {
+  local LS_EXECUTABLE=$1
+  local LS_FLAG_COLOR=""
+  local LS_FLAG_GROUP_DIRECTORIES_FIRST=""
+  local LS_FLAG_HUMAN_SIZE=""
+  local LS_FLAG_INDICATOR=""
 
-# enable color support of ls
-dircolors_command="dircolors"
-if gdircolors --version > /dev/null 2>&1; then
-  dircolors_command="gdircolors"
-fi
+  if [ -n $LS_EXECUTABLE ]; then
+    return 1
+  fi
 
-if [[ -x "/usr/bin/dircolors" ]]; then
-  test -r "~/.dircolors" && \
-  eval "$(dircolors -b ~/.dircolors)" || \
-  eval "$(dircolors -b)"
-fi
-unset dircolors_command
+  # reset possible previous aliases
+  unalias ls
+  unalias sl
+  unalias LS
+  unalias l
+  unalias ll
+  unalias la
+  unalias lla
 
-# Check if grm is available and switch to it
-if grm --version > /dev/null 2>&1; then
-  alias rm="grm"
-fi
+  # Add color
+  if ${LS_EXECUTABLE} --color=auto >/dev/null 2>&1; then
+    LS_FLAG_COLOR="--color=auto"
+  elif ${LS_EXECUTABLE} -G >/dev/null 2>&1; then
+    LS_FLAG_COLOR="-G"
+  fi
 
+  # Human-readable size
+  if ${LS_EXECUTABLE} -h >/dev/null 2>&1; then
+    LS_FLAG_HUMAN_SIZE="-h"
+  fi
 
-# ls aliases; use a local variable instead of the real command
-ls_command="ls"
+  # Add specific indicator after directory/socket/link/...
+  if ${LS_EXECUTABLE} -F >/dev/null 2>&1; then
+    LS_FLAG_INDICATOR="-F"
+  fi
 
-# Check if gls is available and switch to it
-if gls --version > /dev/null 2>&1; then
-  ls_command="gls"
-fi
+  if ${LS_EXECUTABLE} --group-directories-first >/dev/null 2>&1; then
+    LS_FLAG_GROUP_DIRECTORIES_FIRST="--group-directories-first"
+  fi
 
-# Human-readeable size
-ls_command="${ls_command} -hF"
-
-# Add color
-if ${ls_command} --color=auto >/dev/null 2>&1; then
-  ls_command="${ls_command} --color=auto"
-elif ${ls_command} -G >/dev/null 2>&1; then
-  ls_command="${ls_command} -G"
-fi
-
-# Try to show the directories first
-if ${ls_command} --group-directories-first >/dev/null 2>&1; then
-  ls_command="${ls_command} --group-directories-first"
-fi
-
-# More ls aliases
-alias ls="${ls_command}"
-alias sl="${ls_command}"
-alias LS="${ls_command}"
-alias l="${ls_command} -l"
-alias ll="${ls_command} -l"
-alias la="${ls_command} -A"
-alias la="${ls_command} -A"
-alias lla="${ls_command} -lA"
-unset ls_command
+  local ls_command="${LS_EXECUTABLE} ${LS_FLAG_COLOR} ${LS_FLAG_INDICATOR} ${LS_FLAG_HUMAN_SIZE} ${LS_FLAG_GROUP_DIRECTORIES_FIRST}"
+  # More ls aliases
+  alias ls=${ls_command}
+  alias sl=${ls_command}
+  alias LS=${ls_command}
+  alias l=${ls_command}" -l"
+  alias ll=${ls_command}" -l"
+  alias la=${ls_command}" -A"
+  alias la=${ls_command}" -A"
+  alias lla=${ls_command}" -lA"
+}
+ls_alias_set ls
 
 
 # Other color aliases
