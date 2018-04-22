@@ -12,23 +12,37 @@ Plug 'vim-syntastic/syntastic'
 " Color-related plugins
 Plug 'altercation/vim-colors-solarized'
 Plug 'tomasr/molokai'
-Plug 'flazz/vim-colorschemes'
-Plug 'vim-scripts/ScrollColors'
 
-" Misc plugins
-Plug 'yuttie/comfortable-motion.vim'
-Plug 'scrooloose/nerdtree', {'on': ['NERDTreeToggle', 'NERDTreeFind']}
-Plug 'Xuyuanp/nerdtree-git-plugin', {'on': ['NERDTreeToggle', 'NERDTreeFind']}
+" File browser
+Plug 'scrooloose/nerdtree', {'on': ['NERDTree', 'NERDTreeToggle', 'NERDTreeFind']}
+Plug 'Xuyuanp/nerdtree-git-plugin', {'on': ['NERDTree', 'NERDTreeToggle', 'NERDTreeFind']}
+
+" Outline tags for current file
 Plug 'majutsushi/tagbar'
+
+" Toggle using mouse in vim or not
 Plug 'nvie/vim-togglemouse'
-Plug 'valloric/youcompleteme', {'do': './install.py'}
-Plug 'rdnetto/YCM-Generator', { 'branch': 'stable'}
-Plug 'wincent/command-t', {
-  \ 'do': 'cd ruby/command-t/ext/command-t && ruby extconf.rb && make'
-  \ }
+
+" code-completion
+Plug 'valloric/youcompleteme', {'do': './install.py --clang-completer'}
+Plug 'lyuts/vim-rtags'
+
+" Fuzzy finder
 Plug 'kien/ctrlp.vim'
 
-" Javascript related plugins
+" Show buffers as tabs in the tabline
+Plug 'ap/vim-buftabline'
+
+" Easy commenting
+Plug 'scrooloose/nerdcommenter'
+
+" Per-directory vimrc
+Plug 'embear/vim-localvimrc'
+
+" c/c++ plugins
+" Plug 'jeaye/color_coded'
+
+" Javascript plugins
 Plug 'jelera/vim-javascript-syntax', {'for': 'javascript'}
 Plug 'ternjs/tern_for_vim', {'for': 'javascript'}
 Plug 'pangloss/vim-javascript', {'for': 'javascript'}
@@ -43,8 +57,11 @@ Plug 'othree/html5.vim', {'for': 'html'}
 " Git plugin
 Plug 'tpope/vim-fugitive'
 
+" File-line easy opening plugin
+Plug 'bogado/file-line'
+
 " Own configuration plugins
-Plug '~/.vim/my-config'
+Plug '~/.vim/my-configs'
 
 call plug#end()
 
@@ -56,6 +73,12 @@ set ttyfast
 
 
 "----- appearance -----"
+
+colorscheme solarized
+set background=dark
+let g:solarized_visibility = "high"
+let g:solarized_contrast = "high"
+
 " use default syntax highlighting
 syntax on
 " enable filetype detection
@@ -72,13 +95,16 @@ set ruler
 set showmatch
 " show tabline if there are at least two tab pages
 set showtabline=2
-" set text maximum width to 80
+" set text maximum width to 79 (80 including newline)
 set textwidth=79
 if exists('+colorcolumn')
   set colorcolumn=80
 else
-  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>81v.\+', -1)
+  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
 endif
+" Always show the signcolumn, except for tagbar and nerdtree window
+autocmd BufRead,BufNewFile * setlocal signcolumn=yes
+autocmd FileType tagbar,nerdtree setlocal signcolumn=no
 
 
 "----- indent ------"
@@ -123,14 +149,20 @@ set incsearch
 set ignorecase
 " override ignorecase if pattern contains upper case characters
 set smartcase
+
+
+"----- highlight colors -----"
 " change search highlight color
-highlight Search cterm=NONE ctermfg=grey ctermbg=blue
+highlight Search cterm=NONE ctermfg=black ctermbg=darkblue
 " change TODO highlight color
-highlight TODO cterm=NONE ctermfg=black ctermbg=darkgreen
+highlight TODO cterm=NONE ctermfg=red ctermbg=black
 " change bracket match highlight color
 highlight MatchParen ctermfg=red ctermbg=black
+" Reset bad spelling highlight, use only underline
 highlight clear SpellBad
 highlight SpellBad cterm=underline
+" Improve SignColumn color
+highlight SignColumn ctermbg=black guibg=darkgrey
 
 
 "----- menu and status -----"
@@ -175,15 +207,14 @@ set timeoutlen=500
 "----- key mappings -----"
 " more efficient command mapping of :
 nnoremap ; :
-" more efficient mapping of <ESC> from insert mode
 " remap different keys to nothing --- still learning to use vi :)
-noremap <up> <nop>
-noremap <down> <nop>
-noremap <left> <nop>
-noremap <right> <nop>
+" noremap <up> <nop>
+" noremap <down> <nop>
+" noremap <left> <nop>
+" noremap <right> <nop>
 " map sudo save command
 cmap w!! w !sudo tee % >/dev/null
-" map line moving up and down
+" map line moving up and down; can be used in conjunction with numbers
 nnoremap _ @='ddkP'<CR>
 nnoremap - @='ddp'<CR>
 " surround word by quotes or double quotes; TODO: fix if cursor at end of word
@@ -194,26 +225,26 @@ nnoremap H ^
 " go to the end of the current line
 nnoremap L $
 " Edit and reload vimrc
-map <leader>ev :vs $MYVIMRC<cr>
+map <leader>ev :e $MYVIMRC<cr>
 map <leader>sv :so $MYVIMRC<cr>
 " Clear search results by pressing Enter
-nnoremap <CR> :noh<CR><CR>
+nnoremap <leader><CR> :noh<CR><CR>
+" easy search highlighted text (visual highlight and press //)
+vnoremap <expr> // 'y/\V'.escape(@",'\').'<CR>'
 " Have <esc> leave cmdline-window (I do not use it)
 autocmd CmdwinEnter * nnoremap <buffer> <esc> :q\|echo ""<cr>
+
 " set key for paste toogle (when active, the pasted text formatting is not
 " modified by any indent feature)
 set pastetoggle=<F2>
-" easy search highlighted text (visual highlight and press //)
-vnoremap <expr> // 'y/\V'.escape(@",'\').'<CR>'
 " keys for NERDTree and Tagbar
-nnoremap <silent> <F3> :TagbarToggle<CR>
-nnoremap <silent> <F4> :NERDTreeToggle<CR>
-nnoremap <silent> <F5> :NERDTreeFind<CR>
-"split navigations
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
+nnoremap <leader>n :NERDTree<CR> :NERDTreeFocus<CR>
+nnoremap <leader>f :NERDTreeFind<CR>
+"fast buffer switch
+nnoremap <C-J> :bprev<CR>
+nnoremap <C-K> :bnext<CR>
+" switch buffers without save
+set hidden
 
 "----- function to remove trailing whitespace -----"
 fun! <SID>StripTrailingWhitespaces()
@@ -226,10 +257,12 @@ endfun
 " Internet says it's unsafe if you edit binary files
 " XXX: call it on exit for file, not on each write
 " FIXME: strip trailing whitespace only on edited lines
-autocmd BufWrite  * :call <SID>StripTrailingWhitespaces()
+" autocmd BufWrite  * :call <SID>StripTrailingWhitespaces()
 
-
-"----- plugin settings -----"
+" Set specific syntax (objective-c vs octave problem)
+"augroup filetypedetect
+"  au! BufRead, BufNewFile *.m,*.oct set filetype=octave
+"augroup END
 
 "-- cscope --"
 set nocscopeverbose " suppress 'duplicate connection' error
@@ -245,37 +278,41 @@ endfunction
 autocmd BufEnter /* call LoadCscope()
 
 "-- tagbar --"
-" Do not show any element unfolded
-let g:tagbar_foldlevel = 0
-" Do not use any extra empty lines
+" Save screen space
 let g:tagbar_compact = 1
 " set indentation for folds
 let g:tagbar_indent = 1
+" use single-click to jump to tag
+let g:tagbar_singleclick = 1
+" show current tag if folded
+let g:tagbar_autoshowtag = 1
+highlight TagbarSignature ctermbg=black guibg=darkgrey
 
-" Set specific syntax
-augroup filetypedetect
-  au! BufRead, BufNewFile *.m,*.oct set filetype=octave
-augroup END
 
 "-- NERDTree --"
-let NERDTreeShowHidden=1
+" close NERDTree if it's the last window
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+" Remove extra lines
+let NERDTreeMinimalUI = 1
 
 "-- YouCompleteMe --"
-let g:ycm_autoclose_preview_window_after_insertion = 1
-let g:ycm_always_populate_location_list = 1
-let g:ycm_error_symbol = '⇨'
-map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-" add a dummy sign to always have the column shown
-sign define dummy
-execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
-highlight SignColumn ctermbg=black guibg=darkgrey
+"let g:ycm_autoclose_preview_window_after_insertion = 1
+"let g:ycm_always_populate_location_list = 1
+"let g:ycm_error_symbol = '⇨'
+"map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+"map <leader>f  :YcmCompleter FixIt<CR>
 
-" always use a dark background
-set background=dark
-let g:solarized_visibility = "high"
-let g:solarized_contrast = "high"
-colorscheme solarized
 
-" comfortable-motion
-let g:comfortable_motion_scroll_down_key = "j"
-let g:comfortable_motion_scroll_up_key = "k"
+"-- syntastic --"
+"set statusline+=%#warningmsg#
+"set statusline+=%{SyntasticStatuslineFlag()}
+"set statusline+=%*
+let g:syntastic_mode_map = { 'mode': 'passive', 'active_filetypes': [],'passive_filetypes': [] }
+"let g:syntastic_always_populate_loc_list = 1
+"let g:syntastic_auto_loc_list = 1
+"let g:syntastic_check_on_open = 1
+"let g:syntastic_check_on_wq = 0
+"let g:syntastic_python_checkers = ['pycodestyle', 'pep8', 'python']
+
+"-- buftabline --"
+let g:buftabline_plug_max=20
