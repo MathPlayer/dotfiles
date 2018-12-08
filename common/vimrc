@@ -7,31 +7,37 @@ call plug#begin('~/.vim/pluged')
 
 " Syntax plugins
 Plug 'sheerun/vim-polyglot'
-Plug 'vim-syntastic/syntastic'
+" Keep commented out until a stable configuration is in place.
+" Plug 'vim-syntastic/syntastic'
+Plug 'trapd00r/vim-ansicolors' " recognize ANSI color esape sequences
+Plug 'w0rp/ale'
 
 " Color-related plugins
 Plug 'altercation/vim-colors-solarized'
+Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'tomasr/molokai'
 
 " File browser
-Plug 'scrooloose/nerdtree', {'on': ['NERDTree', 'NERDTreeToggle', 'NERDTreeFind']}
-Plug 'Xuyuanp/nerdtree-git-plugin', {'on': ['NERDTree', 'NERDTreeToggle', 'NERDTreeFind']}
+" All lazy load is commented out for the settings at the end of the file.
+Plug 'scrooloose/nerdtree' ", {'on': ['NERDTree', 'NERDTreeToggle', 'NERDTreeFind']}
+Plug 'Xuyuanp/nerdtree-git-plugin' ", {'on': ['NERDTree', 'NERDTreeToggle', 'NERDTreeFind']}
+Plug 'PhilRunninger/nerdtree-buffer-ops'
 
 " Outline tags for current file
 Plug 'majutsushi/tagbar'
+
+" Show open buffers in a tab line
+Plug 'ap/vim-buftabline'
 
 " Toggle using mouse in vim or not
 Plug 'nvie/vim-togglemouse'
 
 " code-completion
-Plug 'valloric/youcompleteme', {'do': './install.py --clang-completer'}
-Plug 'lyuts/vim-rtags'
+" Keep commented out until a stable configuration is in place.
+" Plug 'valloric/youcompleteme', {'do': './install.py --clang-completer'}
 
 " Fuzzy finder
-Plug 'kien/ctrlp.vim'
-
-" Show buffers as tabs in the tabline
-Plug 'ap/vim-buftabline'
+Plug 'yggdroot/leaderf', {'do': './install.sh'}
 
 " Easy commenting
 Plug 'scrooloose/nerdcommenter'
@@ -41,6 +47,17 @@ Plug 'embear/vim-localvimrc'
 
 " c/c++ plugins
 " Plug 'jeaye/color_coded'
+Plug 'lyuts/vim-rtags', {'for': 'cpp'}
+Plug 'octol/vim-cpp-enhanced-highlight', {'for': 'cpp'}
+
+" CMake improved syntax
+Plug 'pboettch/vim-cmake-syntax', {'for': 'cmake'}
+
+" Xcconfig syntax
+Plug 'keith/xcconfig.vim', {'for': 'xcconfig'}
+
+" Xcode project file syntax
+Plug 'cfdrake/vim-pbxproj', {'for': 'pbxproj'}
 
 " Javascript plugins
 Plug 'jelera/vim-javascript-syntax', {'for': 'javascript'}
@@ -49,13 +66,16 @@ Plug 'pangloss/vim-javascript', {'for': 'javascript'}
 Plug 'maksimr/vim-jsbeautify', {'for': 'javascript'}
 
 " Python related plugins
+" Keep commented out until a stable configuration is in place.
+" Plug 'davidhalter/jedi-vim', {'for': 'python'}
 Plug 'nvie/vim-flake8', {'for': 'python'}
 
 " HTML plugins
 Plug 'othree/html5.vim', {'for': 'html'}
 
-" Git plugin
+" Git plugins
 Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter'
 
 " File-line easy opening plugin
 Plug 'bogado/file-line'
@@ -74,11 +94,21 @@ set ttyfast
 
 "----- appearance -----"
 
-colorscheme solarized
-set background=dark
-let g:solarized_visibility = "high"
-let g:solarized_contrast = "high"
+try
+  colorscheme solarized
+  let g:solarized_visibility = "high"
+  let g:solarized_contrast = "high"
+  catch
+  try
+    colorscheme dracula
+    catch
+  endtry
+endtry
 
+set background=dark
+
+" Improve visual performance by not redrawing the screen when executing some commands
+set lazyredraw
 " use default syntax highlighting
 syntax on
 " enable filetype detection
@@ -87,24 +117,29 @@ filetype on
 filetype indent on
 " enable filetype-specific plugins
 filetype plugin on
-" show line numbers
+" show line numbers...
 set number
+" ... except when on quickfix
+autocmd FileType qf setlocal nonumber
 " show the 'line,columns' on the bar
 set ruler
-" show matching brackets.
+" highlight the cursor line; using this + vertical splits is slow, keep commented out for now
+"set cursorline
+" show matching brackets
 set showmatch
 " show tabline if there are at least two tab pages
-set showtabline=2
-" set text maximum width to 79 (80 including newline)
-set textwidth=79
+set showtabline=1
+" set text maximum width to 99 (100 including newline) - except when on quickfix
+set textwidth=99
 if exists('+colorcolumn')
-  set colorcolumn=80
+  set colorcolumn=100
+  autocmd FileType qf setlocal colorcolumn=
 else
-  au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
+  autocmd BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>99v.\+', -1)
+  " TODO remove matchadd on quickfix window for older versions of vim
 endif
-" Always show the signcolumn, except for tagbar and nerdtree window
+" Always show the signcolumn, except for plugins configured below
 autocmd BufRead,BufNewFile * setlocal signcolumn=yes
-autocmd FileType tagbar,nerdtree setlocal signcolumn=no
 
 
 "----- indent ------"
@@ -113,7 +148,7 @@ set autoindent
 " smart indent when starting a new line
 set smartindent
 " c-like indent, more strict than smartindent; do not use them simultanously
-" set cindent
+"set cindent
 
 
 "----- tabs -----"
@@ -136,8 +171,8 @@ set softtabstop=2
 set list
 " characters to show for tab, trailing whitespace and normal space
 " keep the second line around for compatibility problems
-set listchars=tab:→\ ,trail:~,nbsp:·
-"set listchars=tab:>\ ,trail:~,nbsp:·
+set listchars=tab:>\ ,trail:_,nbsp:~
+set showbreak=\\   " the spaces are needed
 
 
 "----- search -----"
@@ -163,6 +198,7 @@ highlight clear SpellBad
 highlight SpellBad cterm=underline
 " Improve SignColumn color
 highlight SignColumn ctermbg=black guibg=darkgrey
+highlight SpecialKey cterm=NONE ctermfg=grey
 
 
 "----- menu and status -----"
@@ -205,19 +241,22 @@ set timeoutlen=500
 
 
 "----- key mappings -----"
+" map space to leader
+nnoremap <SPACE> <Nop>
+let mapleader = "\<Space>"
 " more efficient command mapping of :
 nnoremap ; :
 " remap different keys to nothing --- still learning to use vi :)
-" noremap <up> <nop>
-" noremap <down> <nop>
-" noremap <left> <nop>
-" noremap <right> <nop>
+noremap <up> <nop>
+noremap <down> <nop>
+noremap <left> <nop>
+noremap <right> <nop>
 " map sudo save command
 cmap w!! w !sudo tee % >/dev/null
 " map line moving up and down; can be used in conjunction with numbers
-nnoremap _ @='ddkP'<CR>
 nnoremap - @='ddp'<CR>
-" surround word by quotes or double quotes; TODO: fix if cursor at end of word
+nnoremap _ @='ddkP'<CR>
+" surround word by quotes or double quotes
 nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
 nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
 " go to beginning of the current line
@@ -233,18 +272,15 @@ nnoremap <leader><CR> :noh<CR><CR>
 vnoremap <expr> // 'y/\V'.escape(@",'\').'<CR>'
 " Have <esc> leave cmdline-window (I do not use it)
 autocmd CmdwinEnter * nnoremap <buffer> <esc> :q\|echo ""<cr>
-
-" set key for paste toogle (when active, the pasted text formatting is not
-" modified by any indent feature)
-set pastetoggle=<F2>
-" keys for NERDTree and Tagbar
-nnoremap <leader>n :NERDTree<CR> :NERDTreeFocus<CR>
-nnoremap <leader>f :NERDTreeFind<CR>
 "fast buffer switch
 nnoremap <C-J> :bprev<CR>
 nnoremap <C-K> :bnext<CR>
 " switch buffers without save
 set hidden
+
+" set key for paste toogle (when active, the pasted text formatting is not
+" modified by any indent feature)
+set pastetoggle=<F2>
 
 "----- function to remove trailing whitespace -----"
 fun! <SID>StripTrailingWhitespaces()
@@ -258,61 +294,109 @@ endfun
 " XXX: call it on exit for file, not on each write
 " FIXME: strip trailing whitespace only on edited lines
 " autocmd BufWrite  * :call <SID>StripTrailingWhitespaces()
+" Set specific syntax
 
-" Set specific syntax (objective-c vs octave problem)
+" objective-c vs octave problem
 "augroup filetypedetect
 "  au! BufRead, BufNewFile *.m,*.oct set filetype=octave
 "augroup END
+augroup filetypedetect
+  au! BufRead, BufNewFile *.xcconfig set filetype=xcconfig
+augroup END
 
 "-- cscope --"
-set nocscopeverbose " suppress 'duplicate connection' error
-function! LoadCscope()
-  let db = findfile("cscope.out", ".;")
-  if (!empty(db))
-    let path = strpart(db, 0, match(db, "/cscope.out$"))
-    set nocscopeverbose " suppress 'duplicate connection' error
-    exe "cs add " . db . " " . path
-    set cscopeverbose
-  endif
-endfunction
-autocmd BufEnter /* call LoadCscope()
+"set nocscopeverbose " suppress 'duplicate connection' error
+"function! LoadCscope()
+"  let db = findfile("cscope.out", ".;")
+"  if (!empty(db))
+"    let path = strpart(db, 0, match(db, "/cscope.out$"))
+"    set nocscopeverbose " suppress 'duplicate connection' error
+"    exe "cs add " . db . " " . path
+"    set cscopeverbose
+"  endif
+"endfunction
+"autocmd BufEnter /* call LoadCscope()
+
+
+
+"----- plugin settings -----"
 
 "-- tagbar --"
-" Save screen space
-let g:tagbar_compact = 1
-" set indentation for folds
-let g:tagbar_indent = 1
-" use single-click to jump to tag
-let g:tagbar_singleclick = 1
-" show current tag if folded
-let g:tagbar_autoshowtag = 1
-highlight TagbarSignature ctermbg=black guibg=darkgrey
+if &runtimepath =~ '/tagbar/'
+  " Save screen space
+  let g:tagbar_compact = 1
+  " set indentation for folds
+  let g:tagbar_indent = 1
+  " use single-click to jump to tag
+  let g:tagbar_singleclick = 1
+  " show current tag if folded
+  let g:tagbar_autoshowtag = 1
+  highlight TagbarSignature ctermbg=black guibg=darkgrey
+  " Remove sign column
+  autocmd FileType tagbar setlocal signcolumn=no
+  " Mappings
+  nnoremap <leader>t :TagbarToggle<CR>
+endif
 
 
-"-- NERDTree --"
-" close NERDTree if it's the last window
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-" Remove extra lines
-let NERDTreeMinimalUI = 1
-
-"-- YouCompleteMe --"
-"let g:ycm_autoclose_preview_window_after_insertion = 1
-"let g:ycm_always_populate_location_list = 1
-"let g:ycm_error_symbol = '⇨'
-"map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-"map <leader>f  :YcmCompleter FixIt<CR>
-
+"-- nerdtree --"
+if &runtimepath =~ '/nerdtree/'
+  " close NERDTree if it's the last window
+  autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+  " Remove extra lines
+  let NERDTreeMinimalUI = 1
+  " Remove signcolumn
+  autocmd FileType nerdree setlocal signcolumn=no
+  " Mappings
+  nnoremap <leader>nn :NERDTreeToggle<CR>
+  nnoremap <leader>nf :NERDTreeFind<CR>
+endif
 
 "-- syntastic --"
-"set statusline+=%#warningmsg#
-"set statusline+=%{SyntasticStatuslineFlag()}
-"set statusline+=%*
-let g:syntastic_mode_map = { 'mode': 'passive', 'active_filetypes': [],'passive_filetypes': [] }
-"let g:syntastic_always_populate_loc_list = 1
-"let g:syntastic_auto_loc_list = 1
-"let g:syntastic_check_on_open = 1
-"let g:syntastic_check_on_wq = 0
-"let g:syntastic_python_checkers = ['pycodestyle', 'pep8', 'python']
+if &runtimepath =~ '/syntastic/'
+  set statusline+=%#warningmsg#
+  set statusline+=%{SyntasticStatuslineFlag()}
+  set statusline+=%*
+  let g:syntastic_mode_map = { 'mode': 'pasive', 'active_filetypes': [] ,'passive_filetypes': [] }
+  let g:syntastic_always_populate_loc_list = 1
+  let g:syntastic_auto_loc_list = 1
+  let g:syntastic_check_on_open = 1
+  let g:syntastic_check_on_wq = 0
+  let g:syntastic_python_checkers = ['pycodestyle', 'pep8', 'python']
+endif
 
-"-- buftabline --"
-let g:buftabline_plug_max=20
+"-- youcompleteme --"
+if &runtimepath =~ '/youcompleteme/'
+  " Close preview window after accepting the offered completion.
+  let g:ycm_autoclose_preview_window_after_insertion = 1
+  " TODO: check if this is needed if syntastic is not enabled
+  let g:ycm_always_populate_location_list = 1
+  " Symbol for errors. If not, it defaults to g:syntastic_error_symbol.
+  let g:ycm_error_symbol = '⇨'
+  " Mappings
+  map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+  map <leader>f  :YcmCompleter FixIt<CR>
+endif
+
+"-- vim-rtags --"
+if &runtimepath =~ '/vim-rtags/'
+  " Use QuickFix window instead of the location list
+  let g:rtagsUseLocationList = 0
+endif
+
+"-- vim-localvimrc --"
+if &runtimepath =~ '/vim-localvimrc/'
+  " Don't ask for sourcing a local vimrc file for the same vim session.
+  let g:localvimrc_ask=0
+endif
+
+"-- ale --"
+if &runtimepath =~ '/ale/'
+  " Set various linters
+  let g:ale_linters = {
+    \ 'python': ['pycodestyle'],
+    \ 'cpp': []
+    \ }
+  " Automatically parse compile_commands.json.
+  let g:ale_c_parse_compile_commands = 1
+endif
