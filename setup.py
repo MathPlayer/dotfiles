@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Installs dotfiles from this repository to a given directory."""
 
 import argparse
 import datetime
@@ -16,7 +17,6 @@ import zipfile
 
 logging.basicConfig(format="%(asctime)-23s %(levelname)-8s %(message)s")
 LOG = logging.getLogger("")
-SHELLS = ["bash", "zsh"]
 
 
 def check_run():
@@ -38,7 +38,7 @@ def do_copy(src, dst, bak, rel, append=False):
     """Install file from src to dst, doing a backup to bak if needed and appending to dst if append
     param is true.
     """
-    LOG.debug("on path: {}".format(rel))
+    LOG.debug("on path: '%s'", rel)
     if not os.path.isfile(dst):
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         LOG.debug("Destination file does not exist")
@@ -52,10 +52,10 @@ def do_copy(src, dst, bak, rel, append=False):
         LOG.debug("Doing backup of destination")
         os.makedirs(os.path.dirname(bak), exist_ok=True)
         if os.path.isfile(bak):
-            LOG.error("Backup already exists at path {}".format(bak))
+            LOG.error("Backup already exists at path: '%s'", bak)
             sys.exit(errno.EEXIST)
         shutil.copy(dst, bak)
-        LOG.info("Backup done on file {}".format(dst))
+        LOG.info("Backup done on file '%s'", dst)
 
     if not append:
         shutil.copy(src, dst)
@@ -64,25 +64,22 @@ def do_copy(src, dst, bak, rel, append=False):
             dst_f.write(open(src, "r").read())
 
 
-def install(src_dir, dst_dir, skipped_shells, bak_dir=None, append=False, add_dot=False):
+def install(src_dir, dst_dir, bak_dir=None, append=False, add_dot=False):
     """Install files from src_dir to dst_dir."""
     dot = "." if add_dot else ""
-    LOG.info("install from: {}".format(src_dir))
-    LOG.info("          to: {}".format(dst_dir))
+    LOG.info("install from: '%s'", src_dir)
+    LOG.info("          to: '%s'", dst_dir)
     if bak_dir:
-        LOG.info("  backup dir: {}".format(bak_dir))
+        LOG.info("  backup dir: '%s'", bak_dir)
     if not os.path.isdir(src_dir):
         LOG.info("Source directory does not exist.")
         return
     for rel_path in [os.path.relpath(os.path.join(dirname, filename), src_dir)
                      for (dirname, _, filenames) in os.walk(src_dir)
                      for filename in filenames]:
-        if any(map(rel_path.startswith, skipped_shells)):
-            LOG.info("Skip shell file {}".format(rel_path))
-        else:
-            do_copy(
-                os.path.join(src_dir, rel_path), os.path.join(dst_dir, dot + rel_path),
-                os.path.join(bak_dir, rel_path) if bak_dir else None, append)
+        do_copy(
+            os.path.join(src_dir, rel_path), os.path.join(dst_dir, dot + rel_path),
+            os.path.join(bak_dir, rel_path) if bak_dir else None, append)
     LOG.info("done")
     LOG.info("----")
 
@@ -100,15 +97,9 @@ def main():
         "-d", "--directory", default=dst_dir,
         help="directory to install into; default is the home directory, namingly '%(default)s'.")
     parser.add_argument(
-        "-s", "--shell", default=[], action="append", choices=SHELLS,
-        help="install shell-specific files only for the specified shells. Value must be one of "
-             "%(choices)s. Can be provided multiple times. If not provided, all shell files are "
-             "installed.")
-    parser.add_argument(
         "-v", "--verbose", action="store_true", help="Show detailed info")
 
     args = parser.parse_args()
-    skipped_shells = set(SHELLS) - set(args.shell) if args.shell else []
 
     # Prepare install
     LOG.setLevel(logging.DEBUG if args.verbose else logging.INFO)
@@ -119,8 +110,8 @@ def main():
         dir=os.getcwd(), prefix="bak_{}".format(datetime.datetime.now().isoformat("_")))
 
     # Create auxiliary directory with files to be installed
-    install(os.path.abspath("common"), aux_dir, skipped_shells)
-    install(os.path.abspath(get_os_type()), aux_dir, skipped_shells, append=True)
+    install(os.path.abspath("common"), aux_dir)
+    install(os.path.abspath(get_os_type()), aux_dir, append=True)
 
     # Retrieve vim-plug
     vim_plug_file = os.path.join(aux_dir, "vim", "autoload", "plug.vim")
@@ -129,19 +120,18 @@ def main():
         "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim",
         vim_plug_file)
 
-    # If zsh is not skipped, install oh-my-zsh
-    if "zsh" not in skipped_shells:
-        oh_my_zsh_zip = os.path.join(aux_dir, "oh_my_zsh.zip")
-        urllib.request.urlretrieve(
-            "https://github.com/robbyrussell/oh-my-zsh/archive/master.zip",
-            oh_my_zsh_zip)
-        with zipfile.ZipFile(oh_my_zsh_zip) as zip_file:
-            zip_file.extractall(aux_dir)
-        os.rename(os.path.join(aux_dir, "oh-my-zsh-master"), os.path.join(aux_dir, "oh-my-zsh"))
-        os.remove(oh_my_zsh_zip)
+    # Install oh-my-zsh
+    oh_my_zsh_zip = os.path.join(aux_dir, "oh_my_zsh.zip")
+    urllib.request.urlretrieve(
+        "https://github.com/robbyrussell/oh-my-zsh/archive/master.zip",
+        oh_my_zsh_zip)
+    with zipfile.ZipFile(oh_my_zsh_zip) as zip_file:
+        zip_file.extractall(aux_dir)
+    os.rename(os.path.join(aux_dir, "oh-my-zsh-master"), os.path.join(aux_dir, "oh-my-zsh"))
+    os.remove(oh_my_zsh_zip)
 
     # Install files from auxiliary directory to destination
-    install(aux_dir, dst_dir, skipped_shells, bak_dir=bak_dir, add_dot=True)
+    install(aux_dir, dst_dir, bak_dir=bak_dir, add_dot=True)
 
     # Install vim plugins using vim-plug
     subprocess.check_call(["vim", "+silent", "+PlugInstall", "+qall"])
@@ -152,7 +142,7 @@ def main():
         LOG.info("No backups were made.")
         shutil.rmtree(bak_dir, ignore_errors=True)
     else:
-        LOG.info("Backups saved to {}".format(bak_dir))
+        LOG.info("Backups saved to '%s'", bak_dir)
 
     return 0
 
