@@ -12,10 +12,10 @@ import subprocess
 import sys
 import tempfile
 import urllib.request
+import zipfile
 
 logging.basicConfig(format="%(asctime)-23s %(levelname)-8s %(message)s")
 LOG = logging.getLogger("")
-
 SHELLS = ["bash", "zsh"]
 
 
@@ -128,6 +128,17 @@ def main():
     urllib.request.urlretrieve(
         "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim",
         vim_plug_file)
+
+    # If zsh is not skipped, install oh-my-zsh
+    if "zsh" not in skipped_shells:
+        oh_my_zsh_zip = os.path.join(aux_dir, "oh_my_zsh.zip")
+        urllib.request.urlretrieve(
+            "https://github.com/robbyrussell/oh-my-zsh/archive/master.zip",
+            oh_my_zsh_zip)
+        with zipfile.ZipFile(oh_my_zsh_zip) as zip_file:
+            zip_file.extractall(aux_dir)
+        os.rename(os.path.join(aux_dir, "oh-my-zsh-master"), os.path.join(aux_dir, "oh-my-zsh"))
+        os.remove(oh_my_zsh_zip)
 
     # Install files from auxiliary directory to destination
     install(aux_dir, dst_dir, skipped_shells, bak_dir=bak_dir, add_dot=True)
