@@ -109,17 +109,6 @@ def main():
     bak_dir = tempfile.mkdtemp(
         dir=os.getcwd(), prefix="bak_{}".format(datetime.datetime.now().isoformat("_")))
 
-    # Create auxiliary directory with files to be installed
-    install(os.path.abspath("common"), aux_dir)
-    install(os.path.abspath(get_os_type()), aux_dir, append=True)
-
-    # Retrieve vim-plug
-    vim_plug_file = os.path.join(aux_dir, "vim", "autoload", "plug.vim")
-    os.makedirs(os.path.dirname(vim_plug_file), exist_ok=True)
-    urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim",
-        vim_plug_file)
-
     # Install oh-my-zsh
     oh_my_zsh_zip = os.path.join(aux_dir, "oh_my_zsh.zip")
     urllib.request.urlretrieve(
@@ -130,11 +119,26 @@ def main():
     os.rename(os.path.join(aux_dir, "oh-my-zsh-master"), os.path.join(aux_dir, "oh-my-zsh"))
     os.remove(oh_my_zsh_zip)
 
+    # Install all files in auxilary dir
+    install(os.path.abspath("common"), aux_dir)
+    install(os.path.abspath(get_os_type()), aux_dir, append=True)
+
+    # Retrieve vim-plug
+    vim_plug_file = os.path.join(aux_dir, "vim", "autoload", "plug.vim")
+    os.makedirs(os.path.dirname(vim_plug_file), exist_ok=True)
+    urllib.request.urlretrieve(
+        "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim",
+        vim_plug_file)
+
     # Install files from auxiliary directory to destination
     install(aux_dir, dst_dir, bak_dir=bak_dir, add_dot=True)
 
     # Install vim plugins using vim-plug
-    subprocess.check_call(["vim", "+silent", "+PlugInstall", "+qall"])
+    ret = subprocess.run(["vim", "+silent", "+PlugInstall", "+qall"])
+    if ret:
+        LOG.warning(
+            "Vim plugin install failed. "
+            "You might need to install additional tools before retrying.")
 
     # Cleanup
     shutil.rmtree(aux_dir)
