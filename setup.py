@@ -34,28 +34,27 @@ def get_os_type():
     return platform.system().lower()
 
 
-def do_copy(src, dst, bak, rel, append=False):
+def do_copy(src, dst, bak, append=False):
     """Install file from src to dst, doing a backup to bak if needed and appending to dst if append
     param is true.
     """
-    LOG.debug("on path: '%s'", rel)
     if not os.path.isfile(dst):
         os.makedirs(os.path.dirname(dst), exist_ok=True)
-        LOG.debug("Destination file does not exist")
+        LOG.debug("Destination file does not exist: '%s'", dst)
         shutil.copy(src, dst)
         return
     if filecmp.cmp(src, dst, shallow=False):
-        LOG.debug("Destination file is the same")
+        LOG.debug("Destination file is identical: '%s'", dst)
         return
 
     if bak:
-        LOG.debug("Doing backup of destination")
+        LOG.debug("Destination backup needed: '%s'", dst)
         os.makedirs(os.path.dirname(bak), exist_ok=True)
         if os.path.isfile(bak):
             LOG.error("Backup already exists at path: '%s'", bak)
             sys.exit(errno.EEXIST)
         shutil.copy(dst, bak)
-        LOG.info("Backup done on file '%s'", dst)
+        LOG.info("Backup done: '%s'", dst)
 
     if not append:
         shutil.copy(src, dst)
