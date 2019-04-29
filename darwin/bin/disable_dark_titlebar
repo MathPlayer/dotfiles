@@ -1,0 +1,3 @@
+#!/bin/bash -eux
+
+defaults delete "${1}/Contents/Info.plist" NSRequiresAquaSystemAppearance

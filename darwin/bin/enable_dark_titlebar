@@ -1,0 +1,4 @@
+#!/bin/bash -eux
+
+defaults write "${1}/Contents/Info.plist" NSRequiresAquaSystemAppearance false
+

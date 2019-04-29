@@ -1,0 +1,4 @@
+#!/bin/bash -eux
+
+# Taken from https://gist.github.com/felipecsl/5177790
+sudo kill `ps -ax | grep 'coreaudiod' | grep 'sbin' | awk '{print $1}'`
