@@ -97,6 +97,8 @@ def main():
         help="directory to install into; default is the home directory, namingly '%(default)s'.")
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="Show detailed info")
+    parser.add_argument(
+        "--skip-vim-plug-install", action="store_true", help="Do not call :PlugInstall in vim")
 
     args = parser.parse_args()
 
@@ -132,12 +134,13 @@ def main():
     # Install files from auxiliary directory to destination
     install(aux_dir, dst_dir, bak_dir=bak_dir, add_dot=True)
 
-    # Install vim plugins using vim-plug
-    ret = subprocess.run(["vim", "+silent", "+PlugInstall", "+qall"])
-    if ret:
-        LOG.warning(
-            "Vim plugin install failed. "
-            "You might need to install additional tools before retrying.")
+    if not args.skip_vim_plug_install:
+        # Install vim plugins using vim-plug
+        ret = subprocess.run(["vim", "+silent", "+PlugInstall", "+qall"])
+        if ret:
+            LOG.warning(
+                "Vim plugin install failed. "
+                "You might need to install additional tools before retrying.")
 
     # Cleanup
     shutil.rmtree(aux_dir)
