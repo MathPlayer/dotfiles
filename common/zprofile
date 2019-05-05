@@ -1,0 +1,10 @@
+#
+# ~/.zprofile
+#
+# File is sourced by zsh for login shells.
+#
+
+# Source common profile file if it exists
+if [ -f "${HOME}/.profile" ]; then
+  source "${HOME}/.profile"
+fi

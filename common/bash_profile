@@ -1,8 +1,13 @@
 #
-# ~/.bash_profile: executed by bash(1) for login shells.
+# ~/.bash_profile
 #
-# User dependent .bash_profile file
+# File is sourced by bash for login shells.
 #
+
+# Source common profile file if it exists
+if [ -f "${HOME}/.profile" ]; then
+  source "${HOME}/.profile"
+fi
 
 # Source the users bashrc if it exists
 if [ -f "${HOME}/.bashrc" ] ; then

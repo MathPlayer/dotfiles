@@ -1,7 +1,7 @@
 #
 # ~/.bashrc
 #
-# This file is executed by bash for non-login shells.
+# This file is sourced by bash for non-login shells.
 #
 
 # If not running interactively, don't do anything.
@@ -55,11 +55,6 @@ shopt -s globstar
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-
-# Alias definitions.
-if [ -f ~/.bash_aliases ]; then
-  . ~/.bash_aliases
-fi
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
