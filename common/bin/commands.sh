@@ -10,27 +10,28 @@ export SCRIPT_BAD_PARAMS=90
 # Source a file if exists.
 source_if_exists() {
   if [ -f "$1" ]; then
-    . "$1"
+    source "$1"
   fi
 }
 
 # Tests if a command exists. Alias are ignored.
 command_exists () {
   local OUTPUT=`command -v "$1" 2>&1`
-  local STATUS=$!
-  if [ ${status} -ne 0 ]; then
-    return ${status}
+  local STATUS=$?
+  if [ ${STATUS} -ne 0 ] || [ -z "${OUTPUT}" ]; then
+    # "command" failed.
+    return 1
   elif case ${OUTPUT} in alias*) true;; *) false;; esac; then
+    # "command" reported an alias.
     unalias "$1"
-    if `command -v "$1" 2>&1 > /dev/null`; then
-      return 0
-    else
-      eval "${OUTPUT}"
-      return 1
-    fi
+    eval "command -v "$1" 2>&1 > /dev/null"
+    STATUS=$?
+    eval "${OUTPUT}"
   else
-    return 0
+    # "command" reported a path.
+    STATUS=0
   fi
+  return ${STATUS}
 }
 
 
