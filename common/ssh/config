@@ -2,26 +2,10 @@
 # $HOME/.ssh/config
 #
 
-Host fep
-Hostname fep.grid.pub.ro
-User bogdan.popescu0905
-ForwardAgent yes
-ServerAliveInterval 200
-ServerAliveCountMax 100
-
-Host gpu
-Hostname gpu.grid.pub.ro
-User bogdan.popescu0905
-ForwardAgent yes
-ServerAliveInterval 200
-ServerAliveCountMax 100
-
-Host swarm
-Hostname swarm.cs.pub.ro
-User bpopescu
-ForwardAgent yes
-ServerAliveInterval 200
-ServerAliveCountMax 100
+Host github.com
+Hostname github.com
+User git
+IdentityFile ~/.ssh/github_rsa
 
 # Export variables in bashrc in order to be useful
 Host *.labs.overthewire.org
