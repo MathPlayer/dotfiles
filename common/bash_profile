@@ -1,35 +1,31 @@
 #
 # ~/.bash_profile
 #
-# File is sourced by bash for login shells.
+# This file is executed by bash for login shells.
 #
 
-# Source common profile file if it exists
-if [ -f "${HOME}/.profile" ]; then
-  source "${HOME}/.profile"
+# Source user's comnands file for helper functions.
+if [ -f "${HOME}/.bin/commands.sh" ]; then
+  source "${HOME}/.bin/commands.sh"
 fi
 
-# Source the users bashrc if it exists
-if [ -f "${HOME}/.bashrc" ] ; then
-  source "${HOME}/.bashrc"
+# Bash won't source .profile if this ~/.bash_profile exists.
+source_if_exists "${HOME}/.profile"
+
+# Source the personal bashrc if it exists.
+source_if_exists "${HOME}/.bashrc"
+
+# Consider moving to ~/.profile.
+# Use better competion.
+source_if_exists "${HOME}/.bin/git-completion.bash"
+
+if command_exists "brew"; then
+  BREW_PATH=`brew --prefix`
+  source_if_exists "${BREW_PATH}/etc/bash_completion.d/git-completion.bash"
+  source_if_exists "${BREW_PATH}/etc/bash_completion.d/git-prompt.sh"
+  unset BREW_PATH
 fi
 
-# Set PATH so it includes user's private bin if it exists
-if [ -d "${HOME}/.bin" ] ; then
-  PATH="${HOME}/.bin:${PATH}"
-fi
-
-# Set MANPATH so it includes users' private man if it exists
-if [ -d "${HOME}/man" ]; then
-  MANPATH="${HOME}/man:${MANPATH}"
-fi
-
-# Set INFOPATH so it includes users' private info if it exists
-if [ -d "${HOME}/info" ]; then
-  INFOPATH="${HOME}/info:${INFOPATH}"
-fi
-
-# Use better bash competion if it exists
-if [ -f "${HOME}/.bin/git-completion.bash" ] ; then
-  source "${HOME}/.bin/git-completion.bash"
-fi
+# TODO: move to profile.
+export PATH="$HOME/.jenv/bin:$PATH"
+eval "$(jenv init -)"

@@ -4,24 +4,29 @@
 #
 
 
+# Source user's comnands file for helper functions.
+if [ -f "${HOME}/.bin/commands.sh" ]; then
+  source "${HOME}/.bin/commands.sh"
+fi
+
 ### dircolors
 function alias_dircolors() {
   local EXEC=""
 
   # Check if dircolors is available and switch to it.
-  if dircolors --version > /dev/null 2>&1; then
-    EXEC="dircolors"
-  fi
+  command_exists "dircolors" && EXEC="$(which dircolors)"
 
   # Check if gdircolors is available and switch to it.
-  if gdircolors --version > /dev/null 2>&1; then
-    EXEC="gdircolors"
-  fi
+  command_exists "gdircolors" && EXEC="$(which gdircolors)"
 
-  if [[ -x "${EXEC}" ]]; then
+
+  # Load dircolors if existing.
+  if [ -x "${EXEC}" ]; then
     test -r "~/.dircolors" && \
       eval "$(${EXEC} -b ~/.dircolors)" || \
       eval "$(${EXEC} -b)"
+    # Failsafe alias for dircolors.
+    alias dircolors="${EXEC}"
   fi
 }
 alias_dircolors
@@ -29,64 +34,56 @@ unset alias_dircolors
 
 
 ### rm
-# Check if grm is available and switch to it.
-if grm --version > /dev/null 2>&1; then
-  alias rm="grm"
-fi
+command_exists "grm" && alias rm="$(which grm)"
 
 
 ### tar
-# Check if gtar is available and switch to it.
-if gtar --version > /dev/null 2>&1; then
-  alias tar="gtar"
-fi
+command_exists "gtar" && alias tar="'$(which gtar)'"
 
 
 ### ls
 function alias_ls() {
-  local EXEC=ls
+  local EXEC="$(which ls)"
   local FLAG_COLOR=""
   local FLAG_GROUP_DIRECTORIES_FIRST=""
   local FLAG_HUMAN_SIZE=""
   local FLAG_INDICATOR=""
 
   # Check if gls is available and switch to it.
-  if gls --version > /dev/null 2>&1; then
-    EXEC=gls
-  fi
+  command_exists "gls" && EXEC="$(which gls)"
 
   # Show colored output.
-  if ${EXEC} --color=auto >/dev/null 2>&1; then
+  if "${EXEC}" --color=auto >/dev/null 2>&1; then
     FLAG_COLOR="--color=auto"
-  elif ${EXEC} -G >/dev/null 2>&1; then
+  elif "${EXEC}" -G >/dev/null 2>&1; then
     FLAG_COLOR="-G"
   fi
 
   # Show size in human-readable format.
-  if ${EXEC} -lh >/dev/null 2>&1; then
+  if "${EXEC}" -lh >/dev/null 2>&1; then
     FLAG_HUMAN_SIZE="-h"
   fi
 
   # Add specific indicator after directory/socket/link/...
-  if ${EXEC} -F >/dev/null 2>&1; then
+  if "${EXEC}" -F >/dev/null 2>&1; then
     FLAG_INDICATOR="-F"
   fi
 
   # Try to group directories first.
-  if ${EXEC} --group-directories-first >/dev/null 2>&1; then
+  if "${EXEC}" --group-directories-first >/dev/null 2>&1; then
     FLAG_GROUP_DIRECTORIES_FIRST="--group-directories-first"
   fi
 
   # Set aliases.
   local LS_COMMAND="${EXEC} ${FLAG_COLOR} ${FLAG_INDICATOR} ${FLAG_HUMAN_SIZE} ${FLAG_GROUP_DIRECTORIES_FIRST}"
-  alias ls=${LS_COMMAND}
-  alias sl=${LS_COMMAND}
-  alias LS=${LS_COMMAND}
-  alias l=${LS_COMMAND}" -l"
-  alias ll=${LS_COMMAND}" -l"
-  alias la=${LS_COMMAND}" -A"
-  alias la=${LS_COMMAND}" -A"
-  alias lla=${LS_COMMAND}" -lA"
+  alias ls="${LS_COMMAND}"
+  alias sl="${LS_COMMAND}"
+  alias LS="${LS_COMMAND}"
+  alias l="${LS_COMMAND} -l"
+  alias ll="${LS_COMMAND} -l"
+  alias la="${LS_COMMAND} -A"
+  alias la="${LS_COMMAND} -A"
+  alias lla="${LS_COMMAND} -lA"
 }
 alias_ls
 unset alias_ls

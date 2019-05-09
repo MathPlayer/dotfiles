@@ -1,127 +1,29 @@
-ZLOGIN_PATHS=()
-ZLOGIN_COMMANDS=()
-
-########### TODO clean this mess ########################################
-# Custom zsh prompt with better git reports
-setopt prompt_subst
-GIT_PROMPT_EXECUTABLE="haskell"
-PATH="${HOME}/Documents/code/zsh-git-prompt/src/.bin:${PATH}"
-source "${HOME}/code/zsh-git-prompt/zshrc.sh"
-local ret_status="%(?.%{$fg[green]%}➜ .%{$fg[red]%}➜ )"
-PROMPT='${ret_status} %{$fg[blue]%}$(shrink_path -f)%{$reset_color%} $(git_super_status)%(!.#.$) '
-#PROMPT='${ret_status} %{$fg[blue]%}$(shrink_path -f)%{$reset_color%} %(!.#.$) '
-RPROMPT='%(?..%{$fg[red]%}%?%{$reset_color%})'
-
-# CCache stuff
-#if [ -d "`brew --prefix`/opt/ccache/libexec" ]; then
-#  PATH="`brew --prefix`/opt/ccache/libexec:${PATH}"
-#fi
-
-#if [ -d "${HOME}/Library/Android/sdk" ]; then
-#  export ANDROID_SDK_ROOT="${HOME}/Library/Android/sdk"
-#  export PATH="${PATH}:${ANDROID_SDK_ROOT}/tools:${ANDROID_SDK_ROOT}/platform-tools"
-#  if [ -d "${ANDROID_SDK_ROOT}/ndk-bundle" ]; then
-#    export ANDROID_NDK="${ANDROID_SDK_ROOT}/ndk-bundle"
-#    export PATH="${PATH}:${ANDROID_NDK}"
-#  fi
-#fi
-
-export LESS="-RFX"
-export MAKEFLAGS="-j $(gnproc)"
-export LC_ALL=en_US.UTF-8
-export LANG=en_US.UTF-8
-####################################################
-
-# Set MANPATH so it includes users' private man if it exists
-if [ -d "${HOME}/man" ]; then
-  MANPATH+="${HOME}/man:${MANPATH}"
+if [ -f "${HOME}/.profile" ]; then
+  source "${HOME}/.profile"
 fi
 
-# Set INFOPATH so it includes users' private info if it exists
-if [ -d "${HOME}/info" ]; then
-  INFOPATH+="${HOME}/info:${INFOPATH}"
+###################################################################################################
+# Additional PATHs.
+
+# Use user-installed ruby paths
+# TODO: Retrieve path programatically (see gem environment).
+GEM_LOCAL_BIN_DIR="${HOME}/.gem/ruby/2.3.0/bin"
+if [ -d "${GEM_LOCAL_BIN_DIR}" ]; then
+  export PATH="${PATH}:${GEM_LOCAL_BIN_DIR}"
 fi
-
-# Set PATH so it includes user's private bin if it exists
-if [ -d "${HOME}/.bin" ] ; then
-  ZLOGIN_PATHS+="${HOME}/.bin"
-fi
-
-# Use homebrew local paths
-if [ -d "`brew --prefix`/sbin" ]; then
-  ZLOGIN_PATHS+="`brew --prefix`/sbin"
-fi
-
-# This brew path is already in $PATH.
-# TODO: filter existing paths in $PATH, add only new ones.
-#if [ -d "`brew --prefix`/bin" ]; then
-#  ZLOGIN_PATHS+="`brew --prefix`/bin"
-#fi
-
-# TODO: investigate why I added this and then commented it out
-#if [ -d "`brew --prefix`/opt/python/libexec/bin" ]; then
-#  ZLOGIN_PATHS+="`brew --prefix`/opt/python/libexec/bin"
-#fi
-
-# Use user-installed python paths
-if [ -d "`python -m site --user-base`" ]; then
-  ZLOGIN_PATHS+="`python -m site --user-base`/bin"
-fi
-
-if [ -d "`python3 -m site --user-base`" ]; then
-  ZLOGIN_PATHS+="`python3 -m site --user-base`/bin"
-fi
-
-if [ -d "`python -m site --user-base`/lib/python/site-packages" ]; then
-  PYTHONPATH="`python -m site --user-base`/lib/python/site-packages:${PYTHONPATH}"
-fi
-
-if [ -d "`python3 -m site --user-base`/lib/python/site-packages" ]; then
-  PYTHONPATH="`python3 -m site --user-base`/lib/python/site-packages:${PYTHONPATH}"
-fi
-
-# Various tools possibly installed
-if [ -d "`brew --prefix`/opt/curl/bin" ]; then
-  ZLOGIN_PATHS+="`brew --prefix`/opt/curl/bin"
-fi
-
-if [ -d "`brew --prefix`/opt/sqlite/bin" ]; then
-  ZLOGIN_PATHS+="`brew --prefix`/opt/sqlite/bin"
-fi
-
-if [ -d "`brew --prefix`/opt/llvm/bin" ]; then
-  ZLOGIN_PATHS+="`brew --prefix`/opt/llvm/bin"
-fi
-
-# Use solarized dircolors
-if [ -e "${HOME}/.dircolors" ]; then
-  eval `gdircolors ${HOME}/.dircolors`
-fi
-
-# User iterm2 shell integration if it exists
-if [ -e "${HOME}/.iterm2_shell_integration.bash" ] ; then
-  source "${HOME}/.iterm2_shell_integration.bash"
-fi
+unset GEM_LOCAL_BIN_DIR
 
 # Rustup path
 if [ -e "${HOME}/.cargo/bin" ]; then
-  ZLOGIN_PATHS+="${HOME}/.cargo/bin"
+  export PATH="${PATH}:${HOME}/.cargo/bin"
 fi
 
 # jenv stuff
 if [ -f "`brew --prefix`/bin/jenv" ]; then
-  ZLOGIN_COMMANDS+="$(jenv init -)"
+  eval "$(jenv init -)"
 fi
 
-# Add reverse-ordered ZLOGIN_PATHS to $PATH
-for zlogin_path in ${(Oa)ZLOGIN_PATHS}; do
-  PATH="${zlogin_path}:${PATH}"
-done
-unset ZLOGIN_PATHS
-
-# Execute needed login commands
-for zlogin_command in ${ZLOGIN_COMMANDS}; do
-  eval "${zlogin_command}"
-done
-unset ZLOGIN_COMMANDS
-
+# Git-extras shell completion if it exists
+#if [ -d "`brew --prefix`/opt/git-extras/share/git-extras/git-extras-completion.zsh" ]; then
+#  source "`brew --prefix`/opt/git-extras/share/git-extras/git-extras-completion.zsh"
+#fi
