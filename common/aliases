@@ -6,25 +6,23 @@
 
 # Source user's comnands file for helper functions.
 if [ -f "${HOME}/.bin/commands.sh" ]; then
-  source "${HOME}/.bin/commands.sh"
+  . "${HOME}/.bin/commands.sh"
 fi
 
 ### dircolors
-function alias_dircolors() {
-  local EXEC=""
+alias_dircolors() {
+  EXEC=""
 
   # Check if dircolors is available and switch to it.
-  command_exists "dircolors" && EXEC="$(which dircolors)"
+  command_exists "dircolors" && EXEC=$(get_absolute_path "dircolors")
 
   # Check if gdircolors is available and switch to it.
-  command_exists "gdircolors" && EXEC="$(which gdircolors)"
+  command_exists "gdircolors" && EXEC="$(get_absolute_path "gdircolors")"
 
 
   # Load dircolors if existing.
-  if [ -x "${EXEC}" ]; then
-    test -r "~/.dircolors" && \
-      eval "$(${EXEC} -b ~/.dircolors)" || \
-      eval "$(${EXEC} -b)"
+  if [ -x "${EXEC}" ] && [ -r "${HOME}/.dircolors" ]; then
+      eval "$(${EXEC} -b "${HOME}/.dircolors")" || eval "$(${EXEC} -b)"
     # Failsafe alias for dircolors.
     alias dircolors="${EXEC}"
   fi
@@ -34,23 +32,22 @@ unset alias_dircolors
 
 
 ### rm
-command_exists "grm" && alias rm="$(which grm)"
-
+command_exists "grm" && alias rm="$(get_absolute_path grm)"
 
 ### tar
-command_exists "gtar" && alias tar="'$(which gtar)'"
+command_exists "gtar" && alias tar="$(get_absolute_path gtar)"
 
 
 ### ls
-function alias_ls() {
-  local EXEC="$(which ls)"
-  local FLAG_COLOR=""
-  local FLAG_GROUP_DIRECTORIES_FIRST=""
-  local FLAG_HUMAN_SIZE=""
-  local FLAG_INDICATOR=""
+alias_ls() {
+  EXEC="$(get_absolute_path ls)"
+  FLAG_COLOR=""
+  FLAG_GROUP_DIRECTORIES_FIRST=""
+  FLAG_HUMAN_SIZE=""
+  FLAG_INDICATOR=""
 
   # Check if gls is available and switch to it.
-  command_exists "gls" && EXEC="$(which gls)"
+  command_exists "gls" && EXEC="$(get_absolute_path gls)"
 
   # Show colored output.
   if "${EXEC}" --color=auto >/dev/null 2>&1; then
@@ -75,7 +72,7 @@ function alias_ls() {
   fi
 
   # Set aliases.
-  local LS_COMMAND="${EXEC} ${FLAG_COLOR} ${FLAG_INDICATOR} ${FLAG_HUMAN_SIZE} ${FLAG_GROUP_DIRECTORIES_FIRST}"
+  LS_COMMAND="${EXEC} ${FLAG_COLOR} ${FLAG_INDICATOR} ${FLAG_HUMAN_SIZE} ${FLAG_GROUP_DIRECTORIES_FIRST}"
   alias ls="${LS_COMMAND}"
   alias sl="${LS_COMMAND}"
   alias LS="${LS_COMMAND}"
@@ -104,8 +101,8 @@ alias du='du -h'
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # List only user's processes.
-alias myps="ps axo user,tty,ppid,pid,command | grep -vE \"grep|ps axo\" | grep -E \"(USER\s*PPID)|$USER\""
-alias mypsa="ps aux | grep -vE \"grep|ps aux\" | grep -E \"(USER\s*PID)|$USER\""
+alias myps='ps axo user,tty,ppid,pid,command | grep -vE "grep|ps axo" | grep -E "(USER\s*PPID)|${USER}"'
+alias mypsa='ps aux | grep -vE "grep|ps aux" | grep -E "(USER\s*PID)|${USER}"'
 
 # Exit less if the output is small enough for only one screen
 alias less='less -F'

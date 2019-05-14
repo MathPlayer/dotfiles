@@ -2,29 +2,24 @@
 # Utilities to use in shell configuration files and from CLI.
 #
 
-export SCRIPT_ERR="ERROR: "
-export SCRIPT_INF="INFO:  "
-export SCRIPT_LOG="====== "
-export SCRIPT_BAD_PARAMS=90
-
 # Source a file if exists.
 source_if_exists() {
   if [ -f "$1" ]; then
-    source "$1"
+    . "$1"
   fi
 }
 
-# Tests if a command exists. Alias are ignored.
-command_exists () {
-  local OUTPUT=`command -v "$1" 2>&1`
-  local STATUS=$?
+# Tests if a command exists. Aliases are ignored.
+command_exists() {
+  OUTPUT="$(command -v "$1" 2>&1)"
+  STATUS=$?
   if [ ${STATUS} -ne 0 ] || [ -z "${OUTPUT}" ]; then
     # "command" failed.
     return 1
   elif case ${OUTPUT} in alias*) true;; *) false;; esac; then
     # "command" reported an alias.
     unalias "$1"
-    eval "command -v "$1" 2>&1 > /dev/null"
+    eval "command -v $1 2>&1 > /dev/null"
     STATUS=$?
     eval "${OUTPUT}"
   else
@@ -34,10 +29,24 @@ command_exists () {
   return ${STATUS}
 }
 
-
-# Sets term's window title.
-set_title () {
-  echo -ne "\e]2;$@\a\e]1;$@\a"
+# Echoes to stdout the path for a command. Aliases are ignored.
+get_absolute_path() {
+  OUTPUT="$(command -v "$1" 2>&1)"
+  STATUS=$?
+  if [ ${STATUS} -ne 0 ] || [ -z "${OUTPUT}" ]; then
+    echo ""
+  elif case ${OUTPUT} in alias*) true;; *) false;; esac; then
+    # "command" reported an alias.
+    unalias "$1"
+    UNALIAS_OUTPUT="$(command -v "$1" 2>&1)"
+    STATUS=$?
+    eval "${OUTPUT}"
+    if [ ${STATUS} -eq 0 ]; then
+      echo "${UNALIAS_OUTPUT}"
+    fi
+  else
+    echo "${OUTPUT}"
+  fi
 }
 
 # Sets the display for (Cygwin) X11 forwarding.
