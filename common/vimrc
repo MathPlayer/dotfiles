@@ -113,8 +113,6 @@ try
   let g:nord_uniform_diff_background = 1
   " Enables background for the line number of the current line.
   let g:nord_cursor_line_number_background = 1
-  " Make comments more visible.
-  let g:nord_comment_brightness = 18
   colorscheme nord
 catch
 try
