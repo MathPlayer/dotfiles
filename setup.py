@@ -139,8 +139,8 @@ def main():
 
     if not args.skip_vim_plug_install:
         # Install vim plugins using vim-plug
-        ret = subprocess.run(["vim", "+silent", "+PlugInstall", "+qall"])
-        if ret:
+        status = subprocess.run(["vim", "+silent", "+PlugInstall", "+qall"])
+        if status.returncode:
             LOG.warning(
                 "Vim plugin install failed. "
                 "You might need to install additional tools before retrying.")
