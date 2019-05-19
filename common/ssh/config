@@ -7,6 +7,11 @@ Hostname github.com
 User git
 IdentityFile ~/.ssh/github_rsa
 
+Host bitbucket.org
+Hostname bitbucket.org
+User git
+IdentityFile ~/.ssh/bitbucket_rsa
+
 # Export variables in bashrc in order to be useful
 Host *.labs.overthewire.org
 SendEnv WECHALLTOKEN

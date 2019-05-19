@@ -6,7 +6,7 @@
 
 # Source user's comnands file for helper functions.
 if [ -f "${HOME}/.bin/commands.sh" ]; then
-  source "${HOME}/.bin/commands.sh"
+  . "${HOME}/.bin/commands.sh"
 fi
 
 ################################################################################
@@ -48,7 +48,7 @@ add_user_path "${HOME}/.bin"
 
 # Paths for Homebrew.
 if command_exists "brew"; then
-  HOMEBREW_DIR=`brew --prefix`
+  HOMEBREW_DIR="$(brew --prefix)"
   add_user_path "${HOMEBREW_DIR}/sbin"
   # This brew path is already in $PATH.
   # TODO: filter existing paths in $PATH, add only new ones.
@@ -59,32 +59,39 @@ if command_exists "brew"; then
   # TODO: investigate why I added this and then commented it out
   # add_user_path "${HOME_BREW_DIR}/opt/python/libexec/bin"
   add_user_path "${HOMEBREW_DIR}/opt/llvm/bin"
+  unset HOMEBREW_DIR
 fi
 
 # Paths for user-installed python2 and python3 packages.
 if command_exists "python"; then
-  PYTHON_USER_SITE=`python -m site --user-base`
+  PYTHON_USER_SITE="$(python -m site --user-base)"
   add_user_path "${PYTHON_USER_SITE}/bin"
   add_user_pythonpath "${PYTHON_USER_SITE}/lib/python/site-packages"
+  unset PYTHON_USER_SITE
 fi
 
 if command_exists "python3"; then
-  PYTHON_USER_SITE=`python3 -m site --user-base`
+  PYTHON_USER_SITE="$(python3 -m site --user-base)"
   add_user_path "${PYTHON_USER_SITE}/bin"
   add_user_pythonpath "${PYTHON_USER_SITE}/lib/python/site-packages"
+  unset PYTHON_USER_SITE
 fi
 
 # Merge the user paths configured above into the environment.
-if [ ! -z "${USER_PATH}" ]; then
+if [ -n "${USER_PATH}" ]; then
   export PATH="${USER_PATH}:${PATH}"
 fi
-if [ ! -z "${USER_PYTHONPATH}" ]; then
-  if [ -z ${PYTHONPATH} ]; then
+if [ -n "${USER_PYTHONPATH}" ]; then
+  if [ -z "${PYTHONPATH}" ]; then
     export PYTHONPATH="${USER_PYTHONPATH}"
   else
     export PYTHONPATH="${PYTHONPATH}:${USER_PYTHONPATH}"
   fi
 fi
+
+#Cleanup.
+unset USER_PATH
+unset USER_PYTHONPATH
 
 ################################################################################
 # Various others.
@@ -103,12 +110,3 @@ command_exists "nvim" && export EDITOR="nvim"
 
 # Set make flags with a default cpu count.
 command_exists nproc && export MAKEFLAGS="-j `nproc`"
-
-################################################################################
-# Cleanup.
-unset USER_PATH
-unset USER_PYTHONPATH
-unset PYTHON_USER_SITE
-unset add_user_path
-unset add_user_pythonpath
-unset source_if_exists

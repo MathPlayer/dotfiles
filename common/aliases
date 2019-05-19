@@ -14,11 +14,10 @@ alias_dircolors() {
   EXEC=""
 
   # Check if dircolors is available and switch to it.
-  command_exists "dircolors" && EXEC=$(get_absolute_path "dircolors")
+  command_exists "dircolors" && EXEC="$(get_absolute_path dircolors)"
 
   # Check if gdircolors is available and switch to it.
-  command_exists "gdircolors" && EXEC="$(get_absolute_path "gdircolors")"
-
+  command_exists "gdircolors" && EXEC="$(get_absolute_path gdircolors)"
 
   # Load dircolors if existing.
   if [ -x "${EXEC}" ] && [ -r "${HOME}/.dircolors" ]; then
@@ -33,6 +32,7 @@ unset alias_dircolors
 
 ### rm
 command_exists "grm" && alias rm="$(get_absolute_path grm)"
+
 
 ### tar
 command_exists "gtar" && alias tar="$(get_absolute_path gtar)"

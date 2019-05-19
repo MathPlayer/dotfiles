@@ -1,16 +1,18 @@
 # project files
-.cproject
-.project
-.settings
+*.cproject
+*.project
+*.settings
+*.vscode/
+*.idea/
 
-# C object files
+# C/C++ object files
 *.o
 
 # Python files
 *.pyc
 
-# PyCharm IDE
-*.idea/
-
 # YCM
 .ycm_extra_conf.py
+
+# CMake
+compile_commands.json

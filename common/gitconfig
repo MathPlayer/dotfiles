@@ -11,6 +11,8 @@
 [color]
   ui = true
   whitespace = red reverse
+[color "status"]
+  untracked = magenta
 [alias]
   co = checkout
   ci = commit
@@ -19,6 +21,12 @@
   type = cat-file -t
   dump = cat-file -p
   lg = log --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %Cred%d%Creset %s %C(bold blue)[%an]'
+  lg5 = log -n 5 --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %C(blue)%s%Creset %C(bold magenta)[%an]%Creset %C(bold red)%d%Creset'
   hist = log --graph --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %Cred%d%Creset %s %C(bold blue)[%an]'
   track = "! git branch -vv | cut -d ']' -f 1 | tr -d '['"
   commit-files = diff-tree --no-commit-id --name-only -r
+[rebase]
+  autoSquash = True
+  abbreviateCommands = True
+[commit]
+  template = /Users/popescub/.stCommitMsg

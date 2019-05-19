@@ -111,6 +111,9 @@ def main():
         dir=os.getcwd(), prefix="bak_{}".format(datetime.datetime.now().isoformat("_")))
 
     # Install oh-my-zsh
+    # TODO: use git to clone the repository.
+    # TODO: allow custom plugin setup for:
+    # - https://github.com/djui/alias-tips
     oh_my_zsh_zip = os.path.join(aux_dir, "oh_my_zsh.zip")
     urllib.request.urlretrieve(
         "https://github.com/robbyrussell/oh-my-zsh/archive/master.zip",

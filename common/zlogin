@@ -1,5 +1,9 @@
+#
+# ~/.zlogin
+#
+
 if [ -f "${HOME}/.profile" ]; then
-  source "${HOME}/.profile"
+  . "${HOME}/.profile"
 fi
 
 ###################################################################################################
@@ -7,6 +11,7 @@ fi
 
 # Use user-installed ruby paths
 # TODO: Retrieve path programatically (see gem environment).
+# TODO: Move to .profile.
 GEM_LOCAL_BIN_DIR="${HOME}/.gem/ruby/2.3.0/bin"
 if [ -d "${GEM_LOCAL_BIN_DIR}" ]; then
   export PATH="${PATH}:${GEM_LOCAL_BIN_DIR}"
@@ -19,11 +24,11 @@ if [ -e "${HOME}/.cargo/bin" ]; then
 fi
 
 # jenv stuff
-if [ -f "`brew --prefix`/bin/jenv" ]; then
+if [ -f "$(brew --prefix)/bin/jenv" ]; then
   eval "$(jenv init -)"
 fi
 
 # Git-extras shell completion if it exists
-#if [ -d "`brew --prefix`/opt/git-extras/share/git-extras/git-extras-completion.zsh" ]; then
-#  source "`brew --prefix`/opt/git-extras/share/git-extras/git-extras-completion.zsh"
+#if [ -d "$(brew --prefix)/opt/git-extras/share/git-extras/git-extras-completion.zsh" ]; then
+#  . "$(brew --prefix)/opt/git-extras/share/git-extras/git-extras-completion.zsh"
 #fi

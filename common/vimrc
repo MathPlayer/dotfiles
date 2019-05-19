@@ -16,6 +16,8 @@ Plug 'w0rp/ale'
 Plug 'altercation/vim-colors-solarized'
 Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'tomasr/molokai'
+Plug 'morhetz/gruvbox'
+Plug 'arcticicestudio/nord-vim'
 
 " File browser
 " All lazy load is commented out for the settings at the end of the file.
@@ -47,8 +49,9 @@ Plug 'embear/vim-localvimrc'
 
 " c/c++ plugins
 " Plug 'jeaye/color_coded'
-Plug 'lyuts/vim-rtags', {'for': 'cpp'}
+" TODO: configure flags for the one below.
 Plug 'octol/vim-cpp-enhanced-highlight', {'for': 'cpp'}
+" Plug 'lyuts/vim-rtags', {'for': 'cpp'}
 
 " CMake improved syntax
 Plug 'pboettch/vim-cmake-syntax', {'for': 'cmake'}
@@ -58,6 +61,9 @@ Plug 'keith/xcconfig.vim', {'for': 'xcconfig'}
 
 " Xcode project file syntax
 Plug 'cfdrake/vim-pbxproj', {'for': 'pbxproj'}
+
+" SWIG file syntax
+" Plug 'vim-scripts/swig'
 
 " Javascript plugins
 Plug 'jelera/vim-javascript-syntax', {'for': 'javascript'}
@@ -80,6 +86,12 @@ Plug 'airblade/vim-gitgutter'
 " File-line easy opening plugin
 Plug 'bogado/file-line'
 
+" LSP
+" Plug 'prabirshrestha/asyncomplete.vim'
+" Plug 'prabirshrestha/async.vim'
+" Plug 'prabirshrestha/vim-lsp'
+" Plug 'prabirshrestha/asyncomplete-lsp.vim'
+
 " Own configuration plugins
 Plug '~/.vim/my-configs'
 
@@ -94,15 +106,27 @@ set ttyfast
 
 "----- appearance -----"
 
+set termguicolors
+
+try
+  " Use same background and differentiate only using colors in diff mode
+  let g:nord_uniform_diff_background = 1
+  " Enables background for the line number of the current line.
+  let g:nord_cursor_line_number_background = 1
+  " Make comments more visible.
+  let g:nord_comment_brightness = 18
+  colorscheme nord
+catch
 try
   colorscheme solarized
   let g:solarized_visibility = "high"
   let g:solarized_contrast = "high"
-  catch
-  try
-    colorscheme dracula
-    catch
-  endtry
+catch
+try
+  colorscheme dracula
+catch
+endtry
+endtry
 endtry
 
 set background=dark
@@ -170,8 +194,11 @@ set softtabstop=2
 " display whitespace characters
 set list
 " characters to show for tab, trailing whitespace and normal space
-" keep the second line around for compatibility problems
-set listchars=tab:>\ ,trail:_,nbsp:~
+try
+  set listchars=tab:→\ ,trail:~,nbsp:·
+catch
+  set listchars=tab:>\ ,trail:_,nbsp:~
+endtry
 set showbreak=\\   " the spaces are needed
 
 
@@ -297,9 +324,11 @@ endfun
 " Set specific syntax
 
 " objective-c vs octave problem
-"augroup filetypedetect
-"  au! BufRead, BufNewFile *.m,*.oct set filetype=octave
-"augroup END
+augroup filetypedetect
+  " au! BufRead, BufNewFile *.m,*.oct set filetype=octave
+  au! BufRead,BufNewFile,BufRead *.m set filetype=objc
+  au! BufRead,BufNewFile,BufRead *.mm set filetype=objcpp
+augroup END
 augroup filetypedetect
   au! BufRead, BufNewFile *.xcconfig set filetype=xcconfig
 augroup END
@@ -321,7 +350,6 @@ augroup END
 
 "----- plugin settings -----"
 
-"-- tagbar --"
 if &runtimepath =~ '/tagbar/'
   " Save screen space
   let g:tagbar_compact = 1
@@ -338,8 +366,6 @@ if &runtimepath =~ '/tagbar/'
   nnoremap <leader>t :TagbarToggle<CR>
 endif
 
-
-"-- nerdtree --"
 if &runtimepath =~ '/nerdtree/'
   " close NERDTree if it's the last window
   autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
@@ -352,7 +378,6 @@ if &runtimepath =~ '/nerdtree/'
   nnoremap <leader>nf :NERDTreeFind<CR>
 endif
 
-"-- syntastic --"
 if &runtimepath =~ '/syntastic/'
   set statusline+=%#warningmsg#
   set statusline+=%{SyntasticStatuslineFlag()}
@@ -365,7 +390,6 @@ if &runtimepath =~ '/syntastic/'
   let g:syntastic_python_checkers = ['pycodestyle', 'pep8', 'python']
 endif
 
-"-- youcompleteme --"
 if &runtimepath =~ '/youcompleteme/'
   " Close preview window after accepting the offered completion.
   let g:ycm_autoclose_preview_window_after_insertion = 1
@@ -378,25 +402,67 @@ if &runtimepath =~ '/youcompleteme/'
   map <leader>f  :YcmCompleter FixIt<CR>
 endif
 
-"-- vim-rtags --"
 if &runtimepath =~ '/vim-rtags/'
   " Use QuickFix window instead of the location list
   let g:rtagsUseLocationList = 0
 endif
 
-"-- vim-localvimrc --"
 if &runtimepath =~ '/vim-localvimrc/'
   " Don't ask for sourcing a local vimrc file for the same vim session.
   let g:localvimrc_ask=0
 endif
 
-"-- ale --"
 if &runtimepath =~ '/ale/'
   " Set various linters
   let g:ale_linters = {
     \ 'python': ['pycodestyle'],
-    \ 'cpp': []
+    \ 'cpp': [],
+    \ 'sh': ['shellcheck'],
+    \ 'zsh': ['shellcheck']
     \ }
   " Automatically parse compile_commands.json.
   let g:ale_c_parse_compile_commands = 1
+endif
+
+if &runtimepath =~ '/vim-lsp/'
+  if executable('ccls')
+    au User lsp_setup call lsp#register_server({
+          \ 'name': 'ccls',
+          \ 'cmd': {server_info->['ccls']},
+          \ 'root_uri': {
+          \   server_info->lsp#utils#path_to_uri(
+          \     lsp#utils#find_nearest_parent_file_directory(
+          \       lsp#utils#get_buffer_path(), 'compile_commands.json'))
+          \ },
+          \ 'initialization_options': {
+          \   'cache': {'directory': '/tmp/ccls/cache'},
+          \   'diagnostics': {'onChange': 2000}
+          \ },
+          \ 'whitelist': ['h', 'c', 'cpp', 'objc', 'objcpp', 'cc'],
+          \ })
+  endif
+
+  " Some LSP jump shortcuts.
+  nnoremap <silent> <leader>d :LspDefinition<cr>
+  nnoremap <silent> <leader>r :LspReferences<cr>
+  nnoremap <silent> <leader>R :LspRename<cr>
+  nnoremap <silent> <leader>a :LspWorkspaceSymbol<cr>
+  nnoremap <silent> <leader>l :LspDocumentSymbol<cr>
+
+  " TODO: Consider enabling diagnostics.
+  let g:lsp_diagnostics_enabled = 0
+
+endif
+
+if &runtimepath =~ '/asynccomplete/'
+  " Autocomplete with Tab
+  inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+  inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+  inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
+
+  " Disable preview window
+  set completeopt+=preview
+
+  " Autoclose preview window
+  autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 endif

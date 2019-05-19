@@ -6,7 +6,7 @@
 
 # Source user's comnands file for helper functions.
 if [ -f "${HOME}/.bin/commands.sh" ]; then
-  source "${HOME}/.bin/commands.sh"
+  . "${HOME}/.bin/commands.sh"
 fi
 
 # Bash won't source .profile if this ~/.bash_profile exists.
@@ -15,12 +15,11 @@ source_if_exists "${HOME}/.profile"
 # Source the personal bashrc if it exists.
 source_if_exists "${HOME}/.bashrc"
 
-# Consider moving to ~/.profile.
-# Use better competion.
+# Use better competion if it exists.
+# TODO: Consider moving to ~/.profile.
 source_if_exists "${HOME}/.bin/git-completion.bash"
-
 if command_exists "brew"; then
-  BREW_PATH=`brew --prefix`
+  BREW_PATH="$(brew --prefix)"
   source_if_exists "${BREW_PATH}/etc/bash_completion.d/git-completion.bash"
   source_if_exists "${BREW_PATH}/etc/bash_completion.d/git-prompt.sh"
   unset BREW_PATH
@@ -29,3 +28,5 @@ fi
 # TODO: move to profile.
 export PATH="$HOME/.jenv/bin:$PATH"
 eval "$(jenv init -)"
+
+source_if_exists "${HOME}/.iterm2_shell_integration.bash"
