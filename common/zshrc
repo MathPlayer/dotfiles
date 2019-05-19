@@ -32,11 +32,15 @@ if command_exists "docker"; then
 fi
 
 if command_exists "git"; then
-  plugins+=(gitfast git-extras)
+  plugins+=(git gitfast git-extras)
 fi
 
 if command_exists "gradle"; then
   plugins+=(gradle)
+fi
+
+if command_exists "pacman"; then
+  plugins+=(archlinux)
 fi
 
 if [ -d "${ZSH}/custom/plugins/alias-tips" ]; then

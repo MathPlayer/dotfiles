@@ -24,6 +24,7 @@ if [ -e "${HOME}/.cargo/bin" ]; then
 fi
 
 # jenv stuff
+# TODO: brew might not be available; jenv might be in the path somewhere else.
 if [ -f "$(brew --prefix)/bin/jenv" ]; then
   eval "$(jenv init -)"
 fi

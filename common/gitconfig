@@ -28,5 +28,3 @@
 [rebase]
   autoSquash = True
   abbreviateCommands = True
-[commit]
-  template = /Users/popescub/.stCommitMsg
