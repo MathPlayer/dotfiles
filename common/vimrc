@@ -10,7 +10,7 @@ Plug 'sheerun/vim-polyglot'
 " Keep commented out until a stable configuration is in place.
 " Plug 'vim-syntastic/syntastic'
 Plug 'trapd00r/vim-ansicolors' " recognize ANSI color esape sequences
-Plug 'w0rp/ale'
+Plug 'dense-analysis/ale'
 
 " Color-related plugins
 Plug 'altercation/vim-colors-solarized'
@@ -83,14 +83,23 @@ Plug 'othree/html5.vim', {'for': 'html'}
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
 
+" Markdown
+Plug 'plasticboy/vim-markdown'
+
 " File-line easy opening plugin
 Plug 'bogado/file-line'
 
-" LSP
-" Plug 'prabirshrestha/asyncomplete.vim'
-" Plug 'prabirshrestha/async.vim'
-" Plug 'prabirshrestha/vim-lsp'
-" Plug 'prabirshrestha/asyncomplete-lsp.vim'
+" Use vim highlight when using cat in command-line.
+Plug 'ofavre/vimcat'
+
+" Diff directories.
+Plug 'will133/vim-dirdiff'
+
+" LSP + async completion
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
 " Own configuration plugins
 Plug '~/.vim/my-configs'
@@ -109,6 +118,13 @@ set ttyfast
 set termguicolors
 
 try
+  colorscheme gruvbox
+  let g:gitgutter_override_sign_column_highlight=1
+catch
+try
+  colorscheme dracula
+catch
+try
   " Use same background and differentiate only using colors in diff mode
   let g:nord_uniform_diff_background = 1
   " Enables background for the line number of the current line.
@@ -120,9 +136,7 @@ try
   let g:solarized_visibility = "high"
   let g:solarized_contrast = "high"
 catch
-try
-  colorscheme dracula
-catch
+endtry
 endtry
 endtry
 endtry
@@ -422,6 +436,11 @@ if &runtimepath =~ '/ale/'
   let g:ale_c_parse_compile_commands = 1
 endif
 
+if &runtimepath =~ '/leaderf/'
+  " rg mappings
+  noremap <C-F> :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR><CR>
+endif
+
 if &runtimepath =~ '/vim-lsp/'
   if executable('ccls')
     au User lsp_setup call lsp#register_server({
@@ -440,6 +459,15 @@ if &runtimepath =~ '/vim-lsp/'
           \ })
   endif
 
+  if executable('pyls')
+    au User lsp_setup call lsp#register_server({
+          \ 'name': 'pyls',
+          \ 'cmd': {server_info->['pyls']},
+          \ 'whitelist': ['python'],
+          \ 'workspace_config': {'pyls': {'plugins': {'pydocstyle': {'enabled': v:true}}}}
+          \ })
+  endif
+
   " Some LSP jump shortcuts.
   nnoremap <silent> <leader>d :LspDefinition<cr>
   nnoremap <silent> <leader>r :LspReferences<cr>
@@ -447,7 +475,7 @@ if &runtimepath =~ '/vim-lsp/'
   nnoremap <silent> <leader>a :LspWorkspaceSymbol<cr>
   nnoremap <silent> <leader>l :LspDocumentSymbol<cr>
 
-  " TODO: Consider enabling diagnostics.
+  " Use diagnostics from ALE.
   let g:lsp_diagnostics_enabled = 0
 
 endif
