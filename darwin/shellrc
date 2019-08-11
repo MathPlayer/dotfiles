@@ -1,0 +1,7 @@
+# Android on macOS
+MACOS_ANDROID="${HOME}/Library/Android"
+if [ -d "${MACOS_ANDROID}" ]; then
+  export ANDROID_HOME="${MACOS_ANDROID}/sdk"
+  export ANDROID_SDK_ROOT="${MACOS_ANDROID}/sdk"
+fi
+unset MACOS_ANDROID

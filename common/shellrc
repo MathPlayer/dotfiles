@@ -1,0 +1,159 @@
+#
+# ~/.shellrc
+#
+# File with environment definitions.
+#
+
+# Source user's comnands file for helper functions.
+if [ -f "${HOME}/.bin/commands.sh" ]; then
+  . "${HOME}/.bin/commands.sh"
+fi
+
+################################################################################
+# Alter the path variables: PATH, PYTHONPATH.
+# This is doing with the following steps:
+# 1. Create a USER_<PATH> variable.
+# 2. Add to USER_<PATH> the paths to be considered before the standard ones.
+# 3. Prepend <PATH> with USER_<PATH>.
+# This way, the paths configured below are listed in their order of importance.
+
+USER_PATH=""
+USER_PYTHONPATH=""
+
+# Adds $1 to $USER_PATH if $1 is a directory.
+add_user_path() {
+  if [ -d $1 ]; then
+    if [ -z ${USER_PATH} ]; then
+      USER_PATH="$1"
+    else
+      USER_PATH="${USER_PATH}:$1"
+    fi
+  fi
+  return 0
+}
+
+# Adds $1 to $USER_PYTHONPATH if $1 is a directory.
+add_user_pythonpath() {
+  if [ -d "$1" ]; then
+    if [ -z ${USER_PYTHONPATH} ]; then
+      USER_PYTHONPATH="$1"
+    else
+      USER_PYTHONPATH="${USER_PYTHONPATH}:$1"
+    fi
+  fi
+}
+
+# User's private bin.
+add_user_path "${HOME}/.bin"
+
+# Find brew.
+if command_exists "brew"; then
+  BREW_CMD="brew"
+elif [ -f "${HOME}/homebrew/bin/brew" ]; then
+  BREW_CMD="${HOME}/homebrew/bin/brew"
+else
+  BREW_CMD=
+fi
+
+if [ ! -z "${BREW_CMD}" ]; then
+  HOMEBREW_DIR="$(${BREW_CMD} --prefix)"
+else
+  HOMEBREW_DIR=
+fi
+
+# Paths for Homebrew.
+if [ ! -z "${HOMEBREW_DIR}" ]; then
+  # TODO: /usr/local/bin is already in $PATH. If brew is installed in the default path, this adds a
+  # duplicate.
+  add_user_path "${HOMEBREW_DIR}/bin"
+  add_user_path "${HOMEBREW_DIR}/sbin"
+  add_user_path "${HOMEBREW_DIR}/opt/python/libexec/bin"
+  add_user_path "${HOMEBREW_DIR}/opt/curl/bin"
+  add_user_path "${HOMEBREW_DIR}/opt/sqlite/bin"
+  add_user_path "${HOMEBREW_DIR}/opt/llvm/bin"
+fi
+
+# TODO: If Python3 is not already on path, this won't work.
+# Paths for user-installed python2 and python3 packages.
+if command_exists "python3"; then
+  PYTHON_USER_SITE="$(python3 -m site --user-base)"
+  add_user_path "${PYTHON_USER_SITE}/bin"
+  add_user_pythonpath "${PYTHON_USER_SITE}/lib/python/site-packages"
+  unset PYTHON_USER_SITE
+fi
+
+if command_exists "python"; then
+  PYTHON_USER_SITE="$(python -m site --user-base)"
+  add_user_path "${PYTHON_USER_SITE}/bin"
+  add_user_pythonpath "${PYTHON_USER_SITE}/lib/python/site-packages"
+  unset PYTHON_USER_SITE
+fi
+
+# User-installed ruby paths.
+add_user_path "${HOME}/.gem/ruby/2.3.0/bin"
+
+# Rustup path
+add_user_path "${HOME}/.cargo/bin"
+
+# jenv stuff
+# TODO: brew is not available on every OS; jenv might be in the path somewhere else.
+if [ -f "${HOMEBREW_DIR}/bin/jenv" ]; then
+  add_user_path "${HOME}/.jenv/bin"
+fi
+
+
+
+# Merge the user paths configured above into the environment.
+# TODO: filter existing paths in $PATH, add only new ones.
+if [ -n "${USER_PATH}" ]; then
+  export PATH="${USER_PATH}:${PATH}"
+fi
+if [ -n "${USER_PYTHONPATH}" ]; then
+  if [ -z "${PYTHONPATH}" ]; then
+    export PYTHONPATH="${USER_PYTHONPATH}"
+  else
+    export PYTHONPATH="${PYTHONPATH}:${USER_PYTHONPATH}"
+  fi
+fi
+
+if command_exists "jenv"; then
+  eval "$(jenv init -)"
+fi
+
+if command_exists "rbenv"; then
+  eval "$(rbenv init -)"
+fi
+
+# Cleanup.
+unset USER_PATH
+unset USER_PYTHONPATH
+unset HOMEBREW_DIR
+
+################################################################################
+# Various others.
+
+# Set language defaults.
+export LC_ALL="en_US.UTF-8"
+export LANG="en_US.UTF-8"
+export LC_CTYPE="en_US.UTF-8"
+
+# Set default settings for LESS.
+export LESS="-RFX"
+
+# Set text editor.
+command_exists "vim" && export EDITOR="vim"
+command_exists "nvim" && export EDITOR="nvim"
+
+# Set make flags with a default cpu count.
+command_exists nproc && export MAKEFLAGS="-j $(nproc)"
+
+
+# Use better competion if it exists.
+# source_if_exists "${HOME}/.bin/git-completion.bash"
+# source_if_exists "${HOME}/.iterm2_shell_integration.bash"
+# if command_exists "brew"; then
+#  BREW_PATH="$(brew --prefix)"
+#  source_if_exists "${BREW_PATH}/etc/bash_completion.d/git-completion.bash"
+#  source_if_exists "${BREW_PATH}/etc/bash_completion.d/git-prompt.sh"
+#  unset BREW_PATH
+#fi
