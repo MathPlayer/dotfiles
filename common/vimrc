@@ -34,9 +34,7 @@ Plug 'ap/vim-buftabline'
 " Toggle using mouse in vim or not
 Plug 'nvie/vim-togglemouse'
 
-" code-completion
 " Keep commented out until a stable configuration is in place.
-" Plug 'valloric/youcompleteme', {'do': './install.py --clang-completer'}
 
 " Fuzzy finder
 Plug 'yggdroot/leaderf', {'do': './install.sh'}
@@ -48,10 +46,8 @@ Plug 'scrooloose/nerdcommenter'
 Plug 'embear/vim-localvimrc'
 
 " c/c++ plugins
-" Plug 'jeaye/color_coded'
 " TODO: configure flags for the one below.
 Plug 'octol/vim-cpp-enhanced-highlight', {'for': 'cpp'}
-" Plug 'lyuts/vim-rtags', {'for': 'cpp'}
 
 " CMake improved syntax
 Plug 'pboettch/vim-cmake-syntax', {'for': 'cmake'}
@@ -95,7 +91,7 @@ Plug 'ofavre/vimcat'
 " Diff directories.
 Plug 'will133/vim-dirdiff'
 
-" LSP + async completion
+" Async code-completion
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/async.vim'
 Plug 'prabirshrestha/vim-lsp'
@@ -402,18 +398,6 @@ if &runtimepath =~ '/syntastic/'
   let g:syntastic_python_checkers = ['pycodestyle', 'pep8', 'python']
 endif
 
-if &runtimepath =~ '/youcompleteme/'
-  " Close preview window after accepting the offered completion.
-  let g:ycm_autoclose_preview_window_after_insertion = 1
-  " TODO: check if this is needed if syntastic is not enabled
-  let g:ycm_always_populate_location_list = 1
-  " Symbol for errors. If not, it defaults to g:syntastic_error_symbol.
-  let g:ycm_error_symbol = '⇨'
-  " Mappings
-  map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-  map <leader>f  :YcmCompleter FixIt<CR>
-endif
-
 if &runtimepath =~ '/vim-rtags/'
   " Use QuickFix window instead of the location list
   let g:rtagsUseLocationList = 0
@@ -425,10 +409,10 @@ if &runtimepath =~ '/vim-localvimrc/'
 endif
 
 if &runtimepath =~ '/ale/'
-  " Set various linters
+  " Set various linters. TODO: check if executables are available.
   let g:ale_linters = {
     \ 'python': ['pycodestyle'],
-    \ 'cpp': [],
+    \ 'cpp': ['ccls'],
     \ 'sh': ['shellcheck'],
     \ 'zsh': ['shellcheck']
     \ }
