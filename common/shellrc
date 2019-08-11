@@ -146,14 +146,3 @@ command_exists "nvim" && export EDITOR="nvim"
 
 # Set make flags with a default cpu count.
 command_exists nproc && export MAKEFLAGS="-j $(nproc)"
-
-
-# Use better competion if it exists.
-# source_if_exists "${HOME}/.bin/git-completion.bash"
-# source_if_exists "${HOME}/.iterm2_shell_integration.bash"
-# if command_exists "brew"; then
-#  BREW_PATH="$(brew --prefix)"
-#  source_if_exists "${BREW_PATH}/etc/bash_completion.d/git-completion.bash"
-#  source_if_exists "${BREW_PATH}/etc/bash_completion.d/git-prompt.sh"
-#  unset BREW_PATH
-#fi
