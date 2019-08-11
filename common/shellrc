@@ -146,3 +146,6 @@ command_exists "nvim" && export EDITOR="nvim"
 
 # Set make flags with a default cpu count.
 command_exists nproc && export MAKEFLAGS="-j $(nproc)"
+
+# Set umask.
+umask 027
