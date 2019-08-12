@@ -2,6 +2,9 @@
 # $HOME/.ssh/config
 #
 
+# Include directive must be first in file.
+Include ~/work/.ssh/config
+
 Host github.com
 Hostname github.com
 User git

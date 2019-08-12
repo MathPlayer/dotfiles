@@ -28,3 +28,5 @@
 [rebase]
   autoSquash = True
   abbreviateCommands = True
+[includeIf "gitdir:~/work/"]
+  path = ~/work/.gitconfig
