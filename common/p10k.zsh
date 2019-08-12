@@ -292,11 +292,11 @@ fi
   # +42 if have staged changes.
   vcs+='${${VCS_STATUS_NUM_STAGED:#0}:+ %227F+${VCS_STATUS_NUM_STAGED}}'
   # !42 if have unstaged changes.
-  vcs+='${${VCS_STATUS_NUM_UNSTAGED:#0}:+ %227F!${VCS_STATUS_NUM_UNSTAGED}}'
+  vcs+='${${VCS_STATUS_NUM_UNSTAGED:#0}:+ %197F!${VCS_STATUS_NUM_UNSTAGED}}'
   # ?42 if have untracked files. It's really a question mark, your font isn't broken.
   # See POWERLEVEL9K_VCS_UNTRACKED_ICON below if you want to use a different icon.
   # Remove the next line if you don't want to see untracked files at all.
-  vcs+='${${VCS_STATUS_NUM_UNTRACKED:#0}:+ %39F'${(g::)POWERLEVEL9K_VCS_UNTRACKED_ICON}'${VCS_STATUS_NUM_UNTRACKED}}'
+  vcs+='${${VCS_STATUS_NUM_UNTRACKED:#0}:+ %206F'${(g::)POWERLEVEL9K_VCS_UNTRACKED_ICON}'${VCS_STATUS_NUM_UNTRACKED}}'
   # If P9K_CONTENT is not empty, leave it unchanged. It's either "loading" or from vcs_info.
   vcs="\${P9K_CONTENT:-$vcs}"
 
