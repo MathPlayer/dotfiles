@@ -14,5 +14,8 @@
 # YCM
 .ycm_extra_conf.py
 
+# Local env files
+.env
+
 # CMake
 compile_commands.json
