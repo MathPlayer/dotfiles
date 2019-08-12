@@ -87,10 +87,11 @@ unset alias_ls
 
 
 ### Various others
-# Show colored output for various tools.
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
+
+# Add automatic color output for some tools.
+for TOOL in "grep" "fgrep" "egrep" "diff"; do
+  command_exists ${TOOL} --color=auto && alias ${TOOL}="${TOOL} --color=auto"
+done
 
 # Default to human readable figures.
 alias df='df -h'
