@@ -83,6 +83,14 @@ def install(src_dir, dst_dir, bak_dir=None, append=False, add_dot=False):
     LOG.info("----")
 
 
+def git_clone(repo, cwd):
+    """Clones a repository into the given directory."""
+    LOG.info("Clone repository '%s'", repo)
+    LOG.info("   into base dir '%s'", cwd)
+    os.makedirs(cwd, exist_ok=True)
+    subprocess.run(["git", "clone", "--depth=1", "--branch=master", repo], cwd=cwd)
+
+
 def main():
     """Method to execute when script is called."""
     # Sanity check
@@ -110,18 +118,11 @@ def main():
     bak_dir = tempfile.mkdtemp(
         dir=os.getcwd(), prefix="bak_{}".format(datetime.datetime.now().isoformat("_")))
 
-    # Install oh-my-zsh
-    # TODO: use git to clone the repository.
-    # TODO: allow custom plugin setup for:
-    # - https://github.com/djui/alias-tips
-    oh_my_zsh_zip = os.path.join(aux_dir, "oh_my_zsh.zip")
-    urllib.request.urlretrieve(
-        "https://github.com/robbyrussell/oh-my-zsh/archive/master.zip",
-        oh_my_zsh_zip)
-    with zipfile.ZipFile(oh_my_zsh_zip) as zip_file:
-        zip_file.extractall(aux_dir)
-    os.rename(os.path.join(aux_dir, "oh-my-zsh-master"), os.path.join(aux_dir, "oh-my-zsh"))
-    os.remove(oh_my_zsh_zip)
+    # Install oh-my-zsh and plugins/themes.
+    git_clone("https://github.com/robbyrussell/oh-my-zsh.git", aux_dir)
+    custom_dir = os.path.join(aux_dir, "oh-my-zsh", "custom")
+    git_clone("https://github.com/djui/alias-tips.git", os.path.join(custom_dir, "plugins"))
+    git_clone("https://github.com/romkatv/powerlevel10k.git", os.path.join(custom_dir, "themes"))
 
     # Install all files in auxilary dir
     install(os.path.abspath("common"), aux_dir)
