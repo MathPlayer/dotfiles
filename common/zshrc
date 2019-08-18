@@ -20,7 +20,7 @@ export ZSH="${HOME}/.oh-my-zsh"
 
 # Plugins for oh-my-zsh.
 # Default plugins can be found in ~/.oh-my-zsh/plugins/
-# Custom plugins may be found n ~/.oh-my-zsh/custom/plugins/
+# Custom plugins may be found in ~/.oh-my-zsh/custom/plugins/
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   dircycle dotenv shrink-path
@@ -47,9 +47,12 @@ if command_exists "pacman"; then
   plugins+=(archlinux)
 fi
 
-if [ -d "${ZSH}/custom/plugins/alias-tips" ]; then
-  plugins+=(alias-tips)
-fi
+# Custom plugins installed from the dotfiles repository.
+plugins+=(
+  alias-tips
+  zsh-syntax-highlighting zsh-completions zsh-autosuggestions
+)
+autoload -U compinit && compinit
 
 # Set name of the theme to load.
 # Optionally, set to "random" and oh-my-zsh will use a random theme each time it is loaded.
@@ -64,11 +67,3 @@ source_if_exists "${HOME}/.p10k.zsh"
 
 # Load aliases.
 source_if_exists "${HOME}/.aliases"
-
-# Load zsh-syntax-highlighting.
-if command_exists "brew"; then
-  BREW_PREFIX="$(brew --prefix)"
-  source_if_exists "${BREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-  FPATH="${BREW_PREFIX}/share/zsh/site-functions:$FPATH"
-  source_if_exists "${BREW_PREFIX}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-fi

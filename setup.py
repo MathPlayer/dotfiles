@@ -121,8 +121,12 @@ def main():
     # Install oh-my-zsh and plugins/themes.
     git_clone("https://github.com/robbyrussell/oh-my-zsh.git", aux_dir)
     custom_dir = os.path.join(aux_dir, "oh-my-zsh", "custom")
-    git_clone("https://github.com/djui/alias-tips.git", os.path.join(custom_dir, "plugins"))
     git_clone("https://github.com/romkatv/powerlevel10k.git", os.path.join(custom_dir, "themes"))
+    plugins_dir = os.path.join(custom_dir, "plugins")
+    git_clone("https://github.com/djui/alias-tips.git", plugins_dir)
+    git_clone("https://github.com/zsh-users/zsh-syntax-highlighting.git", plugins_dir)
+    git_clone("https://github.com/zsh-users/zsh-completions.git", plugins_dir)
+    git_clone("https://github.com/zsh-users/zsh-autosuggestions.git", plugins_dir)
 
     # Install all files in auxilary dir
     install(os.path.abspath("common"), aux_dir)
