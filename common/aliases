@@ -38,6 +38,14 @@ command_exists "grm" && alias rm="$(get_absolute_path grm)"
 command_exists "gtar" && alias tar="$(get_absolute_path gtar)"
 
 
+### sed
+command_exists "gsed" && alias sed="$(get_absolute_path gsed)"
+
+
+### find
+command_exists "gfind" && alias find="$(get_absolute_path gfind)"
+
+
 ### ls
 alias_ls() {
   EXEC="$(get_absolute_path ls)"
