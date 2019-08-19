@@ -416,6 +416,11 @@ if &runtimepath =~ '/ale/'
     \ 'sh': ['shellcheck'],
     \ 'zsh': ['shellcheck']
     \ }
+  " Set various fixers. TODO: check if executables are available.
+  let g:ale_fixers = {
+    \ 'python': ['black', 'autopep8']
+    \ }
+  let g:ale_cpp_ccls_init_options = { 'cache': { 'directory': '/tmp/ccls/cache' } }
   " Automatically parse compile_commands.json.
   let g:ale_c_parse_compile_commands = 1
 endif
