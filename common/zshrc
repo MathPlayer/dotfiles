@@ -35,6 +35,10 @@ if command_exists "docker"; then
   plugins+=(docker)
 fi
 
+if command_exists "docker-compose"; then
+  plugins+=(docker-compose)
+fi
+
 if command_exists "git"; then
   plugins+=(git gitfast git-extras)
 fi
