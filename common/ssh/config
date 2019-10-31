@@ -2,7 +2,7 @@
 # $HOME/.ssh/config
 #
 
-# Include directive must be first in file.
+# Any include directive must at the top, otherwise it won't work.
 Include ~/work/.ssh/config
 
 Host github.com
@@ -15,7 +15,7 @@ Hostname bitbucket.org
 User git
 IdentityFile ~/.ssh/bitbucket_rsa
 
-# Export variables in bashrc in order to be useful
+# Assume the variables are exported in the environment (e.g. from shell rc files).
 Host *.labs.overthewire.org
 SendEnv WECHALLTOKEN
 SendEnv WECHALLUSER
