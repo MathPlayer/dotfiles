@@ -19,3 +19,7 @@
 
 # CMake
 compile_commands.json
+
+# Java compiled files
+*.class
+*.classpath
