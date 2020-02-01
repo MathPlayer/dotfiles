@@ -149,3 +149,11 @@ command_exists nproc && export MAKEFLAGS="-j $(nproc)"
 
 # Set umask.
 umask 027
+
+# Accept custom, work-related configuration.
+MY_WORK_DIR="${HOME}/work"
+if [ -d "${MY_WORK_DIR}" ]; then
+  export MY_WORK_DIR="${MY_WORK_DIR}"
+  source_if_exists "${MY_WORK_DIR}/.shellrc"
+fi
+unset MY_WORK_DIR
