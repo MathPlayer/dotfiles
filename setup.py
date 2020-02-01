@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Installs dotfiles from this repository to a given directory."""
+"""Installs dotfiles from this repository."""
 
 import argparse
 import datetime
@@ -13,19 +13,19 @@ import subprocess
 import sys
 import tempfile
 import urllib.request
-import zipfile
 
-logging.basicConfig(format="%(asctime)-23s %(levelname)-8s %(message)s")
-LOG = logging.getLogger("")
+# Logging information.
+logging.basicConfig(format='%(asctime)-23s %(levelname)-8s %(message)s')
+LOG = logging.getLogger('')
 
 
 def check_run():
     """Determine if the setup script is started from the root directory of the repository."""
-    cmd = ["git", "rev-parse", "--show-toplevel"]
+    cmd = ['git', 'rev-parse', '--show-toplevel']
     directory = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0].rstrip()
 
     if directory.decode() != os.getcwd():
-        LOG.error("This script must be run from repository root directory")
+        LOG.error("This script must run from repository root directory.")
         sys.exit(errno.EPERM)
 
 
@@ -35,43 +35,44 @@ def get_os_type():
 
 
 def do_copy(src, dst, bak, append=False):
-    """Install file from src to dst, doing a backup to bak if needed and appending to dst if append
-    param is true.
-    """
+    """Copy file from src to dst, backing up to bak (if needed). If append is True, the file
+    content from src is appended to (a possible existing) dst."""
     if not os.path.isfile(dst):
         os.makedirs(os.path.dirname(dst), exist_ok=True)
-        LOG.debug("Destination file does not exist: '%s'", dst)
+        LOG.debug(f"Destination file does not exist: '{dst}'.")
         shutil.copy(src, dst)
         return
     if filecmp.cmp(src, dst, shallow=False):
-        LOG.debug("Destination file is identical: '%s'", dst)
+        LOG.debug(f"Destination file is identical: '{dst}'.")
         return
 
     if bak:
-        LOG.debug("Destination backup needed: '%s'", dst)
+        LOG.debug(f"Destination backup needed: '{dst}'.")
         os.makedirs(os.path.dirname(bak), exist_ok=True)
         if os.path.isfile(bak):
-            LOG.error("Backup already exists at path: '%s'", bak)
+            LOG.error(f"Backup already exists at path: '{bak}'.")
             sys.exit(errno.EEXIST)
         shutil.copy(dst, bak)
-        LOG.info("Backup done: '%s'", dst)
+        LOG.info(f"Backup done: '{dst}'")
 
     if not append:
         shutil.copy(src, dst)
+        LOG.debug("Append done: '{dst}'.")
     else:
-        with open(dst, "a") as dst_f:
-            dst_f.write(open(src, "r").read())
+        with open(dst, 'a') as dst_f:
+            dst_f.write(open(src, 'r').read())
+            LOG.debug("Write done: '{dst}'.")
 
 
 def install(src_dir, dst_dir, bak_dir=None, append=False, add_dot=False):
-    """Install files from src_dir to dst_dir."""
-    dot = "." if add_dot else ""
-    LOG.info("install from: '%s'", src_dir)
-    LOG.info("          to: '%s'", dst_dir)
+    """Installs files from src_dir to dst_dir."""
+    dot = '.' if add_dot else ''
+    LOG.info(f"{'Install from':13s}: '{src_dir}'")
+    LOG.info(f"{'to':13s}: '{dst_dir}'")
     if bak_dir:
-        LOG.info("  backup dir: '%s'", bak_dir)
+        LOG.info(f"{'backup dir':13s}: '{bak_dir}'")
     if not os.path.isdir(src_dir):
-        LOG.info("Source directory does not exist.")
+        LOG.warning("Source directory does not exist.")
         return
     for rel_path in [os.path.relpath(os.path.join(dirname, filename), src_dir)
                      for (dirname, _, filenames) in os.walk(src_dir)
@@ -79,16 +80,15 @@ def install(src_dir, dst_dir, bak_dir=None, append=False, add_dot=False):
         do_copy(
             os.path.join(src_dir, rel_path), os.path.join(dst_dir, dot + rel_path),
             os.path.join(bak_dir, rel_path) if bak_dir else None, append)
-    LOG.info("done")
-    LOG.info("----")
+    LOG.info("Install done.")
 
 
 def git_clone(repo, cwd):
     """Clones a repository into the given directory."""
-    LOG.info("Clone repository '%s'", repo)
-    LOG.info("   into base dir '%s'", cwd)
+    LOG.info(f"Clone repository {repo} into base dir {cwd}")
     os.makedirs(cwd, exist_ok=True)
-    subprocess.run(["git", "clone", "--depth=1", "--branch=master", repo], cwd=cwd)
+    # TODO: optimize cloning.
+    subprocess.run(['git', 'clone', '--depth=1', '--branch=master', repo], cwd=cwd)
 
 
 def main():
@@ -97,66 +97,63 @@ def main():
     check_run()
 
     # Parser-specific arguments
-    dst_dir = os.path.expanduser("~")
+    dst_dir = os.path.expanduser('~')
     parser = argparse.ArgumentParser(
-        description="Install dotfiles to a given directory")
+        description="Installs dotfiles from this directory to a given directory.")
     parser.add_argument(
-        "-d", "--directory", default=dst_dir,
-        help="directory to install into; default is the home directory, namingly '%(default)s'.")
+        '-d', '--directory', default=dst_dir,
+        help="Installation directory; defaults to %(default)s.")
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Show detailed info")
+        '-v', '--verbose', action='store_true', help="Log this script actions at debug level.")
     parser.add_argument(
-        "--skip-vim-plug-install", action="store_true", help="Do not call :PlugInstall in vim")
+        '--skip-vim-plug-install', action='store_true', help="Do not call :PlugInstall in vim.")
 
     args = parser.parse_args()
 
-    # Prepare install
+    # Prepare install.
     LOG.setLevel(logging.DEBUG if args.verbose else logging.INFO)
+    now = datetime.datetime.now().isoformat('_')
     dst_dir = os.path.abspath(args.directory)
-    aux_dir = tempfile.mkdtemp(
-        dir=os.getcwd(), prefix="aux_{}".format(datetime.datetime.now().isoformat("_")))
-    bak_dir = tempfile.mkdtemp(
-        dir=os.getcwd(), prefix="bak_{}".format(datetime.datetime.now().isoformat("_")))
+    aux_dir = tempfile.mkdtemp(dir=os.getcwd(), prefix=f'aux_{now}')
+    bak_dir = tempfile.mkdtemp(dir=os.getcwd(), prefix=f'bak_{now}')
 
     # Install oh-my-zsh and plugins/themes.
-    git_clone("https://github.com/robbyrussell/oh-my-zsh.git", aux_dir)
-    custom_dir = os.path.join(aux_dir, "oh-my-zsh", "custom")
-    git_clone("https://github.com/romkatv/powerlevel10k.git", os.path.join(custom_dir, "themes"))
-    plugins_dir = os.path.join(custom_dir, "plugins")
-    git_clone("https://github.com/djui/alias-tips.git", plugins_dir)
-    git_clone("https://github.com/zsh-users/zsh-syntax-highlighting.git", plugins_dir)
-    git_clone("https://github.com/zsh-users/zsh-completions.git", plugins_dir)
-    git_clone("https://github.com/zsh-users/zsh-autosuggestions.git", plugins_dir)
+    git_clone('https://github.com/robbyrussell/oh-my-zsh.git', aux_dir)
+    custom_dir = os.path.join(aux_dir, 'oh-my-zsh', 'custom')
+    git_clone('https://github.com/romkatv/powerlevel10k.git', os.path.join(custom_dir, 'themes'))
+    plugins_dir = os.path.join(custom_dir, 'plugins')
+    git_clone('https://github.com/zsh-users/zsh-syntax-highlighting.git', plugins_dir)
+    git_clone('https://github.com/zsh-users/zsh-completions.git', plugins_dir)
+    git_clone('https://github.com/zsh-users/zsh-autosuggestions.git', plugins_dir)
+    git_clone('https://github.com/MichaelAquilina/zsh-you-should-use.git', plugins_dir)
 
-    # Install all files in auxilary dir
-    install(os.path.abspath("common"), aux_dir)
+    # Install all files in auxilary dir.
+    install(os.path.abspath('common'), aux_dir)
     install(os.path.abspath(get_os_type()), aux_dir, append=True)
 
-    # Retrieve vim-plug
-    vim_plug_file = os.path.join(aux_dir, "vim", "autoload", "plug.vim")
+    # Retrieve vim-plug.
+    vim_plug_file = os.path.join(aux_dir, 'vim', 'autoload', 'plug.vim')
     os.makedirs(os.path.dirname(vim_plug_file), exist_ok=True)
     urllib.request.urlretrieve(
-        "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim",
+        'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim',
         vim_plug_file)
 
-    # Install files from auxiliary directory to destination
+    # Install files from auxiliary directory to destination.
     install(aux_dir, dst_dir, bak_dir=bak_dir, add_dot=True)
 
     if not args.skip_vim_plug_install:
-        # Install vim plugins using vim-plug
-        status = subprocess.run(["vim", "+silent", "+PlugInstall", "+qall"])
+        # Install vim plugins using vim-plug.
+        status = subprocess.run(['vim', '+silent', '+PlugInstall', '+qall'])
         if status.returncode:
-            LOG.warning(
-                "Vim plugin install failed. "
-                "You might need to install additional tools before retrying.")
+            LOG.warning("Vim plugin install failed. You might need to install additional tools.")
 
-    # Cleanup
+    # Cleanup.
     shutil.rmtree(aux_dir)
     if not os.listdir(bak_dir):
-        LOG.info("No backups were made.")
+        LOG.info("Backup was not needed.")
         shutil.rmtree(bak_dir, ignore_errors=True)
     else:
-        LOG.info("Backups saved to '%s'", bak_dir)
+        LOG.info(f"Backup was saved to '{bak_dir}'.")
 
     return 0
 
