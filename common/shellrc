@@ -18,29 +18,17 @@ fi
 # This way, the paths configured below are listed in their order of importance.
 
 USER_PATH=""
-USER_PYTHONPATH=""
 
 # Adds $1 to $USER_PATH if $1 is a directory.
 add_user_path() {
-  if [ -d $1 ]; then
-    if [ -z ${USER_PATH} ]; then
+  if [ -d "$1" ]; then
+    if [ -z "${USER_PATH}" ]; then
       USER_PATH="$1"
     else
       USER_PATH="${USER_PATH}:$1"
     fi
   fi
   return 0
-}
-
-# Adds $1 to $USER_PYTHONPATH if $1 is a directory.
-add_user_pythonpath() {
-  if [ -d "$1" ]; then
-    if [ -z ${USER_PYTHONPATH} ]; then
-      USER_PYTHONPATH="$1"
-    else
-      USER_PYTHONPATH="${USER_PYTHONPATH}:$1"
-    fi
-  fi
 }
 
 # User's private bin.
@@ -73,20 +61,32 @@ if [ ! -z "${HOMEBREW_DIR}" ]; then
   add_user_path "${HOMEBREW_DIR}/opt/llvm/bin"
 fi
 
-# TODO: If Python3 is not already on path, this won't work.
-# Paths for user-installed python2 and python3 packages.
-if command_exists "python3"; then
-  PYTHON_USER_SITE="$(python3 -m site --user-base)"
-  add_user_path "${PYTHON_USER_SITE}/bin"
-  add_user_pythonpath "${PYTHON_USER_SITE}/lib/python/site-packages"
-  unset PYTHON_USER_SITE
+unset HOMEBREW_DIR
+
+# Jenv
+if command_exists "jenv"; then
+  eval "$(jenv init - --no-rehash)"
+  (jenv rehash &) 2> /dev/null
+  add_user_path "${HOME}/.jenv/bin"
 fi
 
-if command_exists "python"; then
-  PYTHON_USER_SITE="$(python -m site --user-base)"
-  add_user_path "${PYTHON_USER_SITE}/bin"
-  add_user_pythonpath "${PYTHON_USER_SITE}/lib/python/site-packages"
-  unset PYTHON_USER_SITE
+# Rbenv
+if command_exists "rbenv"; then
+  eval "$(rbenv init - --no-rehash)"
+  (rbenv rehash &) 2> /dev/null
+fi
+
+# Pyenv
+if command_exists "pyenv"; then
+  eval "$(pyenv init - --no-rehash)"
+  (pyenv rehash &) 2> /dev/null
+  if command_exists "pyenv-virtualenv-init"; then
+    eval "$(pyenv virtualenv-init -)"
+    # avoid double virtualenv name mention in prompt, see pyenv-virtualenv info message below:
+    # pyenv-virtualenv: prompt changing will be removed from future release.
+    # configure `export PYENV_VIRTUALENV_DISABLE_PROMPT=1' to simulate the behavior.
+    export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+  fi
 fi
 
 # User-installed ruby paths.
@@ -95,39 +95,14 @@ add_user_path "${HOME}/.gem/ruby/2.3.0/bin"
 # Rustup path
 add_user_path "${HOME}/.cargo/bin"
 
-# jenv stuff
-# TODO: brew is not available on every OS; jenv might be in the path somewhere else.
-if [ -f "${HOMEBREW_DIR}/bin/jenv" ]; then
-  add_user_path "${HOME}/.jenv/bin"
-fi
-
-
-
 # Merge the user paths configured above into the environment.
 # TODO: filter existing paths in $PATH, add only new ones.
 if [ -n "${USER_PATH}" ]; then
   export PATH="${USER_PATH}:${PATH}"
 fi
-if [ -n "${USER_PYTHONPATH}" ]; then
-  if [ -z "${PYTHONPATH}" ]; then
-    export PYTHONPATH="${USER_PYTHONPATH}"
-  else
-    export PYTHONPATH="${PYTHONPATH}:${USER_PYTHONPATH}"
-  fi
-fi
-
-if command_exists "jenv"; then
-  eval "$(jenv init -)"
-fi
-
-if command_exists "rbenv"; then
-  eval "$(rbenv init -)"
-fi
 
 # Cleanup.
 unset USER_PATH
-unset USER_PYTHONPATH
-unset HOMEBREW_DIR
 
 ################################################################################
 # Various others.
