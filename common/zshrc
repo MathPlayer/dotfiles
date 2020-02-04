@@ -3,6 +3,11 @@
 # ~/.zshrc
 #
 
+# Use zprof for debugging startup performance. Keep comented. Nice to have around.
+# zmodload zsh/zprof
+
+[[ ! -o interactive ]] && return
+
 # Source the users commands library if it exists.
 if [ -f "${HOME}/.bin/commands.sh" ]; then
   . "${HOME}/.bin/commands.sh"
@@ -71,3 +76,6 @@ source_if_exists "${HOME}/.p10k.zsh"
 
 # Load aliases.
 source_if_exists "${HOME}/.aliases"
+
+# Use zprof for debugging startup performance. Keep comented. Nice to have around.
+# zprof
