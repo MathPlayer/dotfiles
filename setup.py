@@ -131,6 +131,8 @@ def main():
     git_clone('https://github.com/zsh-users/zsh-completions.git', plugins_dir)
     git_clone('https://github.com/zsh-users/zsh-autosuggestions.git', plugins_dir)
     git_clone('https://github.com/MichaelAquilina/zsh-you-should-use.git', plugins_dir)
+    # TODO: wait for it to become a proper plugin.
+    # git_clone('https://github.com/trapd00r/zsh-syntax-highlighting-filetypes', plugins_dir)
 
     # Install all files in auxilary dir.
     install(os.path.abspath('common'), aux_dir)

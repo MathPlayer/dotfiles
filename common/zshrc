@@ -60,6 +60,7 @@ fi
 plugins+=(
   alias-tips
   zsh-syntax-highlighting zsh-completions zsh-autosuggestions
+  # Add zsh-syntax-highlighting-filetypes after the repo will be clonable as a zsh plugin.
 )
 autoload -U compinit && compinit
 
