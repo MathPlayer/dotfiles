@@ -117,6 +117,11 @@ def main():
     aux_dir = tempfile.mkdtemp(dir=os.getcwd(), prefix=f'aux_{now}')
     bak_dir = tempfile.mkdtemp(dir=os.getcwd(), prefix=f'bak_{now}')
 
+    # Retrieve dircolors.
+    # TODO: Read https://github.com/trapd00r/LS_COLORS#zsh-integration-with-zplugin
+    urllib.request.urlretrieve(
+        'https://raw.github.com/trapd00r/LS_COLORS/master/LS_COLORS',
+        os.path.join(aux_dir, 'dircolors'))
     # Install oh-my-zsh and plugins/themes.
     git_clone('https://github.com/robbyrussell/oh-my-zsh.git', aux_dir)
     custom_dir = os.path.join(aux_dir, 'oh-my-zsh', 'custom')
