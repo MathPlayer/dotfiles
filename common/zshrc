@@ -58,7 +58,7 @@ fi
 
 # Custom plugins installed from the dotfiles repository.
 plugins+=(
-  alias-tips
+  you-should-use
   zsh-syntax-highlighting zsh-completions zsh-autosuggestions
   # Add zsh-syntax-highlighting-filetypes after the repo will be clonable as a zsh plugin.
 )

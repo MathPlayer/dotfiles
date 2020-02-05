@@ -83,12 +83,15 @@ def install(src_dir, dst_dir, bak_dir=None, append=False, add_dot=False):
     LOG.info("Install done.")
 
 
-def git_clone(repo, cwd):
-    """Clones a repository into the given directory."""
+def git_clone(repo, cwd, renamed_root=None):
+    """Clones a repository into the given directory, changing the root folder name if provided."""
     LOG.info(f"Clone repository {repo} into base dir {cwd}")
     os.makedirs(cwd, exist_ok=True)
     # TODO: optimize cloning.
-    subprocess.run(['git', 'clone', '--depth=1', '--branch=master', repo], cwd=cwd)
+    git_cmd = ['git', 'clone', '--depth=1', '--branch=master', repo]
+    if renamed_root:
+        git_cmd.append(renamed_root)
+    subprocess.run(git_cmd, cwd=cwd)
 
 
 def main():
@@ -130,7 +133,8 @@ def main():
     git_clone('https://github.com/zsh-users/zsh-syntax-highlighting.git', plugins_dir)
     git_clone('https://github.com/zsh-users/zsh-completions.git', plugins_dir)
     git_clone('https://github.com/zsh-users/zsh-autosuggestions.git', plugins_dir)
-    git_clone('https://github.com/MichaelAquilina/zsh-you-should-use.git', plugins_dir)
+    git_clone(
+        'https://github.com/MichaelAquilina/zsh-you-should-use.git', plugins_dir, 'you-should-use')
     # TODO: wait for it to become a proper plugin.
     # git_clone('https://github.com/trapd00r/zsh-syntax-highlighting-filetypes', plugins_dir)
 
