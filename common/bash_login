@@ -1,0 +1,11 @@
+#
+# ~/.bash_login
+#
+# File executed by the command interpreter for login shells.
+# This file is ignored if ~/.bash_profile exists.
+#
+
+# Rely on bashrc to provide the configuration.
+if [ -f "$HOME/.bashrc" ]; then
+  source "$HOME/.bashrc"
+fi
