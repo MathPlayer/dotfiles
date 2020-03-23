@@ -9,7 +9,7 @@ if [ -f "${HOME}/.bin/commands.sh" ]; then
   . "${HOME}/.bin/commands.sh"
 fi
 
-################################################################################
+####################################################################################################
 # Alter the path variables: PATH, PYTHONPATH.
 # This is doing with the following steps:
 # 1. Create a USER_<PATH> variable.
@@ -51,8 +51,8 @@ fi
 
 # Paths for Homebrew.
 if [ ! -z "${HOMEBREW_DIR}" ]; then
-  # TODO: /usr/local/bin is already in $PATH. If brew is installed in the default path, this adds a
-  # duplicate.
+  # TODO: Check if /usr/local/bin is already in $PATH.
+  # If brew is installed in the default path, this adds a duplicate.
   add_user_path "${HOMEBREW_DIR}/bin"
   add_user_path "${HOMEBREW_DIR}/sbin"
   add_user_path "${HOMEBREW_DIR}/opt/python/libexec/bin"
@@ -63,32 +63,6 @@ fi
 
 unset HOMEBREW_DIR
 
-# Jenv
-if command_exists "jenv"; then
-  eval "$(jenv init - --no-rehash)"
-  (jenv rehash &) 2> /dev/null
-  add_user_path "${HOME}/.jenv/bin"
-fi
-
-# Rbenv
-if command_exists "rbenv"; then
-  eval "$(rbenv init - --no-rehash)"
-  (rbenv rehash &) 2> /dev/null
-fi
-
-# Pyenv
-if command_exists "pyenv"; then
-  eval "$(pyenv init - --no-rehash)"
-  (pyenv rehash &) 2> /dev/null
-  if command_exists "pyenv-virtualenv-init"; then
-    eval "$(pyenv virtualenv-init -)"
-    # avoid double virtualenv name mention in prompt, see pyenv-virtualenv info message below:
-    # pyenv-virtualenv: prompt changing will be removed from future release.
-    # configure `export PYENV_VIRTUALENV_DISABLE_PROMPT=1' to simulate the behavior.
-    export PYENV_VIRTUALENV_DISABLE_PROMPT=1
-  fi
-fi
-
 # User-installed ruby paths.
 add_user_path "${HOME}/.gem/ruby/2.3.0/bin"
 
@@ -96,7 +70,7 @@ add_user_path "${HOME}/.gem/ruby/2.3.0/bin"
 add_user_path "${HOME}/.cargo/bin"
 
 # Merge the user paths configured above into the environment.
-# TODO: filter existing paths in $PATH, add only new ones.
+# TODO: filter non-existing paths + duplicates.
 if [ -n "${USER_PATH}" ]; then
   export PATH="${USER_PATH}:${PATH}"
 fi
@@ -104,7 +78,37 @@ fi
 # Cleanup.
 unset USER_PATH
 
-################################################################################
+####################################################################################################
+# *env tools.
+# Pyenv
+export PYENV_ROOT="${HOME}/.pyenv"
+export PATH="${PYENV_ROOT}/bin:${PATH}"
+eval "$(pyenv init - --no-rehash)"
+(pyenv rehash &) 2> /dev/null
+if command_exists "pyenv-virtualenv-init"; then
+  eval "$(pyenv virtualenv-init -)"
+  # avoid double virtualenv name mention in prompt, see pyenv-virtualenv info message below:
+  # pyenv-virtualenv: prompt changing will be removed from future release.
+  # configure `export PYENV_VIRTUALENV_DISABLE_PROMPT=1' to simulate the behavior.
+  export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+fi
+
+# Jenv
+export PATH="${HOME}/.jenv/bin:${PATH}"
+eval "$(jenv init - --no-rehash)"
+(jenv rehash &) 2> /dev/null
+# TODO: check for JAVA_HOME, enable it and/or show a message that user should restart.
+# jenv enable-plugin export
+
+# Rbenv
+export PATH="${HOME}/.rbenv/bin:${PATH}"
+eval "$(rbenv init - --no-rehash)"
+(rbenv rehash &) 2> /dev/null
+# TODO: consider trying the compile part to make rbenv faster.
+# Last code snippet in first step from: https://github.com/rbenv/rbenv#basic-github-checkout
+# $ cd ~/.rbenv && src/configure && make -C src
+
+####################################################################################################
 # Various others.
 
 # Set language defaults.
@@ -115,9 +119,20 @@ export LC_CTYPE="en_US.UTF-8"
 # Set default settings for LESS.
 export LESS="-RFX"
 
-# Set text editor.
+# Set text editors.
 command_exists "vim" && export EDITOR="vim"
 command_exists "nvim" && export EDITOR="nvim"
+### Local installs
+# TODO: remove
+### custom nvim
+MY_NVIM_DIR="${HOME}/.neovim/bin"
+if [ -d "${MY_NVIM_DIR}" ]; then
+  export PATH="${PATH}:${MY_NVIM_DIR}"
+  export EDITOR="nvim"
+fi
+if [ ! -z "${EDITOR}" ]; then
+  export VISUAL="${EDITOR}"
+fi
 
 # Set make flags with a default cpu count.
 command_exists nproc && export MAKEFLAGS="-j $(nproc)"
@@ -132,3 +147,4 @@ if [ -d "${MY_WORK_DIR}" ]; then
   source_if_exists "${MY_WORK_DIR}/.shellrc"
 fi
 unset MY_WORK_DIR
+

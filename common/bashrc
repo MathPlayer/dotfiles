@@ -59,16 +59,42 @@ shopt -s globstar
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
 
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
-if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
-    . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
-  fi
-fi
-
 # Load aliases.
 source_if_exists "${HOME}/.aliases"
+
+#
+# bash-it
+#
+
+# Path to the bash it configuration.
+export BASH_IT="/home/bogdan/.bash-it"
+
+# Theme.
+export BASH_IT_THEME='powerline'
+
+# Set to false to turn off version control status checking within the prompt for all themes.
+export SCM_CHECK=true
+
+# Load Bash It
+source "${BASH_IT}/bash_it.sh"
+
+# Enabled aliases/plugins/completions.
+ALIAS="docker docker-compose general git"
+PLUGIN="base git history man powerline"
+COMPLETION="bash-it defaults docker docker-compose git pip3 ssh system"
+
+# Bash-it does not keep the enabled components in a config file.
+# Workaround to enable them only once if the enabled directory is not created.
+if [ ! -d ${BASH_IT}/enabled ]; then
+  echo "=== Initializing bash-it for the first time. ==="
+  for component in "ALIAS" "PLUGIN" "COMPLETION"; do
+    CMD="bash-it enable ${component,,} ${!component}"
+    echo "=== ${CMD}"
+    ${CMD}
+    unset CMD
+  done
+fi
+
+unset ALIASES
+unset PLUGINS
+unset COMPLETIONS

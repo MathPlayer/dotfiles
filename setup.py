@@ -125,6 +125,7 @@ def main():
     urllib.request.urlretrieve(
         'https://raw.github.com/trapd00r/LS_COLORS/master/LS_COLORS',
         os.path.join(aux_dir, 'dircolors'))
+
     # Install oh-my-zsh and plugins/themes.
     git_clone('https://github.com/robbyrussell/oh-my-zsh.git', aux_dir)
     custom_dir = os.path.join(aux_dir, 'oh-my-zsh', 'custom')
@@ -137,6 +138,19 @@ def main():
         'https://github.com/MichaelAquilina/zsh-you-should-use.git', plugins_dir, 'you-should-use')
     # TODO: wait for it to become a proper plugin.
     # git_clone('https://github.com/trapd00r/zsh-syntax-highlighting-filetypes', plugins_dir)
+
+    # Install bash-it.
+    git_clone('https://github.com/Bash-it/bash-it.git', aux_dir)
+
+    # Install *env.
+    # TODO: Check if *env exists in the path and not from $HOME/.*env before cloning here and
+    # abort/warn with a message asking to uninstall the system one.
+    git_clone('https://github.com/pyenv/pyenv.git', aux_dir)
+    git_clone('https://github.com/jenv/jenv.git', aux_dir)
+    git_clone('https://github.com/rbenv/rbenv.git', aux_dir)
+    plugins_dir = os.path.join(aux_dir, 'rbenv', 'plugins')
+    # The plugins directory does not exist in the rbenv repository, add the repo name in the path.
+    git_clone('https://github.com/rbenv/ruby-build.git', os.path.join(plugins_dir, 'ruby-build'))
 
     # Install all files in auxilary dir.
     install(os.path.abspath('common'), aux_dir)
