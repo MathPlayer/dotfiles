@@ -42,7 +42,7 @@ def do_copy(src, dst, bak, append=False):
     if not dst.is_file():
         os.makedirs(dst.parent, exist_ok=True)
         LOG.debug(f"Destination file does not exist: '{dst}'.")
-        shutil.copy(src, dst)
+        shutil.copy(src, dst, follow_symlinks=False)
         return
     if filecmp.cmp(src, dst, shallow=False):
         LOG.debug(f"Destination file is identical: '{dst}'.")
