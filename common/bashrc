@@ -70,7 +70,24 @@ source_if_exists "${HOME}/.aliases"
 export BASH_IT="/home/bogdan/.bash-it"
 
 # Theme.
-export BASH_IT_THEME='powerline'
+export BASH_IT_THEME='powerline-plain'
+# Prompt sections.
+export POWERLINE_PROMPT='python_venv cwd scm'
+# Strip some space.
+export POWERLINE_COMPACT_BEFORE_FIRST_SEGMENT=1
+export POWERLINE_COMPACT_BEFORE_SEPARATOR=1
+## Remove branch sign for git.
+export POWERLINE_SCM_GIT_CHAR=' '
+# Set colors.
+# Green status 76
+# Red status 196
+#export POWERLINE_SCM_DIRTY_COLOR=196
+#export POWERLINE_CWD_COLOR=31
+
+# Disabled functionality.
+export THEME_CHECK_SUDO=false
+export THEME_BATTERY_PERCENTAGE_CHECK=false
+export THEME_SHOW_RUBY_PROMPT=false
 
 # Set to false to turn off version control status checking within the prompt for all themes.
 export SCM_CHECK=true
