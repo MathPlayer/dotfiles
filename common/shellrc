@@ -33,6 +33,9 @@ add_user_path() {
 
 # User's private bin.
 add_user_path "${HOME}/.bin"
+# Local installs
+export USR_LOCAL_CUSTOM="${HOME}/.usr/local/bin"
+add_user_path "${USR_LOCAL_CUSTOM}"
 
 # Find brew.
 if command_exists "brew"; then
@@ -122,14 +125,7 @@ export LESS="-RFX"
 # Set text editors.
 command_exists "vim" && export EDITOR="vim"
 command_exists "nvim" && export EDITOR="nvim"
-### Local installs
-# TODO: remove
-### custom nvim
-MY_NVIM_DIR="${HOME}/.neovim/bin"
-if [ -d "${MY_NVIM_DIR}" ]; then
-  export PATH="${PATH}:${MY_NVIM_DIR}"
-  export EDITOR="nvim"
-fi
+
 if [ ! -z "${EDITOR}" ]; then
   export VISUAL="${EDITOR}"
 fi
