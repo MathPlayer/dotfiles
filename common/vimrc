@@ -24,9 +24,14 @@ Plug 'scrooloose/nerdtree' ", {'on': ['NERDTree', 'NERDTreeToggle', 'NERDTreeFin
 Plug 'Xuyuanp/nerdtree-git-plugin' ", {'on': ['NERDTree', 'NERDTreeToggle', 'NERDTreeFind']}
 Plug 'PhilRunninger/nerdtree-buffer-ops'
 
-" Better statusline.
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+" Better statusline/tabline.
+Plug 'itchyny/lightline.vim'
+Plug 'mengelbrecht/lightline-bufferline'
+Plug 'shinchu/lightline-gruvbox.vim'
+
+" highlight the word under cursor
+Plug 'itchyny/vim-cursorword'
+
 
 " Toggle using mouse in vim or not
 Plug 'nvie/vim-togglemouse'
@@ -36,9 +41,6 @@ Plug 'yggdroot/leaderf', {'do': './install.sh'}
 
 " Easy commenting
 Plug 'scrooloose/nerdcommenter'
-
-" Per-directory vimrc
-Plug 'embear/vim-localvimrc'
 
 " c/c++ plugins
 " TODO: configure flags for the one below.
@@ -87,9 +89,12 @@ Plug '~/.vim/my-configs'
 " Tags viewer.
 Plug 'liuchengxu/vista.vim'
 
-" Neovim's default LSP
 if has('nvim')
+  " Neovim's default LSP
   Plug 'neovim/nvim-lsp'
+
+  " Show file icons
+  Plug 'ryanoasis/vim-devicons'
 endif
 
 call plug#end()
@@ -103,33 +108,8 @@ set ttyfast
 
 "----- appearance -----"
 
+" Use 24-bit colors.
 set termguicolors
-
-try
-  colorscheme gruvbox
-  let g:gitgutter_override_sign_column_highlight=1
-catch
-try
-  colorscheme dracula
-catch
-try
-  " Use same background and differentiate only using colors in diff mode
-  let g:nord_uniform_diff_background = 1
-  " Enables background for the line number of the current line.
-  let g:nord_cursor_line_number_background = 1
-  colorscheme nord
-catch
-try
-  colorscheme solarized
-  let g:solarized_visibility = "high"
-  let g:solarized_contrast = "high"
-catch
-endtry
-endtry
-endtry
-endtry
-
-set background=dark
 
 " Improve visual performance by not redrawing the screen when executing some commands
 set lazyredraw
@@ -147,12 +127,11 @@ set number
 autocmd FileType qf setlocal nonumber
 " show the 'line,columns' on the bar
 set ruler
-" highlight the cursor line; using this + vertical splits is slow
+" highlight the cursor line
+" XXX: using this + vertical splits is sometimes slow in vim
 set cursorline
 " show matching brackets
 set showmatch
-" show tabline if there are at least two tab pages
-set showtabline=1
 " set text maximum width to 99 (100 including newline) - except when on quickfix
 set textwidth=99
 if exists('+colorcolumn')
@@ -226,6 +205,8 @@ highlight SpellBad cterm=underline
 " Improve SignColumn color
 highlight SignColumn ctermbg=black guibg=darkgrey
 highlight SpecialKey cterm=NONE ctermfg=grey
+" tabline fill space
+"highlight TabLineFill ctermbg=black guibg=darkgrey
 
 
 "----- menu and status -----"
@@ -306,8 +287,11 @@ nnoremap <leader>cd :cd %:p:h<CR>:pwd<CR>
 " modified by any indent feature)
 set pastetoggle=<F2>
 
-"----- function to remove trailing whitespace -----"
+
+"----- misc -----"
+
 fun! <SID>StripTrailingWhitespaces()
+  " function to remove trailing whitespaces
   let L = line(".")
   let C = col(".")
   %s/\s\+$//e
@@ -346,6 +330,8 @@ augroup END
 
 
 "----- plugin settings -----"
+" TODO: Consider switching to using vim-plug `plugs` with sth like if has_key(g:plugs, <name>) to
+" determine if a certain plugin is installed.
 
 if &runtimepath =~ 'nerdtree'
   " close NERDTree if it's the last window
@@ -366,36 +352,58 @@ if &runtimepath =~ 'vim-rtags'
   let g:rtagsUseLocationList = 0
 endif
 
-if &runtimepath =~ 'vim-localvimrc'
-  " Don't ask for sourcing a local vimrc file for the same vim session.
-  let g:localvimrc_ask=0
-endif
-
 if &runtimepath =~ 'leaderf'
   " rg mappings
   noremap <C-F> :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR><CR>
 endif
 
-if &runtimepath =~ 'vim-airline'
-  " Show status line on top.
-  "let g:airline_statusline_ontop = 1
-
-  " enable the enhanced tabline.
-  let g:airline#extensions#tabline#enabled = 1
-  " Change default ignore pattern list to show terminals.
-  let g:airline#extensions#tabline#ignore_bufadd_pat = 'defx|gundo|nerd_tree|startify|tagbar|undotree|vimfiler'
-  " configure whether buffer numbers should be shown.
-  let g:airline#extensions#tabline#buffer_nr_show = 1
-  " Show buffer names using the unique tail algorithm.
-  let g:airline#extensions#tabline#formatter = 'unique_tail'
-  " Tab separators.
-  let g:airline#extensions#tabline#left_sep = ' '
-  let g:airline#extensions#tabline#left_alt_sep = ''
-
-  " Enable tagbar integration.
-  let g:airline#extensions#tagbar#enabled = 1
-
+if &runtimepath =~ 'pluged/lightline.vim'
+  " Don't show the mode two times.
+  set noshowmode
+  " Always show the tabline.
+  set showtabline=2
+  let g:lightline = {
+        \ 'active': {
+        \   'left': [ [ 'mode', 'paste' ], [ 'gitbranch', 'readonly', 'filename', 'modified' ] ],
+        \   'right': [ [ 'lineinfo' ], [ 'percent' ], [ 'fileformat', 'fileencoding', 'filetype' ] ],
+        \ },
+        \ 'tabline': {
+        \   'left': [ ['buffers'] ],
+        \   'right': [ ]
+        \ },
+        \ 'component_expand': {
+        \   'buffers': 'lightline#bufferline#buffers'
+        \ },
+        \ 'component_type': {
+        \   'buffers': 'tabsel'
+        \ },
+        \ 'colorscheme': 'gruvbox'
+        \ }
 endif
 
-if has('nvim')
-endif
+
+"----- Colorscheme (set at the end since it affects other plugin settings from above) -----"
+set background=dark
+try
+  colorscheme gruvbox
+  let g:gitgutter_override_sign_column_highlight=1
+catch
+try
+  colorscheme dracula
+catch
+try
+  " Use same background and differentiate only using colors in diff mode
+  let g:nord_uniform_diff_background = 1
+  " Enables background for the line number of the current line.
+  let g:nord_cursor_line_number_background = 1
+  colorscheme nord
+catch
+try
+  colorscheme solarized
+  let g:solarized_visibility = "high"
+  let g:solarized_contrast = "high"
+catch
+endtry
+endtry
+endtry
+endtry
