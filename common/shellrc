@@ -9,7 +9,8 @@ if [ -f "${HOME}/.bin/commands.sh" ]; then
   . "${HOME}/.bin/commands.sh"
 fi
 
-####################################################################################################
+
+###################################################################################################
 # Alter the path variables: PATH, PYTHONPATH.
 # This is doing with the following steps:
 # 1. Create a USER_<PATH> variable.
@@ -31,40 +32,64 @@ add_user_path() {
   return 0
 }
 
+# Merge the user paths configured above into the environment.
+# TODO: filter existing paths in $PATH, add only new ones.
+export_user_path() {
+  if [ -n "${USER_PATH}" ]; then
+    export PATH="${USER_PATH}:${PATH}"
+  fi
+  unset USER_PATH
+}
+
 # User's private bin.
 add_user_path "${HOME}/.bin"
 # Local installs
-export USR_LOCAL_CUSTOM="${HOME}/.usr/local/bin"
-add_user_path "${USR_LOCAL_CUSTOM}"
-
-# Find brew.
-if command_exists "brew"; then
-  BREW_CMD="brew"
-elif [ -f "${HOME}/homebrew/bin/brew" ]; then
-  BREW_CMD="${HOME}/homebrew/bin/brew"
-else
-  BREW_CMD=
-fi
-
-if [ ! -z "${BREW_CMD}" ]; then
-  HOMEBREW_DIR="$(${BREW_CMD} --prefix)"
-else
-  HOMEBREW_DIR=
-fi
+export USR_LOCAL_CUSTOM="${HOME}/.usr/local"
+add_user_path "${USR_LOCAL_CUSTOM}/bin"
 
 # Paths for Homebrew.
-if [ ! -z "${HOMEBREW_DIR}" ]; then
-  # TODO: Check if /usr/local/bin is already in $PATH.
-  # If brew is installed in the default path, this adds a duplicate.
+if command_exists "brew"; then
+  HOMEBREW_DIR="$(brew --prefix)"
   add_user_path "${HOMEBREW_DIR}/bin"
   add_user_path "${HOMEBREW_DIR}/sbin"
   add_user_path "${HOMEBREW_DIR}/opt/python/libexec/bin"
   add_user_path "${HOMEBREW_DIR}/opt/curl/bin"
   add_user_path "${HOMEBREW_DIR}/opt/sqlite/bin"
   add_user_path "${HOMEBREW_DIR}/opt/llvm/bin"
+  unset HOMEBREW_DIR
 fi
 
-unset HOMEBREW_DIR
+# Export brew into PATH before the code below since the tools can be installed with brew.
+export_user_path
+
+# Jenv
+if command_exists "jenv"; then
+  eval "$(jenv init - --no-rehash)"
+  (jenv rehash &) 2> /dev/null
+  add_user_path "${HOME}/.jenv/bin"
+fi
+
+# Rbenv
+if command_exists "rbenv"; then
+  eval "$(rbenv init - --no-rehash)"
+  (rbenv rehash &) 2> /dev/null
+  # TODO: consider trying the compile part to make rbenv faster.
+  # Last code snippet in first step from: https://github.com/rbenv/rbenv#basic-github-checkout
+  # $ cd ~/.rbenv && src/configure && make -C src
+fi
+
+# Pyenv
+if command_exists "pyenv"; then
+  eval "$(pyenv init - --no-rehash)"
+  (pyenv rehash &) 2> /dev/null
+  if command_exists "pyenv-virtualenv-init"; then
+    eval "$(pyenv virtualenv-init -)"
+    # avoid double virtualenv name mention in prompt, see pyenv-virtualenv info message below:
+    # pyenv-virtualenv: prompt changing will be removed from future release.
+    # configure `export PYENV_VIRTUALENV_DISABLE_PROMPT=1' to simulate the behavior.
+    export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+  fi
+fi
 
 # User-installed ruby paths.
 add_user_path "${HOME}/.gem/ruby/2.3.0/bin"
@@ -72,46 +97,10 @@ add_user_path "${HOME}/.gem/ruby/2.3.0/bin"
 # Rustup path
 add_user_path "${HOME}/.cargo/bin"
 
-# Merge the user paths configured above into the environment.
-# TODO: filter non-existing paths + duplicates.
-if [ -n "${USER_PATH}" ]; then
-  export PATH="${USER_PATH}:${PATH}"
-fi
+export_user_path
 
-# Cleanup.
-unset USER_PATH
 
-####################################################################################################
-# *env tools.
-# Pyenv
-export PYENV_ROOT="${HOME}/.pyenv"
-export PATH="${PYENV_ROOT}/bin:${PATH}"
-eval "$(pyenv init - --no-rehash)"
-(pyenv rehash &) 2> /dev/null
-if command_exists "pyenv-virtualenv-init"; then
-  eval "$(pyenv virtualenv-init -)"
-  # avoid double virtualenv name mention in prompt, see pyenv-virtualenv info message below:
-  # pyenv-virtualenv: prompt changing will be removed from future release.
-  # configure `export PYENV_VIRTUALENV_DISABLE_PROMPT=1' to simulate the behavior.
-  export PYENV_VIRTUALENV_DISABLE_PROMPT=1
-fi
-
-# Jenv
-export PATH="${HOME}/.jenv/bin:${PATH}"
-eval "$(jenv init - --no-rehash)"
-(jenv rehash &) 2> /dev/null
-# TODO: check for JAVA_HOME, enable it and/or show a message that user should restart.
-# jenv enable-plugin export
-
-# Rbenv
-export PATH="${HOME}/.rbenv/bin:${PATH}"
-eval "$(rbenv init - --no-rehash)"
-(rbenv rehash &) 2> /dev/null
-# TODO: consider trying the compile part to make rbenv faster.
-# Last code snippet in first step from: https://github.com/rbenv/rbenv#basic-github-checkout
-# $ cd ~/.rbenv && src/configure && make -C src
-
-####################################################################################################
+###################################################################################################
 # Various others.
 
 # Set language defaults.
@@ -135,6 +124,9 @@ command_exists nproc && export MAKEFLAGS="-j $(nproc)"
 
 # Set umask.
 umask 027
+
+# Set some sensible ulimits.
+ulimit -n 2048
 
 # Accept custom, work-related configuration.
 MY_WORK_DIR="${HOME}/work"
