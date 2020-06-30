@@ -1,6 +1,5 @@
 " Use the terminal cursor.
 set guicursor=
-let $NVIM_TUI_ENABLE_CURSOR_SHAPE = 0
 " Workaround for some broken plugins which set guicursor indiscriminately.
 autocmd OptionSet guicursor noautocmd set guicursor=
 
