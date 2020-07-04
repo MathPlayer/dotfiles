@@ -109,7 +109,9 @@ set ttyfast
 "----- appearance -----"
 
 " Use 24-bit colors.
-set termguicolors
+if (has("termguicolors"))
+  set termguicolors
+endif
 
 " Improve visual performance by not redrawing the screen when executing some commands
 set lazyredraw
