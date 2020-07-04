@@ -70,7 +70,7 @@ source_if_exists "${HOME}/.aliases"
 export BASH_IT="/home/bogdan/.bash-it"
 
 # Theme.
-export BASH_IT_THEME='powerline-plain'
+export BASH_IT_THEME='robbyrussell'
 # Prompt sections.
 export POWERLINE_PROMPT='python_venv cwd scm'
 # Strip some space.
@@ -91,13 +91,15 @@ export THEME_SHOW_RUBY_PROMPT=false
 
 # Set to false to turn off version control status checking within the prompt for all themes.
 export SCM_CHECK=true
+# Abuse the zsh configuration to load romkatv's gitstatus.
+source_if_exists "${HOME}/.oh-my-zsh/custom/themes/powerlevel10k/gitstatus/gitstatus.prompt.sh"
 
 # Load Bash It
 source "${BASH_IT}/bash_it.sh"
 
 # Enabled aliases/plugins/completions.
 ALIAS="docker docker-compose general git"
-PLUGIN="base git history man powerline"
+PLUGIN="base git gitstatus history man powerline"
 COMPLETION="bash-it defaults docker docker-compose git pip3 ssh system"
 
 # Bash-it does not keep the enabled components in a config file.
