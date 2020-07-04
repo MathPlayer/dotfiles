@@ -50,6 +50,8 @@ add_user_path "${USR_LOCAL_CUSTOM}/bin"
 # Paths for Homebrew.
 if command_exists "brew"; then
   HOMEBREW_DIR="$(brew --prefix)"
+  # TODO: Check if /usr/local/bin is already in $PATH.                                             |
+  # If brew is installed in the default path, this adds a duplicate.
   add_user_path "${HOMEBREW_DIR}/bin"
   add_user_path "${HOMEBREW_DIR}/sbin"
   add_user_path "${HOMEBREW_DIR}/opt/python/libexec/bin"
