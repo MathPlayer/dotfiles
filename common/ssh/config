@@ -4,6 +4,7 @@
 
 # Any include directive must at the top, otherwise it won't work.
 Include ~/work/.ssh/config
+Include ~/personal/.ssh/config
 
 Host github.com
 Hostname github.com
