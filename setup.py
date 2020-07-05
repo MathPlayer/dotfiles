@@ -177,7 +177,7 @@ def main():
     if not args.skip_vim_plug_install:
         # Install vim plugins using vim-plug.
         for tool in ['nvim', 'vim']:
-            LOG.info(f"vim-plug install attempt using {tool}")
+            LOG.info(f"vim-plug install using {tool}")
             vim_plug_install_cmd = [tool, '+silent', '+PlugInstall', '+qall']
             try:
                 status = subprocess.run(vim_plug_install_cmd)
