@@ -69,33 +69,25 @@ fi
 export_user_path
 
 # Jenv
-if command_exists "jenv"; then
-  eval "$(jenv init - --no-rehash)"
-  (jenv rehash &) 2> /dev/null
-fi
+eval "$(jenv init - --no-rehash)"
+(jenv rehash &) 2> /dev/null
 
 # Rbenv
-if command_exists "rbenv"; then
-  eval "$(rbenv init - --no-rehash)"
-  (rbenv rehash &) 2> /dev/null
-  # TODO: consider trying the compile part to make rbenv faster.
-  # Last code snippet in first step from: https://github.com/rbenv/rbenv#basic-github-checkout
-  # $ cd ~/.rbenv && src/configure && make -C src
-fi
+eval "$(rbenv init - --no-rehash)"
+(rbenv rehash &) 2> /dev/null
+# TODO: consider trying the compile part to make rbenv faster.
+# Last code snippet in first step from: https://github.com/rbenv/rbenv#basic-github-checkout
+# $ cd ~/.rbenv && src/configure && make -C src
 
 # Pyenv
-if command_exists "pyenv"; then
-  export PYENV_ROOT="$(pyenv root)"
-  eval "$(pyenv init - --no-rehash)"
-  (pyenv rehash &) 2> /dev/null
-  if command_exists "pyenv-virtualenv-init"; then
-    eval "$(pyenv virtualenv-init -)"
-    # avoid double virtualenv name mention in prompt, see pyenv-virtualenv info message below:
-    # pyenv-virtualenv: prompt changing will be removed from future release.
-    # configure `export PYENV_VIRTUALENV_DISABLE_PROMPT=1' to simulate the behavior.
-    export PYENV_VIRTUALENV_DISABLE_PROMPT=1
-  fi
-fi
+export PYENV_ROOT="$(pyenv root)"
+eval "$(pyenv init - --no-rehash)"
+(pyenv rehash &) 2> /dev/null
+eval "$(pyenv virtualenv-init -)"
+# avoid double virtualenv name mention in prompt, see pyenv-virtualenv info message below:
+# pyenv-virtualenv: prompt changing will be removed from future release.
+# configure `export PYENV_VIRTUALENV_DISABLE_PROMPT=1' to simulate the behavior.
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
 
 # User-installed ruby paths.
 # TODO: don't hardcode a ruby version. What if another version is available?
