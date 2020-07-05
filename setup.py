@@ -153,6 +153,7 @@ def main():
     # TODO: Check if *env exists in the path and not from $HOME/.*env before cloning here and
     # abort/warn with a message asking to uninstall the system one.
     git_clone('https://github.com/pyenv/pyenv.git', aux_dir)
+    git_clone('https://github.com/pyenv/pyenv-virtualenv.git', aux_dir / 'pyenv' / 'plugins')
     git_clone('https://github.com/jenv/jenv.git', aux_dir)
     git_clone('https://github.com/rbenv/rbenv.git', aux_dir)
     rbenv_plugins_dir = aux_dir / 'rbenv' / 'plugins'
