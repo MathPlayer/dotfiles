@@ -117,6 +117,9 @@ def get_dependencies(deps_dir):
     # git_pull_or_clone('https://github.com/trapd00r/zsh-syntax-highlighting-filetypes',
     #                   omz_plugins_dir)
 
+    # TODO: check if it can be an omz plugin.
+    git_pull_or_clone('https://github.com/Tarrasch/zsh-autoenv', deps_dir)
+
     # Install bash-it.
     git_pull_or_clone('https://github.com/Bash-it/bash-it.git', deps_dir)
 

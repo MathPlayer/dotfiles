@@ -18,6 +18,8 @@
 
 # Local env files
 .env
+.autoenv.zsh
+.autoenv_leave.zsh
 
 # CMake
 compile_commands.json

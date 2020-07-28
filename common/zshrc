@@ -83,5 +83,8 @@ source_if_exists "${HOME}/.p10k.zsh"
 # Load aliases.
 source_if_exists "${HOME}/.aliases"
 
+# Load autoenv.
+source "${HOME}/.zsh-autoenv/autoenv.zsh"
+
 # Use zprof for debugging startup performance. Keep comented. Nice to have around.
 # zprof
