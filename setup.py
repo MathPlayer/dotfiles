@@ -6,8 +6,8 @@ import datetime
 import errno
 import filecmp
 import logging
-import platform
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -85,22 +85,69 @@ def install(src_dir, dst_dir, bak_dir=None, append=False, add_dot=False):
     LOG.info("Install done.")
 
 
-def git_clone(repo, base_dir, alt_name=None):
-    """Clones a repository into the base_dir, changing the cloned directory name to alt_name if
-    provided."""
-    LOG.info(f"Clone repository {repo} into base dir {base_dir}")
+def git_pull_or_clone(repo, base_dir, alt_name=None):
+    """Updates a repository into the base_dir, changing the directory name to alt_name if provided.
+    If the repository exists, it pulls the latest changes, otherwise it clones it."""
+    dst_dir = base_dir / alt_name if alt_name is not None else base_dir / Path(repo).stem
+    os.makedirs(dst_dir, exist_ok=True)
+    p = subprocess.run(['git', 'remote', 'get-url', 'origin'], cwd=dst_dir, capture_output=True)
+    if not p.stderr and p.stdout.strip().decode('UTF-8') == repo:
+        LOG.info(f"Pull repository {repo} into {dst_dir}")
+        subprocess.run(['git', 'pull'])
+    else:
+        LOG.info(f"Clone repository {repo} into {dst_dir}")
+        subprocess.run(['git', 'clone', '--depth=1', repo, dst_dir], cwd=base_dir)
 
-    os.makedirs(base_dir, exist_ok=True)
-    # TODO: optimize cloning.
-    git_cmd = ['git', 'clone', '--depth=1', '--branch=master', repo]
-    if alt_name:
-        git_cmd.append(base_dir / alt_name)
-    subprocess.run(git_cmd, cwd=base_dir)
+
+def get_dependencies(deps_dir):
+    """Updates all dependencies used by dotfiles using deps_dir as a base directory."""
+
+    # Install oh-my-zsh and plugins/themes.
+    git_pull_or_clone('https://github.com/robbyrussell/oh-my-zsh.git', deps_dir)
+    omz_custom_dir = deps_dir / 'oh-my-zsh' / 'custom'
+    git_pull_or_clone('https://github.com/romkatv/powerlevel10k.git', omz_custom_dir / 'themes')
+    omz_plugins_dir = omz_custom_dir / 'plugins'
+    git_pull_or_clone('https://github.com/zsh-users/zsh-syntax-highlighting.git', omz_plugins_dir)
+    git_pull_or_clone('https://github.com/zsh-users/zsh-completions.git', omz_plugins_dir)
+    git_pull_or_clone('https://github.com/zsh-users/zsh-autosuggestions.git', omz_plugins_dir)
+    git_pull_or_clone(
+        'https://github.com/MichaelAquilina/zsh-you-should-use.git',
+        omz_plugins_dir, 'you-should-use')
+    # TODO: wait for it to become a proper plugin.
+    # git_pull_or_clone('https://github.com/trapd00r/zsh-syntax-highlighting-filetypes',
+    #                   omz_plugins_dir)
+
+    # Install bash-it.
+    git_pull_or_clone('https://github.com/Bash-it/bash-it.git', deps_dir)
+
+    # Install *env.
+    # TODO: Check if *env exists in the path and not from $HOME/.*env before cloning here and
+    # abort/warn with a message asking to uninstall the system one.
+    git_pull_or_clone('https://github.com/pyenv/pyenv.git', deps_dir)
+    git_pull_or_clone(
+        'https://github.com/pyenv/pyenv-virtualenv.git', deps_dir / 'pyenv' / 'plugins')
+    git_pull_or_clone('https://github.com/jenv/jenv.git', deps_dir)
+    git_pull_or_clone('https://github.com/rbenv/rbenv.git', deps_dir)
+    rbenv_plugins_dir = deps_dir / 'rbenv' / 'plugins'
+    # The plugins directory does not exist in the rbenv repository, add the repo name in the path.
+    git_pull_or_clone('https://github.com/rbenv/ruby-build.git', rbenv_plugins_dir / 'ruby-build')
+
+    # Retrieve dircolors.
+    # TODO: Read https://github.com/trapd00r/LS_COLORS#zsh-integration-with-zplugin
+    urllib.request.urlretrieve(
+        'https://raw.github.com/trapd00r/LS_COLORS/master/LS_COLORS',
+        deps_dir / 'dircolors')
+
+    # Retrieve vim-plug.
+    vim_plug_file = deps_dir / 'vim' / 'autoload' / 'plug.vim'
+    os.makedirs(vim_plug_file.parent, exist_ok=True)
+    urllib.request.urlretrieve(
+        'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim',
+        vim_plug_file)
 
 
 def main():
     """Method to execute when script is called."""
-    # Sanity check
     check_run()
 
     # Parser-specific arguments
@@ -119,6 +166,7 @@ def main():
 
     # Prepare install.
     LOG.setLevel(logging.DEBUG if args.verbose else logging.INFO)
+
     # Trying to avoid using colons in path names, so not using isoformat.
     now = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')
     repo_dir = Path.cwd()
@@ -126,52 +174,16 @@ def main():
     aux_dir = Path(tempfile.mkdtemp(dir=repo_dir, prefix=f'aux_{now}_'))
     bak_dir = Path(tempfile.mkdtemp(dir=repo_dir, prefix=f'bak_{now}_'))
 
-    # Retrieve dircolors.
-    # TODO: Read https://github.com/trapd00r/LS_COLORS#zsh-integration-with-zplugin
-    urllib.request.urlretrieve(
-        'https://raw.github.com/trapd00r/LS_COLORS/master/LS_COLORS',
-        aux_dir / 'dircolors')
+    # Update all dependencies.
+    deps_dir = repo_dir / '.deps'
+    get_dependencies(deps_dir)
 
-    # Install oh-my-zsh and plugins/themes.
-    git_clone('https://github.com/robbyrussell/oh-my-zsh.git', aux_dir)
-    omz_custom_dir = aux_dir / 'oh-my-zsh' / 'custom'
-    git_clone('https://github.com/romkatv/powerlevel10k.git', omz_custom_dir / 'themes')
-    omz_plugins_dir = omz_custom_dir / 'plugins'
-    git_clone('https://github.com/zsh-users/zsh-syntax-highlighting.git', omz_plugins_dir)
-    git_clone('https://github.com/zsh-users/zsh-completions.git', omz_plugins_dir)
-    git_clone('https://github.com/zsh-users/zsh-autosuggestions.git', omz_plugins_dir)
-    git_clone(
-            'https://github.com/MichaelAquilina/zsh-you-should-use.git',
-            omz_plugins_dir, 'you-should-use')
-    # TODO: wait for it to become a proper plugin.
-    # git_clone('https://github.com/trapd00r/zsh-syntax-highlighting-filetypes', omz_plugins_dir)
-
-    # Install bash-it.
-    git_clone('https://github.com/Bash-it/bash-it.git', aux_dir)
-
-    # Install *env.
-    # TODO: Check if *env exists in the path and not from $HOME/.*env before cloning here and
-    # abort/warn with a message asking to uninstall the system one.
-    git_clone('https://github.com/pyenv/pyenv.git', aux_dir)
-    git_clone('https://github.com/pyenv/pyenv-virtualenv.git', aux_dir / 'pyenv' / 'plugins')
-    git_clone('https://github.com/jenv/jenv.git', aux_dir)
-    git_clone('https://github.com/rbenv/rbenv.git', aux_dir)
-    rbenv_plugins_dir = aux_dir / 'rbenv' / 'plugins'
-    # The plugins directory does not exist in the rbenv repository, add the repo name in the path.
-    git_clone('https://github.com/rbenv/ruby-build.git', rbenv_plugins_dir / 'ruby-build')
-
-    # Install all files in auxilary dir.
+    # Merge dotfiles in auxilary dir.
     install(repo_dir / 'common', aux_dir)
     install(repo_dir / get_os_type(), aux_dir, append=True)
 
-    # Retrieve vim-plug.
-    vim_plug_file = aux_dir / 'vim' / 'autoload' / 'plug.vim'
-    os.makedirs(vim_plug_file.parent, exist_ok=True)
-    urllib.request.urlretrieve(
-        'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim',
-        vim_plug_file)
-
-    # Install files from auxiliary directory to destination.
+    # Install all files.
+    install(deps_dir, dst_dir, add_dot=True)
     install(aux_dir, dst_dir, bak_dir=bak_dir, add_dot=True)
 
     if not args.skip_vim_plug_install:

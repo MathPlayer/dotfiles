@@ -1,3 +1,6 @@
 # ignore auxiliary and backup directories
 aux_*
 bak_*
+
+# Root directory for the local copies of all repositories/dependencies.
+.deps
