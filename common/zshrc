@@ -8,13 +8,11 @@
 
 [[ ! -o interactive ]] && return
 
-# Source the users commands library if it exists.
-if [ -f "${HOME}/.bin/commands.sh" ]; then
-  . "${HOME}/.bin/commands.sh"
-fi
+# Source the users commands library.
+. "${HOME}/.bin/commands.sh"
 
-# Load personal shell rc file.
-source_if_exists "${HOME}/.shellrc"
+# Source the personal shell rc file.
+. "${HOME}/.shellrc"
 
 #
 ## oh-my-zsh
@@ -77,14 +75,14 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Let the oh-my-zsh magic begin.
 . "${ZSH}/oh-my-zsh.sh"
 
-# Load powerlevel10k configuration.
-source_if_exists "${HOME}/.p10k.zsh"
+# Source the powerlevel10k configuration.
+. "${HOME}/.p10k.zsh"
 
-# Load aliases.
-source_if_exists "${HOME}/.aliases"
+# Source the aliases.
+. "${HOME}/.aliases"
 
-# Load autoenv.
-source "${HOME}/.zsh-autoenv/autoenv.zsh"
+# Source autoenv.
+. "${HOME}/.zsh-autoenv/autoenv.zsh"
 
 # Use zprof for debugging startup performance. Keep comented. Nice to have around.
 # zprof

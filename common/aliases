@@ -5,9 +5,7 @@
 
 
 # Source user's comnands file for helper functions.
-if [ -f "${HOME}/.bin/commands.sh" ]; then
-  . "${HOME}/.bin/commands.sh"
-fi
+. "${HOME}/.bin/commands.sh"
 
 ### dircolors
 alias_dircolors() {
