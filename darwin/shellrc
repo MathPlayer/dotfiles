@@ -1,3 +1,7 @@
+#!/usr/bin/env zsh
+
+# TODO: unused file
+# TODO: appending to zshrc conflicts with WORK config.
 
 # Android on macOS
 MACOS_ANDROID="${HOME}/Library/Android"

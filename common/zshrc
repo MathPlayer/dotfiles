@@ -2,87 +2,217 @@
 #
 # ~/.zshrc
 #
+# The shebang is needed only to set the filetype automatically, not for executing the file.
 
+
+#########
 # Use zprof for debugging startup performance. Keep comented. Nice to have around.
 # zmodload zsh/zprof
 
-[[ ! -o interactive ]] && return
 
-# Source the users commands library.
+#########
+# Load my functions.
 . "${HOME}/.bin/commands.sh"
 
-# Source the personal shell rc file.
-. "${HOME}/.shellrc"
 
-#
-## oh-my-zsh
-#
+#########
+# Custom paths.
 
-# Path to the oh-my-zsh installation.
-export ZSH="${HOME}/.oh-my-zsh"
-
-# Plugins for oh-my-zsh.
-# Default plugins can be found in ~/.oh-my-zsh/plugins/
-# Custom plugins may be found in ~/.oh-my-zsh/custom/plugins/
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(
-  dircycle shrink-path
+# Build an array of custom paths.
+typeset -a custom_paths=(
+  # Personal bin
+  "${HOME}/.bin"
+  # *env
+  "${HOME}/.pyenv/bin"
+  "${HOME}/.rbenv/bin"
+  # Rust
+  "${HOME}/.cargo/bin"
+  # Default folder for pip apps/binaries.
+  "${HOME}/.local/bin"
+  # TODO: ruby/gem default folder for apps/binaries.
 )
 
-# Load certain plugins only if needed.
-if command_exists "brew"; then
-  plugins+=(brew)
+# Homebrew paths on macOS.
+if command_exists brew; then
+  brew_dir=$(brew --prefix)
+  # TODO: Check if /usr/local/bin is already in $PATH.
+  # If brew is installed in the default path, this adds a duplicate.
+  custom_paths+=(
+    "${brew_dir}/bin"
+    "${brew_dir}/sbin"
+    "${brew_dir}/opt/python/libexec/bin"
+    "${brew_dir}/opt/curl/bin"
+    "${brew_dir}/opt/sqlite/bin"
+    "${brew_dir}/opt/llvm/bin"
+  )
+  unset brew_dir
 fi
 
-if command_exists "docker"; then
-  plugins+=(docker)
+# Prepend the custom paths to PATH.
+prepend_to_path=""
+for custom_path in ${custom_paths[@]}; do
+  if [ -d "${custom_path}" ]; then
+    prepend_to_path="${prepend_to_path}:${custom_path}"
+  fi
+done
+if [ ! -z "${prepend_path}" ]; then
+  export PATH="${prepend_path#:}:${PATH}"
+fi
+unset prepend_to_path
+unset custom_paths
+
+
+#########
+# zgenom
+
+# load zgenom
+source "${HOME}/.zgenom/zgenom.zsh"
+
+# create the zgenom init script if it doesn't exist
+if ! zgenom saved; then
+  echo "Creating a zgenom save"
+
+  # zgenom load zsh-users/zsh-syntax-highlighting
+  zgenom load zdharma/fast-syntax-highlighting
+
+  # Enhanced filetype highlighting
+  zgenom load trapd00r/zsh-syntax-highlighting-filetypes
+
+  zgenom load zsh-users/zsh-completions src
+  zgenom load zsh-users/zsh-autosuggestions
+
+  # Provide susbtring search in history.
+  # ZSH only matches the first word in commands using up-line-or-search/down-line-or-search.
+  zgenom load zsh-users/zsh-history-substring-search
+
+  zgenom load romkatv/powerlevel10k powerlevel10k
+
+  # enhance *env tools with "eval" commands down in the file
+  zgenom load mroth/evalcache
+
+  # Load custom *env files when entering/exiting a folder
+  zgenom load Tarrasch/zsh-autoenv
+
+  # Recommend aliases when using full-blown commands
+  zgenom load MichaelAquilina/zsh-you-should-use
+
+  # Autocomplete random commands having help messages.
+  # zgenom load RobSis/zsh-completion-generator
+
+  #zgenom load marlonrichert/zsh-autocomplete
+
+  # Handle ssh-agent starting
+  # TODO: use 'zgenom ohmyzsh' to load the base?
+  zgenom ohmyzsh plugins/ssh-agent
+
+  # save all to init script
+  zgenom save
 fi
 
-if command_exists "docker-compose"; then
-  plugins+=(docker-compose)
+
+#########
+# Powerlevel10k theme
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+source ~/.p10k.zsh
+
+
+#########
+# Tools
+
+# Pyenv
+export PYENV_ROOT="$(pyenv root)"
+_evalcache "$(pyenv init --no-rehash -)"
+(pyenv rehash &) 2> /dev/null
+# avoid double virtualenv name mention in prompt, see pyenv-virtualenv info message below:
+# pyenv-virtualenv: prompt changing will be removed from future release.
+# configure `export PYENV_VIRTUALENV_DISABLE_PROMPT=1' to simulate the behavior.
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+
+# Nodenv
+_evalcache "$(nodenv init --no-rehash -)"
+(nodenv rehash &) 2> /dev/null
+
+# Rbenv
+_evalcache "$(rbenv init - --no-rehash)"
+(rbenv rehash &) 2> /dev/null
+# TODO: consider trying the compile part to make rbenv faster.
+# Last code snippet in first step from: https://github.com/rbenv/rbenv#basic-github-checkout
+# $ cd ~/.rbenv && src/configure && make -C src
+
+# sdkman
+# TODO: check if this must be at the end of the file
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "${SDKMAN_DIR}/bin/sdkman-init.sh" ]] && source "${SDKMAN_DIR}/bin/sdkman-init.sh"
+
+
+#########
+# Shell config
+
+# Change directories without "cd".
+setopt AUTO_CD
+# Share history between zsh instances.
+setopt share_history
+# Partial prefix match when pressing up/down keys.
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+
+
+#########
+# Misc
+
+# Set language defaults.
+export LC_ALL="en_US.UTF-8"
+export LANG="en_US.UTF-8"
+export LC_CTYPE="en_US.UTF-8"
+
+# Set default settings for LESS.
+export LESS="-RFX"
+
+# Set text editors.
+command_exists vim && export EDITOR="vim"
+command_exists nvim && export EDITOR="nvim"
+if [ ! -z "${EDITOR}" ]; then
+  export VISUAL="${EDITOR}"
 fi
 
-if command_exists "git"; then
-  plugins+=(git gitfast git-extras)
+# Set make flags with a default cpu count.
+if command_exists nproc; then
+  export MAKEFLAGS="-j $(nproc)"
+elif command_exists sysctl; then
+  export MAKEFLAGS="-j $(sysctl -n hw.logicalcpu)"
 fi
 
-if command_exists "gradle"; then
-  plugins+=(gradle)
+# Set umask.
+umask 027
+
+# Set some sensible ulimits.
+ulimit -n 2048
+
+# AWS CLI 2 completion
+if command_exists aws_completer; then
+  autoload -Uz bashcompinit && bashcompinit
+  complete -C aws_completer aws
 fi
 
-if command_exists "pacman"; then
-  plugins+=(archlinux)
+
+
+#########
+# Aliases.
+source "${HOME}/.aliases"
+
+
+
+#########
+# Work-related configuration.
+
+MY_WORK_DIR="${HOME}/work"
+if [ -d "${MY_WORK_DIR}" ]; then
+  export MY_WORK_DIR="${MY_WORK_DIR}"
+  source_if_exists "${MY_WORK_DIR}/.shellrc"
 fi
+unset MY_WORK_DIR
 
-if command_exists "ssh-agent"; then
-  plugins+=(ssh-agent)
-  zstyle :omz:plugins:ssh-agent agent-forwarding on
-fi
-
-# Custom plugins installed from the dotfiles repository.
-plugins+=(
-  you-should-use
-  zsh-syntax-highlighting zsh-completions zsh-autosuggestions
-  # Add zsh-syntax-highlighting-filetypes after the repo will be clonable as a zsh plugin.
-)
-autoload -U compinit && compinit
-
-# Set name of the theme to load.
-# Optionally, set to "random" and oh-my-zsh will use a random theme each time it is loaded.
-# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="powerlevel10k/powerlevel10k"
-
-# Let the oh-my-zsh magic begin.
-. "${ZSH}/oh-my-zsh.sh"
-
-# Source the powerlevel10k configuration.
-. "${HOME}/.p10k.zsh"
-
-# Source the aliases.
-. "${HOME}/.aliases"
-
-# Source autoenv.
-. "${HOME}/.zsh-autoenv/autoenv.zsh"
-
+#########
 # Use zprof for debugging startup performance. Keep comented. Nice to have around.
 # zprof
