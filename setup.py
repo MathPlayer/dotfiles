@@ -137,16 +137,22 @@ def get_dependencies(deps_dir):
 
     # Retrieve dircolors.
     # TODO: Read https://github.com/trapd00r/LS_COLORS#zsh-integration-with-zplugin
-    urllib.request.urlretrieve(
-        'https://raw.github.com/trapd00r/LS_COLORS/master/LS_COLORS',
-        deps_dir / 'dircolors')
+    try:
+        urllib.request.urlretrieve(
+            'https://raw.github.com/trapd00r/LS_COLORS/master/LS_COLORS',
+            deps_dir / 'dircolors')
+    except urllib.request.URLError as e:
+        LOG.warning("Could not retrive dircolors from github.")
 
     # Retrieve vim-plug.
     vim_plug_file = deps_dir / 'vim' / 'autoload' / 'plug.vim'
     os.makedirs(vim_plug_file.parent, exist_ok=True)
-    urllib.request.urlretrieve(
-        'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim',
-        vim_plug_file)
+    try:
+        urllib.request.urlretrieve(
+            'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim',
+            vim_plug_file)
+    except urllib.request.URLError as e:
+        LOG.warning("Could not treieve vim-plug from github.")
 
 
 def main():
