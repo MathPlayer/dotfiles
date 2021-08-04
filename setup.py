@@ -144,16 +144,6 @@ def get_dependencies(deps_dir):
     except urllib.request.URLError as e:
         LOG.warning("Could not retrive dircolors from github.")
 
-    # Retrieve vim-plug.
-    vim_plug_file = deps_dir / 'vim' / 'autoload' / 'plug.vim'
-    os.makedirs(vim_plug_file.parent, exist_ok=True)
-    try:
-        urllib.request.urlretrieve(
-            'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim',
-            vim_plug_file)
-    except urllib.request.URLError as e:
-        LOG.warning("Could not treieve vim-plug from github.")
-
 
 def main():
     """Method to execute when script is called."""
