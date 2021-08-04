@@ -10,22 +10,99 @@
 [color]
   ui = true
   whitespace = red reverse
-[color "status"]
-  untracked = magenta
-[alias]
-  co = checkout
-  ci = commit
-  st = status
-  br = branch
-  type = cat-file -t
-  dump = cat-file -p
-  lg = log --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %Cred%d%Creset %s %C(bold blue)[%an]'
-  lg5 = log -n 5 --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %C(blue)%s%Creset %C(bold magenta)[%an]%Creset %C(bold red)%d%Creset'
-  hist = log --graph --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %Cred%d%Creset %s %C(bold blue)[%an]'
-  track = "! git branch -vv | cut -d ']' -f 1 | tr -d '['"
-  commit-files = diff-tree --no-commit-id --name-only -r
+[color.status]
+  updated = brightyellow
+  changed = brightred
+  untracked = brightmagenta
+  unmerged = red
+[push]
+  default=simple
 [rebase]
   autoSquash = True
   abbreviateCommands = True
+[alias]
+  st = status
+  sh = show
+
+  a = add
+  rm = remove
+  r = reset
+  rh = reset --hard
+  rs = restore
+
+  d = diff
+  ds = diff --staged
+
+  co = checkout
+  cb = checkout -b
+  # Whoever decided to change "master" to "main" was a badass. TODO: what if more than one exists?
+  cm = "! git checkout $(git show-ref --heads | grep -E '/(main|master)$' | sed 's#.*refs/heads/##')"
+
+  c = commit --verbose
+  ca = commit --verbose --amend
+  cn = commit --amend --no-edit --reset-author
+  cf = commit --fixup
+
+  b = branch
+  bd = branch --delete
+  bdf = branch --delete --force
+  bm = branch --move
+  br = branch --remotes
+  bv = branch -vv
+  sw = switch
+
+  l = pull
+  up = pull --rebase --recurse-submodules
+  p = push
+  pf = push -f
+  psu = push --set-upstream
+  psup = "! git push --set-upstream origin $(git branch --show-current)"
+
+  rb = rebase
+  rbc = rebase --continue
+  rbs = rebase --skip
+  rba = rebase --abort
+  rbi = rebase --interactive
+
+  cp = cherry-pick
+  cpc = cherry-pick --continue
+  cps = cherry-pick --skip
+  cpa = cherry-pick --abort
+
+  lg = log --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %Cred%d%Creset %s %C(bold blue)[%an]'
+  lg5 = log -n 5 --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %C(blue)%s%Creset %C(bold magenta)[%an]%Creset %C(bold red)%d%Creset'
+  lg10 = log -n 10 --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %C(blue)%s%Creset %C(bold magenta)[%an]%Creset %C(bold red)%d%Creset'
+
+  cl = clone --recurse-submodules
+  fa = fetch --all --tags --recurse-submodules --force
+  rv = remote -v
+  rmv = remote rename
+
+  sta = stash push
+  staa = stash apply
+  stp = stash pop
+  std = stash drop
+  stl = stash list
+  sts = stash show
+
+  v = "! git --version"
+  alias = "! git config --get-regexp 'alias.*' | grep -v '^alias.alias' | sed -e 's#^alias\\.##' -e 's# # = #' | sort"
+  wip="! git add -A; git rm $(git ls-files --deleted) 2> /dev/null; git commit --no-verify --no-gpg-sign -m '--wip-- [skip ci]'"
+  unwip="! git log -n 1 | grep -q -c -- '--wip--' && git reset HEAD~1"
+
+# Random app configs.
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+[difftool "sourcetree"]
+  cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+  path =
+[mergetool "sourcetree"]
+  cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+  trustExitCode = true
 [includeIf "gitdir:~/work/"]
   path = ~/work/.gitconfig
+[includeIf "gitdir:~/personal/"]
+  path = ~/personal/.gitconfig
