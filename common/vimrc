@@ -2,6 +2,13 @@
 " ~/.vimrc
 "
 
+" Install vim-plug (if needed).
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
 " load plugins using vim-plug
 call plug#begin('~/.vim/pluged')
 
@@ -28,10 +35,12 @@ Plug 'PhilRunninger/nerdtree-buffer-ops'
 Plug 'itchyny/lightline.vim'
 Plug 'mengelbrecht/lightline-bufferline'
 Plug 'shinchu/lightline-gruvbox.vim'
+"
+" Do not alter window structure when closing buffers
+Plug 'moll/vim-bbye'
 
 " highlight the word under cursor
 Plug 'itchyny/vim-cursorword'
-
 
 " Toggle using mouse in vim or not
 Plug 'nvie/vim-togglemouse'
@@ -73,6 +82,7 @@ Plug 'airblade/vim-gitgutter'
 
 " Markdown
 Plug 'plasticboy/vim-markdown'
+Plug 'mzlogin/vim-markdown-toc'
 
 " File-line easy opening plugin
 Plug 'bogado/file-line'
@@ -132,12 +142,12 @@ set cursorline
 " show matching brackets
 set showmatch
 " set text maximum width to 99 (100 including newline) - except when on quickfix
-set textwidth=99
+set textwidth=119
 if exists('+colorcolumn')
-  set colorcolumn=100
+  set colorcolumn=120
   autocmd FileType qf setlocal colorcolumn=
 else
-  autocmd BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>99v.\+', -1)
+  autocmd BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>119v.\+', -1)
   " TODO remove matchadd on quickfix window for older versions of vim
 endif
 " Always show the signcolumn, except for plugins configured below
