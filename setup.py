@@ -102,9 +102,6 @@ def git_pull_or_clone(repo, base_dir, alt_name=None):
 def get_dependencies(deps_dir):
     """Updates all dependencies used by dotfiles using deps_dir as a base directory."""
 
-    # Install oh-my-zsh and plugins/themes.
-    git_pull_or_clone('https://github.com/robbyrussell/oh-my-zsh.git', deps_dir)
-
     # Install *env.
     # TODO: Check if *env exists in the path and not from $HOME/.*env before cloning here and
     # abort/warn with a message asking to uninstall the system one.
