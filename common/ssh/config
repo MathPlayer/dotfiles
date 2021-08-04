@@ -6,16 +6,6 @@
 Include ~/work/.ssh/config
 Include ~/personal/.ssh/config
 
-Host github.com
-Hostname github.com
-User git
-IdentityFile ~/.ssh/github_rsa
-
-Host bitbucket.org
-Hostname bitbucket.org
-User git
-IdentityFile ~/.ssh/bitbucket_rsa
-
 # Assume the variables are exported in the environment (e.g. from shell rc files).
 Host *.labs.overthewire.org
 SendEnv WECHALLTOKEN
