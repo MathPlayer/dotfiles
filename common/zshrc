@@ -56,8 +56,8 @@ for custom_path in ${custom_paths[@]}; do
     prepend_to_path="${prepend_to_path}:${custom_path}"
   fi
 done
-if [ ! -z "${prepend_path}" ]; then
-  export PATH="${prepend_path#:}:${PATH}"
+if [ ! -z "${prepend_to_path}" ]; then
+  export PATH="${prepend_to_path#:}:${PATH}"
 fi
 unset prepend_to_path
 unset custom_paths
@@ -82,7 +82,7 @@ if ! zgenom saved; then
   # Enhanced filetype highlighting
   zgenom load trapd00r/zsh-syntax-highlighting-filetypes
 
-  zgenom load zsh-users/zsh-completions src
+  zgenom load zsh-users/zsh-completions
   zgenom load zsh-users/zsh-autosuggestions
 
   # Provide susbtring search in history.
