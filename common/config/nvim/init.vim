@@ -11,6 +11,8 @@ set runtimepath^=~/.vim runtimepath+=~/.vim/after
 let &packpath = &runtimepath
 source ~/.vimrc
 
+" Use a custom Python environment installed with pyenv.
+let g:python3_host_prog="~/.pyenv/versions/neovim/bin/python"
 
 "----- Terminal -----"
 
@@ -29,7 +31,7 @@ autocmd TermOpen * setlocal listchars= nonumber norelativenumber signcolumn=no
 
 
 "----- plugin settings -----"
-if &runtimepath =~ 'nvim-lsp'
+if &runtimepath =~ 'nvim-lsp' && has('nvim-0.5')
   " LSP servers.
   " TODO: fill setup configuration for better autocomplete (like no return type filled out, etc).
   lua require'nvim_lsp'.ccls.setup{}
@@ -42,6 +44,8 @@ if &runtimepath =~ 'nvim-lsp'
   nnoremap <silent> <leader>as <cmd>lua vim.lsp.buf.signature_help()<CR>
   nnoremap <silent> <leader>at <cmd>lua vim.lsp.buf.type_definition()<CR>
   nnoremap <silent> <leader>ar <cmd>lua vim.lsp.buf.references()<CR>
+  nnoremap <silent> <leader>arn <cmd>lua vim.lsp.buf.rename()<CR>
+  nnoremap <silent> <leader>af <cmd>lua vim.lsp.buf.code_action()<CR>
 
   " set omnifunc>
   autocmd Filetype c,cpp,python setlocal omnifunc=v:lua.vim.lsp.omnifunc
