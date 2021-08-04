@@ -104,24 +104,6 @@ def get_dependencies(deps_dir):
 
     # Install oh-my-zsh and plugins/themes.
     git_pull_or_clone('https://github.com/robbyrussell/oh-my-zsh.git', deps_dir)
-    omz_custom_dir = deps_dir / 'oh-my-zsh' / 'custom'
-    git_pull_or_clone('https://github.com/romkatv/powerlevel10k.git', omz_custom_dir / 'themes')
-    omz_plugins_dir = omz_custom_dir / 'plugins'
-    git_pull_or_clone('https://github.com/zsh-users/zsh-syntax-highlighting.git', omz_plugins_dir)
-    git_pull_or_clone('https://github.com/zsh-users/zsh-completions.git', omz_plugins_dir)
-    git_pull_or_clone('https://github.com/zsh-users/zsh-autosuggestions.git', omz_plugins_dir)
-    git_pull_or_clone(
-        'https://github.com/MichaelAquilina/zsh-you-should-use.git',
-        omz_plugins_dir, 'you-should-use')
-    # TODO: wait for it to become a proper plugin.
-    # git_pull_or_clone('https://github.com/trapd00r/zsh-syntax-highlighting-filetypes',
-    #                   omz_plugins_dir)
-
-    # TODO: check if it can be an omz plugin.
-    git_pull_or_clone('https://github.com/Tarrasch/zsh-autoenv', deps_dir)
-
-    # Install bash-it.
-    git_pull_or_clone('https://github.com/Bash-it/bash-it.git', deps_dir)
 
     # Install *env.
     # TODO: Check if *env exists in the path and not from $HOME/.*env before cloning here and
