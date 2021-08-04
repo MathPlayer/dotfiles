@@ -12,7 +12,7 @@
 
 #########
 # Load my functions.
-. "${HOME}/.bin/commands.sh"
+source "${HOME}/.bin/commands.sh"
 
 
 #########
@@ -24,6 +24,7 @@ typeset -a custom_paths=(
   "${HOME}/.bin"
   # *env
   "${HOME}/.pyenv/bin"
+  "${HOME}/.nodenv/bin"
   "${HOME}/.rbenv/bin"
   # Rust
   "${HOME}/.cargo/bin"
@@ -65,6 +66,9 @@ unset custom_paths
 #########
 # zgenom
 
+# The SSH plugin requires this setting before loading
+zstyle :omz:plugins:ssh-agent agent-forwarding on
+
 # load zgenom
 source "${HOME}/.zgenom/zgenom.zsh"
 
@@ -105,6 +109,10 @@ if ! zgenom saved; then
   # TODO: use 'zgenom ohmyzsh' to load the base?
   zgenom ohmyzsh plugins/ssh-agent
 
+  # TODO: find more (useful) plugins
+  # - dircolors
+  # - integration with KeePassXC
+
   # save all to init script
   zgenom save
 fi
@@ -144,6 +152,12 @@ _evalcache "$(rbenv init - --no-rehash)"
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "${SDKMAN_DIR}/bin/sdkman-init.sh" ]] && source "${SDKMAN_DIR}/bin/sdkman-init.sh"
+
+# AWS CLI completion
+if command_exists aws_completer; then
+  autoload -Uz bashcompinit && bashcompinit
+  complete -C aws_completer aws
+fi
 
 
 #########
@@ -189,29 +203,114 @@ umask 027
 # Set some sensible ulimits.
 ulimit -n 2048
 
-# AWS CLI 2 completion
-if command_exists aws_completer; then
-  autoload -Uz bashcompinit && bashcompinit
-  complete -C aws_completer aws
-fi
-
-
 
 #########
 # Aliases.
-source "${HOME}/.aliases"
+
+# list
+if command_exists exa; then
+  alias ls="exa --group-directories-first"
+  alias l="ls"
+  alias ll="ls -l"
+  alias la="ls -a"
+  alias lla="ls -la"
+fi
+
+# git
+if command_exists git; then
+  alias g="git"
+  # Convert any git alias from .gitconfig (`git <alias>` gets aliased into shell as `g<alias>`).
+  #
+  # Idea for improvement: extract the alias itself below.
+  # Current: `which gst` shows `gst: aliased to git st`.
+  # Desired: `which gst` shows `gst: aliased to git status`.
+  for alias in ${${${(0)"$(git config -z --get-regexp '^alias.')"}%%$'\n'*}#alias.}; do
+    alias g$alias="git $alias"
+  done
+fi
+
+# Docker
+if command_exists docker; then
+  alias d="docker"
+  alias dco="docker compose"
+  alias dcup="docker compose up"
+  alias dcupd="docker compose up -d"
+  alias dcdn="docker compose down"
+  alias dcps="docker compose ps"
+  alias dcpull="docker compose pull"
+  alias dcl="docker compose logs"
+  alias dclf="docker compose logs -f"
+  alias dcstat="docker ps -q | xargs docker stats --no-stream"
+fi
+
+# GNU tools on macOS.
+# TODO: conditionally load them (e.g. if on macOS).
+# TODO: rm -> grm conflicts with git rm
+# TODO: get all tools from brew starting with 'g' / in coreutils package or similar.
+# TODO: offload loading in sync -> slow shell start.
+_gnu_tools=(
+  # "basename"
+  # "base64"
+  # "cat"
+  # "chmod"
+  # "chown"
+  # "cut"
+  "dircolors"
+  # "dirname"
+  "find"
+  "head"
+  # "md5sum"
+  # "nohup"
+  # "rm"
+  # "rmdir"
+  # "seq"
+  "sed"
+  "tail"
+  # "tee"
+  "tar"
+  # "wc"
+  # "who"
+  # "whoami"
+  # "yes"
+)
+for _tool in ${_gnu_tools[@]}; do
+  command_exists "g${_tool}" && alias ${_tool}="g${_tool}"
+done
+
+# Enhance generic tools.
+alias df='df -h'
+alias du='du -h'
+alias less='less -F'
+# Add automatic color output for some tools.
+for _tool in "grep" "fgrep" "egrep" "diff"; do
+  command_exists ${_tool} --color=auto && alias ${_tool}="${_tool} --color=auto"
+done
+
+# Load dircolors if existing. XXX: Find a better way to do this.
+if command_exists dircolors && [ -r "${HOME}/.dircolors" ]; then
+  which dircolors
+  eval "$(dircolors -b "${HOME}/.dircolors")" || eval "$(dircolors -b)"
+fi
+
+# misc
+alias awsume=". awsume"
+alias path="echo \${PATH} | tr ':' '\n'"
+alias ftail='tail -f -n+1'
+alias myps='ps axo user,tty,ppid,pid,command | grep -vE "grep|ps axo" | grep -E "(USER\s*PPID)|${USER}"'
+alias mypsa='ps aux | grep -vE "grep|ps aux" | grep -E "(USER\s*PID)|${USER}"'
+alias logssh='ssh > >(tee '${HOME}'/ssh-$(date +"%Y-%m-%d-%H-%M").out) 2> >(tee ssh-$(date +"%Y-%m-%d-%H-%M").err >&2)'
 
 
 
 #########
 # Work-related configuration.
 
-MY_WORK_DIR="${HOME}/work"
-if [ -d "${MY_WORK_DIR}" ]; then
-  export MY_WORK_DIR="${MY_WORK_DIR}"
-  source_if_exists "${MY_WORK_DIR}/.shellrc"
+_work_dir="${HOME}/work"
+if [ -d "${_work_dir}" ]; then
+  export MY_WORK_DIR="${_work_dir}"
+  source_if_exists "${_work_dir}/.zshrc"
 fi
-unset MY_WORK_DIR
+unset _work_dir
 
 #########
 # Use zprof for debugging startup performance. Keep comented. Nice to have around.
