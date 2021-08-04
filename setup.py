@@ -59,7 +59,7 @@ def do_copy(src, dst, bak, append=False):
 
     if not append:
         shutil.copy(src, dst)
-        LOG.debug("Append done: '{dst}'.")
+        LOG.debug(f"Append done: '{dst}'.")
     else:
         with dst.open('a') as dst_f:
             dst_f.write(src.open().read())
