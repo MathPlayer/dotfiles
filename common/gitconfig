@@ -29,6 +29,7 @@
   r = reset
   rh = reset --hard
   rs = restore
+  rss = restore --staged
 
   d = diff
   ds = diff --staged
