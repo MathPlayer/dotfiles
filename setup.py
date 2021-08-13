@@ -181,11 +181,11 @@ def main():
 
     # Cleanup.
     shutil.rmtree(aux_dir)
-    if not bak_dir.is_dir():
+    if any(os.scandir(bak_dir)):
+        LOG.info(f"Backup was saved to '{bak_dir}'.")
+    else:
         LOG.info("Backup was not needed.")
         shutil.rmtree(bak_dir, ignore_errors=True)
-    else:
-        LOG.info(f"Backup was saved to '{bak_dir}'.")
 
     return 0
 
