@@ -15,6 +15,8 @@
   changed = brightred
   untracked = brightmagenta
   unmerged = red
+[pull]
+  rebase = true
 [push]
   default=simple
 [rebase]
