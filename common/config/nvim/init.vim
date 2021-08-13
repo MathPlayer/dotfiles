@@ -34,8 +34,8 @@ autocmd TermOpen * setlocal listchars= nonumber norelativenumber signcolumn=no
 if &runtimepath =~ 'nvim-lsp' && has('nvim-0.5')
   " LSP servers.
   " TODO: fill setup configuration for better autocomplete (like no return type filled out, etc).
-  lua require'nvim_lsp'.ccls.setup{}
-  lua require'nvim_lsp'.pyls.setup{}
+  lua require'lspconfig'.ccls.setup{}
+  lua require'lspconfig'.pyls.setup{}
   " Keybindings.
   nnoremap <silent> <leader>ad <cmd>lua vim.lsp.buf.declaration()<CR>
   nnoremap <silent> <leader>aD <cmd>lua vim.lsp.buf.definition()<CR>
