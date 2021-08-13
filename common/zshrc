@@ -129,7 +129,7 @@ source ~/.p10k.zsh
 
 # Pyenv
 export PYENV_ROOT="$(pyenv root)"
-_evalcache "$(pyenv init --no-rehash -)"
+_evalcache pyenv init --no-rehash -
 (pyenv rehash &) 2> /dev/null
 # avoid double virtualenv name mention in prompt, see pyenv-virtualenv info message below:
 # pyenv-virtualenv: prompt changing will be removed from future release.
@@ -137,11 +137,11 @@ _evalcache "$(pyenv init --no-rehash -)"
 export PYENV_VIRTUALENV_DISABLE_PROMPT=1
 
 # Nodenv
-_evalcache "$(nodenv init --no-rehash -)"
+_evalcache nodenv init --no-rehash -
 (nodenv rehash &) 2> /dev/null
 
 # Rbenv
-_evalcache "$(rbenv init - --no-rehash)"
+_evalcache rbenv init - --no-rehash
 (rbenv rehash &) 2> /dev/null
 # TODO: consider trying the compile part to make rbenv faster.
 # Last code snippet in first step from: https://github.com/rbenv/rbenv#basic-github-checkout
@@ -299,7 +299,6 @@ alias ftail='tail -f -n+1'
 alias myps='ps axo user,tty,ppid,pid,command | grep -vE "grep|ps axo" | grep -E "(USER\s*PPID)|${USER}"'
 alias mypsa='ps aux | grep -vE "grep|ps aux" | grep -E "(USER\s*PID)|${USER}"'
 alias logssh='ssh > >(tee '${HOME}'/ssh-$(date +"%Y-%m-%d-%H-%M").out) 2> >(tee ssh-$(date +"%Y-%m-%d-%H-%M").err >&2)'
-
 
 
 #########
