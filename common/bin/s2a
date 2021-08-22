@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+#
+# Wrapper on top of saml2aws to export/unset 'AWS_' variables into the current shell.
+# can be used in conjunction with aliases like:
+# alias sas=". s2a set <profile> <region>"
+# alias sau=". s2a unset <profile>"
+
+# Chain an echo and an eval for the first parameter.
+echo_eval() {
+  echo "$1" && eval "$1"
+}
+
+# Ensure the script is sourced in order to export env vars in the current shell.
+[[ "$0" == "$BASH_SOURCE" ]] && echo "Source the file, don't execute it" && exit 1
+
+# Find configured saml2aws profiles.
+PROFILE_RE="$(grep -s '\[' ${HOME}/.saml2aws | tr '[]\n' '^$|' | head -c -1)"
+[[ -z ${PROFILE_RE} ]] && echo >&2 "No saml2aws profiles. Run 'saml2aws configure -a <profile>' first." && return 1
+
+# Accepted regions to export. TODO: find a way to get them in a more generic way.
+REGION_RE="^eu-west-1$|^us-east-1$"
+
+# Parse CLI arguments + act on them.
+USAGE="echo >&2 \"
+Usage:
+  $0 set <profile> <region>
+  $0 unset <profile>
+
+Arguments:
+  <profile> - saml2aws/AWS profile. Must match the regex '${PROFILE_RE}'.
+  <region>  - AWS region. Must match the regex '${REGION_RE}'.
+\" && return 1"
+[[ $# -lt 1 ]] && eval "${USAGE}"
+ACTION="$1"
+PROFILE="$2"
+REGION="$3"
+case "${ACTION}" in
+  set)
+    # Sanity check.
+    ! [[ $# -eq 3 && "${PROFILE}" =~ "${PROFILE_RE}" && "${REGION}" =~ "${REGION_RE}" ]] && eval "${USAGE}"
+
+    # Do saml2aws Login, export 'AWS_' env variables.
+    echo "\n>>> Login via saml2aws"
+    if saml2aws login --disable-keychain -a ${PROFILE}; then
+      echo "\n>>> Automatic export of the following 'AWS_' variables in the current shell"
+      saml2aws script -a ${PROFILE} | while read line; do
+        # saml2aws exports its own variable, switch to the AWS one (working prompt and consecutive saml2aws logins).
+        echo_eval "${line/SAML2AWS/AWS}"
+      done
+      echo_eval "export AWS_DEFAULT_REGION=${REGION}"
+      echo_eval "export AWS_REGION=${REGION}"
+    fi
+    ;;
+  unset)
+    # Sanity check.
+    ! [[ $# -eq 2 && "${PROFILE}" =~ "${PROFILE_RE}" ]] && eval "${USAGE}"
+
+    # Unset 'AWS_' env variables, remove the PROFILE section from ~/.aws/credentials.
+    echo "\n>>> Automatic unset on any 'AWS_' variables from the current shell"
+    printenv | while read line; do
+      [[ "${line}" =~ "^AWS_.*" ]] && echo_eval "unset ${line%%=*}"
+    done
+    AWS_CREDENTIALS_FILE="${HOME}/.aws/credentials"
+    # Ant Python >= 3.0 would suffice.
+    python_code="
+      import configparser
+      config = configparser.ConfigParser()
+      with open('${AWS_CREDENTIALS_FILE}') as f:
+        config.read_string(f.read())
+      if '${PROFILE}' in config:
+        del config['${PROFILE}']
+        with open('${AWS_CREDENTIALS_FILE}', 'w') as f:
+          config.write(f)
+        print(f'\n>>> Profile ${PROFILE} was removed from ${AWS_CREDENTIALS_FILE}')
+      else:
+        print(f'\n>>> Profile ${PROFILE} was not found in ${AWS_CREDENTIALS_FILE}')
+    "
+    # Hack: strip exact spacing from start of lines; python code uses a 2-space indent for the hack to work.
+    [[ -f "${AWS_CREDENTIALS_FILE}" ]] && python -c "${python_code//      /}"
+    ;;
+  *)
+    eval "${USAGE}"
+    ;;
+esac
