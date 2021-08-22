@@ -113,6 +113,7 @@ def get_dependencies(deps_dir):
     rbenv_plugins_dir = deps_dir / 'rbenv' / 'plugins'
     # The plugins directory does not exist in the rbenv repository, add the repo name in the path.
     git_pull_or_clone('https://github.com/rbenv/ruby-build.git', rbenv_plugins_dir / 'ruby-build')
+    git_pull_or_clone('https://github.com/jandamm/zgenom.git', deps_dir)
 
     # Retrieve dircolors.
     # TODO: Read https://github.com/trapd00r/LS_COLORS#zsh-integration-with-zplugin

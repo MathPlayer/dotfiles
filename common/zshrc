@@ -74,6 +74,9 @@ unset custom_paths
 #########
 # zgenom
 
+# Check for plugin and zgenom updates every 7 days. This does not increase the startup time.
+zgenom autoupdate --background
+
 # The SSH plugin requires this setting before loading
 zstyle :omz:plugins:ssh-agent agent-forwarding on
 
@@ -123,6 +126,9 @@ if ! zgenom saved; then
 
   # save all to init script
   zgenom save
+
+  # Compile local zsh files.
+  zgenom compile "$HOME/.zshrc"
 fi
 
 
