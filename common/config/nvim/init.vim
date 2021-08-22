@@ -12,7 +12,8 @@ let &packpath = &runtimepath
 source ~/.vimrc
 
 " Use a custom Python environment installed with pyenv.
-let g:python3_host_prog="~/.pyenv/versions/neovim/bin/python"
+let g:neovim_python_env="~/.pyenv/versions/neovim"
+let g:python3_host_prog=g:neovim_python_env."/bin/python3"
 
 "----- Terminal -----"
 
@@ -31,22 +32,52 @@ autocmd TermOpen * setlocal listchars= nonumber norelativenumber signcolumn=no
 
 
 "----- plugin settings -----"
-if &runtimepath =~ 'nvim-lsp' && has('nvim-0.5')
-  " LSP servers.
-  " TODO: fill setup configuration for better autocomplete (like no return type filled out, etc).
-  lua require'lspconfig'.ccls.setup{}
-  lua require'lspconfig'.pyls.setup{}
-  " Keybindings.
-  nnoremap <silent> <leader>ad <cmd>lua vim.lsp.buf.declaration()<CR>
-  nnoremap <silent> <leader>aD <cmd>lua vim.lsp.buf.definition()<CR>
-  nnoremap <silent> <leader>ah <cmd>lua vim.lsp.buf.hover()<CR>
-  nnoremap <silent> <leader>ai <cmd>lua vim.lsp.buf.implementation()<CR>
-  nnoremap <silent> <leader>as <cmd>lua vim.lsp.buf.signature_help()<CR>
-  nnoremap <silent> <leader>at <cmd>lua vim.lsp.buf.type_definition()<CR>
-  nnoremap <silent> <leader>ar <cmd>lua vim.lsp.buf.references()<CR>
-  nnoremap <silent> <leader>arn <cmd>lua vim.lsp.buf.rename()<CR>
-  nnoremap <silent> <leader>af <cmd>lua vim.lsp.buf.code_action()<CR>
+if &runtimepath =~ 'nvim-lspconfig'
+  " Load lsp and completion.
+  lua << BLOCK
+  lsp_config = require'lspconfig'
+  completion_callback = require'completion'.on_attach
 
-  " set omnifunc>
-  autocmd Filetype c,cpp,python setlocal omnifunc=v:lua.vim.lsp.omnifunc
+  lsp_config.pylsp.setup {
+    cmd_env = {
+      VIRTUAL_ENV=vim.g.neovim_python_env,
+      PATH=vim.g.neovim_python_env .. "/bin/" .. ":" .. vim.env.PATH
+      },
+    on_attach = completion_callback
+  }
+BLOCK
+
+  " Disgnostics signs
+  sign define LspDiagnosticsSignError text=🔴
+  sign define LspDiagnosticsSignWarning text=🟠
+  sign define LspDiagnosticsSignInformation text=🔵
+  sign define LspDiagnosticsSignHint text=🟢
+
+  " Keybindings
+  nnoremap <silent> <leader>gd  <cmd>lua vim.lsp.buf.definition()<CR>
+  nnoremap <silent> <leader>gD  <cmd>lua vim.lsp.buf.declaration()<CR>
+  nnoremap <silent> <leader>gi  <cmd>lua vim.lsp.buf.implementation()<CR>
+  nnoremap <silent> <leader>gr  <cmd>lua vim.lsp.buf.references()<CR>
+  "nnoremap <silent> <leader>ge  <cmd>lua vim.lsp.diagnostic.set_loclist()<CR>
+  nnoremap <silent> <leader>K   <cmd>lua vim.lsp.buf.hover()<CR>
+  nnoremap <silent> <leader>bf   <cmd>lua vim.lsp.buf.formatting()<CR>
+  nnoremap <silent> <leader>rn  <cmd>lua vim.lsp.buf.rename()<CR>
+  "nnoremap <silent> <leader>a <cmd>lua vim.lsp.buf.code_action()<CR>
+  "xmap <silent> <leader>a <cmd>lua vim.lsp.buf.range_code_action()<CR>
+
+  " Navigate through popup menu
+  inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+  inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+  " Set completeopt to have a better completion experience
+  set completeopt=menuone,noinsert,noselect
+  " Avoid showing message extra message when using completion
+  set shortmess+=c
+
+
+  " disable the automatic show for the completion popup
+  let g:completion_enable_auto_popup = 0
+  " Smart triggers for using Tab in order to trigger the autocomplete.
+  imap <tab> <Plug>(completion_smart_tab)
+  imap <s-tab> <Plug>(completion_smart_s_tab)
 endif
+

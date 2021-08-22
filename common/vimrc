@@ -101,8 +101,10 @@ Plug '~/.vim/my-configs'
 Plug 'liuchengxu/vista.vim'
 
 if has('nvim')
-  " Neovim's default LSP
-  Plug 'neovim/nvim-lsp'
+  " Sensible configurations for the built-in LSP.
+  Plug 'neovim/nvim-lspconfig'
+  " Provide (auto)completion, including for LSP.
+  Plug 'nvim-lua/completion-nvim'
 endif
 
 call plug#end()
