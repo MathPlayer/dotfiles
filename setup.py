@@ -88,6 +88,7 @@ def install(src_dir, dst_dir, bak_dir=None, append=False, add_dot=False):
 def git_pull_or_clone(repo, base_dir, alt_name=None):
     """Updates a repository into the base_dir, changing the directory name to alt_name if provided.
     If the repository exists, it pulls the latest changes, otherwise it clones it."""
+
     dst_dir = base_dir / alt_name if alt_name is not None else base_dir / Path(repo).stem
     os.makedirs(dst_dir, exist_ok=True)
     p = subprocess.run(['git', 'remote', 'get-url', 'origin'], cwd=dst_dir, capture_output=True)
@@ -106,8 +107,7 @@ def get_dependencies(deps_dir):
     # TODO: Check if *env exists in the path and not from $HOME/.*env before cloning here and
     # abort/warn with a message asking to uninstall the system one.
     git_pull_or_clone('https://github.com/pyenv/pyenv.git', deps_dir)
-    git_pull_or_clone(
-        'https://github.com/pyenv/pyenv-virtualenv.git', deps_dir / 'pyenv' / 'plugins')
+    git_pull_or_clone('https://github.com/pyenv/pyenv-virtualenv.git', deps_dir / 'pyenv' / 'plugins')
     git_pull_or_clone('https://github.com/jenv/jenv.git', deps_dir)
     git_pull_or_clone('https://github.com/rbenv/rbenv.git', deps_dir)
     rbenv_plugins_dir = deps_dir / 'rbenv' / 'plugins'
@@ -127,19 +127,15 @@ def get_dependencies(deps_dir):
 
 def main():
     """Method to execute when script is called."""
+
     check_run()
 
     # Parser-specific arguments
     dst_dir = Path.home()
-    parser = argparse.ArgumentParser(
-        description="Installs dotfiles from this directory to a given directory.")
-    parser.add_argument(
-        '-d', '--directory', default=dst_dir,
-        help="Installation directory; defaults to %(default)s.")
-    parser.add_argument(
-        '-v', '--verbose', action='store_true', help="Log this script actions at debug level.")
-    parser.add_argument(
-        '--skip-vim-plug-install', action='store_true', help="Do not call :PlugInstall in vim.")
+    parser = argparse.ArgumentParser(description="Installs dotfiles from this directory to a given directory.")
+    parser.add_argument('-d', '--directory', default=dst_dir, help="Installation directory; defaults to %(default)s.")
+    parser.add_argument('-v', '--verbose', action='store_true', help="Log this script actions at debug level.")
+    parser.add_argument('--skip-vim-plug-install', action='store_true', help="Do not call :PlugInstall in vim.")
 
     args = parser.parse_args()
 
@@ -173,8 +169,7 @@ def main():
             try:
                 status = subprocess.run(vim_plug_install_cmd)
                 if status.returncode:
-                    LOG.warning(
-                        f"vim-plug install failed using {tool} (return code {status.returncode}).")
+                    LOG.warning(f"vim-plug install failed using {tool} (return code {status.returncode}).")
                 else:
                     break
             except OSError as e:
