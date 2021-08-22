@@ -1,3 +1,4 @@
+
 #!/usr/bin/env zsh
 #
 # ~/.zshrc
@@ -9,6 +10,13 @@
 # Use zprof for debugging startup performance. Keep comented. Nice to have around.
 # zmodload zsh/zprof
 
+#########
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
 #########
 # Load my functions.
@@ -129,6 +137,7 @@ source ~/.p10k.zsh
 
 # Pyenv
 export PYENV_ROOT="$(pyenv root)"
+eval "$(pyenv init --path)"
 _evalcache pyenv init --no-rehash -
 (pyenv rehash &) 2> /dev/null
 # avoid double virtualenv name mention in prompt, see pyenv-virtualenv info message below:
@@ -293,7 +302,6 @@ if command_exists dircolors && [ -r "${HOME}/.dircolors" ]; then
 fi
 
 # misc
-alias awsume=". awsume"
 alias path="echo \${PATH} | tr ':' '\n'"
 alias ftail='tail -f -n+1'
 alias myps='ps axo user,tty,ppid,pid,command | grep -vE "grep|ps axo" | grep -E "(USER\s*PPID)|${USER}"'
