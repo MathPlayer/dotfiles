@@ -34,7 +34,11 @@
   rss = restore --staged
 
   d = diff
+  dw = diff -w
+  dww = diff --word-diff --color-words
   ds = diff --staged
+  dsw = diff --staged -w
+  dsww = diff --staged --word-diff --color-words
 
   co = checkout
   cb = checkout -b
@@ -57,7 +61,8 @@
   l = pull
   up = pull --rebase --recurse-submodules
   p = push
-  pf = push -f
+  pf = push --force-with-lease
+  pff = push --force
   psu = push --set-upstream
   psup = "! git push --set-upstream origin $(git branch --show-current)"
 
@@ -75,6 +80,7 @@
   lg = log --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %Cred%d%Creset %s %C(bold blue)[%an]'
   lg5 = log -n 5 --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %C(blue)%s%Creset %C(bold magenta)[%an]%Creset %C(bold red)%d%Creset'
   lg10 = log -n 10 --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %C(blue)%s%Creset %C(bold magenta)[%an]%Creset %C(bold red)%d%Creset'
+  lgg = log --graph --decorate --all --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %Cred%d%Creset %s %C(bold blue)[%an]'
 
   cl = clone --recurse-submodules
   fa = fetch --all --tags --recurse-submodules --force
