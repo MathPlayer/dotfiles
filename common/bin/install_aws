@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+
+# Use some common sense failsafe checks.
+set -eu
+
+# Global script variables.
+LOCAL_BIN_PATH="${HOME}/.bin"
+DOWNLOAD_DIR="${LOCAL_BIN_PATH}/.download"
+
+CLI_INSTALL_DIR="${LOCAL_BIN_PATH}/aws-cli"
+CLI_BINARIES=(
+  "aws"
+  "aws_completer"
+)
+
+SSM_INSTALL_DIR="${LOCAL_BIN_PATH}/aws-ssm"
+SSM_BINARY="session-manager-plugin"
+
+USAGE="$(basename "$0") [-h] [-c] [-s]
+
+where:
+  -h  - Show this help message.
+  -c  - Install the AWS CLI v2.
+  -s  - Install the AWS Session Manager plugin."
+
+
+# Removes the CLI symlinks and the install directory.
+clean_cli() {
+  for binary in ${CLI_BINARIES[@]}; do
+    rm "${LOCAL_BIN_PATH}/${binary}" || true
+  done
+  rm -rf "${CLI_INSTALL_DIR}"
+}
+
+# Installs the latest CLI.
+install_cli() {
+  # Ensure the needed directories exist.
+  mkdir -p "${CLI_INSTALL_DIR}" "${DOWNLOAD_DIR}"
+
+  # Save the XML installation file.
+  XML_FILE="${DOWNLOAD_DIR}/AWSCLI2.xml"
+  cat >${XML_FILE} << EOF
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+  <plist version="1.0">
+    <array>
+      <dict>
+        <key>choiceAttribute</key>
+        <string>customLocation</string>
+        <key>attributeSetting</key>
+        <string>${LOCAL_BIN_PATH}</string>
+        <key>choiceIdentifier</key>
+        <string>default</string>
+      </dict>
+    </array>
+  </plist>
+EOF
+
+  # Get the latest pkg.
+  LOCAL_PKG="${DOWNLOAD_DIR}/AWSCLIV2.pkg"
+  curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "${LOCAL_PKG}"
+
+  # Install the pkg.
+  installer \
+    -pkg "${LOCAL_PKG}" \
+    -target CurrentUserHomeDirectory \
+    -applyChoiceChangesXML "${XML_FILE}"
+
+  # Symlink binaries into $PATH folder.
+  for binary in ${CLI_BINARIES[@]}; do
+    ln -sf "${CLI_INSTALL_DIR}/${binary}" "${LOCAL_BIN_PATH}/${binary}"
+  done
+
+  rm -r "${DOWNLOAD_DIR}" || true
+}
+
+# Removes the SSM symlink and the install directory.
+clean_ssm() {
+  rm "${LOCAL_BIN_PATH}/${SSM_BINARY}" || true
+  rm -r "${SSM_INSTALL_DIR}" || true
+}
+
+# Install the latest SSM.
+install_ssm() {
+  # Ensure the needed directories exist.
+  mkdir -p "${DOWNLOAD_DIR}" "${SSM_INSTALL_DIR}"
+
+  # Get and unzip the latest SSM plugin.
+  SSM_NAME="sessionmanager-bundle"
+  LOCAL_SSM_ZIP="${DOWNLOAD_DIR}/${SSM_NAME}.zip"
+  curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/mac/sessionmanager-bundle.zip" \
+    -o ${LOCAL_SSM_ZIP}
+  unzip "${LOCAL_SSM_ZIP}" -d "${DOWNLOAD_DIR}"
+
+  # Install.
+  "${DOWNLOAD_DIR}/${SSM_NAME}/install" \
+    -i "${SSM_INSTALL_DIR}" \
+    -b "${LOCAL_BIN_PATH}/${SSM_BINARY}"
+
+  rm -r "${DOWNLOAD_DIR}" || true
+
+  # Configure logging. AWS says the filenames should remain the same.
+ # SSM_LOG_FILE="session-manager-plugin.log"
+ # ERR_LOG_FILE="errors.log"
+ # LOG_DIR="${SSM_INSTALL_DIR}/logs"
+ # mkdir -p "${LOG_DIR}"
+ # sed \
+ #   -e "s#\(.*filename=\)\".*${SSM_LOG_FILE}\"#\1\"${LOG_DIR}/${SSM_LOG_FILE}\"#" \
+ #   -e "s#\(.*filename=\)\".*${ERR_LOG_FILE}\"#\1\"${LOG_DIR}/${ERR_LOG_FILE}\"#" \
+ #   -e "w ${SSM_INSTALL_DIR}/seelog.xml" \
+ #   "${SSM_INSTALL_DIR}/seelog.xml.template" > /dev/null
+}
+
+# Parse CLI arguments.
+OPT_CLI=false
+OPT_SSM=false
+while getopts "csh" opt; do
+  case $opt in
+    h) echo "$USAGE" && exit 0 ;;
+    c) OPT_CLI=true ;;
+    s) OPT_SSM=true ;;
+    *) echo "$USAGE" >&2 && exit 1 ;;
+  esac
+done
+
+if $OPT_CLI; then
+  clean_cli
+  install_cli
+fi
+
+if $OPT_SSM; then
+  clean_ssm
+  install_ssm
+fi
