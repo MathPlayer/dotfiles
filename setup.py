@@ -110,6 +110,7 @@ def get_dependencies(deps_dir):
     git_pull_or_clone('https://github.com/pyenv/pyenv-virtualenv.git', deps_dir / 'pyenv' / 'plugins')
     git_pull_or_clone('https://github.com/jenv/jenv.git', deps_dir)
     git_pull_or_clone('https://github.com/rbenv/rbenv.git', deps_dir)
+    git_pull_or_clone('https://github.com/nodenv/nodenv.git', deps_dir)
     rbenv_plugins_dir = deps_dir / 'rbenv' / 'plugins'
     # The plugins directory does not exist in the rbenv repository, add the repo name in the path.
     git_pull_or_clone('https://github.com/rbenv/ruby-build.git', rbenv_plugins_dir / 'ruby-build')
