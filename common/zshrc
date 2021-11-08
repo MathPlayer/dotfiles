@@ -87,7 +87,7 @@ if ! zgenom saved; then
   echo "Creating a zgenom save"
 
   # zgenom load zsh-users/zsh-syntax-highlighting
-  zgenom load zdharma/fast-syntax-highlighting
+  zgenom load zdharma-continuum/fast-syntax-highlighting
 
   # Enhanced filetype highlighting
   zgenom load trapd00r/zsh-syntax-highlighting-filetypes
