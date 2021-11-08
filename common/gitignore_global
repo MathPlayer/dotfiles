@@ -20,6 +20,8 @@
 .env
 .autoenv.zsh
 .autoenv_leave.zsh
+# SDKMAN config file
+.sdkmanrc
 
 # CMake
 compile_commands.json
@@ -31,3 +33,9 @@ compile_commands.json
 # C/C++ LSP info
 .ccls-cache/
 .clangd/
+
+# my own temp files
+b.c.p.*
+
+# nohup log files when starting disowned processes
+nohup.out
