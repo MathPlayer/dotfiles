@@ -61,7 +61,7 @@ case "${ACTION}" in
       [[ "${line}" =~ "^AWS_.*" ]] && echo_eval "unset ${line%%=*}"
     done
     AWS_CREDENTIALS_FILE="${HOME}/.aws/credentials"
-    # Ant Python >= 3.0 would suffice.
+    # Any Python >= 3.0 would suffice.
     python_code="
       import configparser
       config = configparser.ConfigParser()
