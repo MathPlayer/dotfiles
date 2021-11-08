@@ -57,6 +57,7 @@
   br = branch --remotes
   bv = branch -vv
   sw = switch
+  bunsup = "! git branch --unset-upstream"
 
   l = pull
   up = pull --rebase --recurse-submodules
