@@ -22,6 +22,10 @@
 [rebase]
   autoSquash = True
   abbreviateCommands = True
+[diff]
+  mnemonicPrefix = True
+  algorithm = minimal
+  wsErrorHighlight = all
 [alias]
   st = status
   sh = show
@@ -47,7 +51,8 @@
 
   c = commit --verbose
   ca = commit --verbose --amend
-  cn = commit --amend --no-edit --reset-author
+  can = commit --amend --no-edit
+  canr = commit --amend --no-edit --reset-author
   cf = commit --fixup
 
   b = branch
@@ -57,6 +62,7 @@
   br = branch --remotes
   bv = branch -vv
   sw = switch
+  bsup = "! git branch --set-upstream-to=origin/$(git branch --show-current)"
   bunsup = "! git branch --unset-upstream"
 
   l = pull
@@ -84,7 +90,7 @@
   lgg = log --graph --decorate --all --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %Cred%d%Creset %s %C(bold blue)[%an]'
 
   cl = clone --recurse-submodules
-  fa = fetch --all --tags --recurse-submodules --force
+  fa = fetch --prune --all --tags --recurse-submodules --force
   rv = remote -v
   rmv = remote rename
 
