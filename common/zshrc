@@ -21,6 +21,11 @@ fi
 # Load my functions.
 source "${HOME}/.bin/commands.sh"
 
+########
+# Cache (home)brew path.
+if command_exists brew; then
+  brew_dir="$(brew --prefix)"
+fi
 
 #########
 # Custom paths.
@@ -40,9 +45,7 @@ typeset -a custom_paths=(
   # TODO: ruby/gem default folder for apps/binaries.
 )
 
-# Homebrew paths on macOS.
-if command_exists brew; then
-  brew_dir=$(brew --prefix)
+if [ ! -z ${brew_dir} ]; then
   # TODO: Check if /usr/local/bin is already in $PATH.
   # If brew is installed in the default path, this adds a duplicate.
   custom_paths+=(
@@ -53,7 +56,6 @@ if command_exists brew; then
     "${brew_dir}/opt/sqlite/bin"
     "${brew_dir}/opt/llvm/bin"
   )
-  unset brew_dir
 fi
 
 # Prepend the custom paths to PATH.
@@ -326,6 +328,10 @@ if [ -d "${_work_dir}" ]; then
   source_if_exists "${_work_dir}/.zshrc"
 fi
 unset _work_dir
+
+########
+# Cleanup
+unset brew_dir
 
 #########
 # Use zprof for debugging startup performance. Keep comented. Nice to have around.
