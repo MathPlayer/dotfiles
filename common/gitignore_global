@@ -39,3 +39,6 @@ b.c.p.*
 
 # nohup log files when starting disowned processes
 nohup.out
+
+# BSP build outputs
+.bsp/
