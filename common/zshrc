@@ -313,6 +313,7 @@ fi
 
 # misc
 alias path="echo \${PATH} | tr ':' '\n'"
+alias zsh_fpath="echo \${fpath} | tr ' ' '\n'"
 alias ftail='tail -f -n+1'
 alias myps='ps axo user,tty,ppid,pid,command | grep -vE "grep|ps axo" | grep -E "(USER\s*PPID)|${USER}"'
 alias mypsa='ps aux | grep -vE "grep|ps aux" | grep -E "(USER\s*PID)|${USER}"'
