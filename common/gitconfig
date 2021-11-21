@@ -38,6 +38,7 @@
   rss = restore --staged
 
   d = diff
+  dn = diff --no-index
   dw = diff -w
   dww = diff --word-diff --color-words
   ds = diff --staged
