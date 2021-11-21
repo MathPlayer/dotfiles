@@ -46,7 +46,7 @@ Plug 'itchyny/vim-cursorword'
 Plug 'nvie/vim-togglemouse'
 
 " Fuzzy finder
-Plug 'yggdroot/leaderf', {'do': './install.sh'}
+Plug 'yggdroot/leaderf', {'do': ':LeaderfInstallCExtension'}
 
 " Easy commenting
 Plug 'scrooloose/nerdcommenter'
