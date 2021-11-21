@@ -307,7 +307,6 @@ done
 
 # Load dircolors if existing. XXX: Find a better way to do this.
 if command_exists dircolors && [ -r "${HOME}/.dircolors" ]; then
-  which dircolors
   eval "$(dircolors -b "${HOME}/.dircolors")" || eval "$(dircolors -b)"
 fi
 
