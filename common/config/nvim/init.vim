@@ -45,6 +45,16 @@ if &runtimepath =~ 'nvim-lspconfig'
       },
     on_attach = completion_callback
   }
+  lsp_config.clangd.setup {}
+  lsp_config.yamlls.setup {
+    settings = {
+      yaml = {
+        schemas = {
+          ["azure-pipelines/yamlschema.json"] = "/azure-pipelines/**/*"
+        }
+      }
+    }
+  }
 BLOCK
 
   " Disgnostics signs
