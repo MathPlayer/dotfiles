@@ -10,8 +10,11 @@
 
 # Python files
 *.pyc
-# Pyenv version file
+
+# *env version files
 .python-version
+.node-version
+.ruby-version
 
 # YCM
 .ycm_extra_conf.py
@@ -20,6 +23,7 @@
 .env
 .autoenv.zsh
 .autoenv_leave.zsh
+
 # SDKMAN config file
 .sdkmanrc
 
@@ -34,11 +38,27 @@ compile_commands.json
 .ccls-cache/
 .clangd/
 
-# my own temp files
-b.c.p.*
+# sbt/bloop
+.bsp/
 
 # nohup log files when starting disowned processes
 nohup.out
 
-# BSP build outputs
-.bsp/
+# Folder view configuration files
+.DS_Store
+Desktop.ini
+
+# Thumbnail cache files
+Thumbs.db
+
+# Node
+node_modules/
+
+# ripgrep local ignore files
+.ignore
+
+# yaml azure-pipelines schemas
+azure-pipelines/yamlschema.json
+
+# my own temp files
+b.c.p.*
