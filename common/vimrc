@@ -24,6 +24,8 @@ Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'tomasr/molokai'
 Plug 'morhetz/gruvbox'
 Plug 'arcticicestudio/nord-vim'
+Plug 'haishanh/night-owl.vim'
+Plug 'joshdick/onedark.vim'
 
 " File browser
 " All lazy load is commented out for the settings at the end of the file.
@@ -88,8 +90,9 @@ Plug 'mzlogin/vim-markdown-toc'
 " use pre build, add 'vim-plug' to the filetype list so vim-plug can update this plugin
 " see: https://github.com/iamcco/markdown-preview.nvim/issues/50
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
-" CLI live preview
-Plug 'ellisonleao/glow.nvim'
+
+" Asciidoc
+Plug 'habamax/vim-asciidoctor'
 
 " File-line easy opening plugin
 Plug 'bogado/file-line'
@@ -106,6 +109,7 @@ Plug '~/.vim/my-configs'
 " Tags viewer.
 Plug 'liuchengxu/vista.vim'
 
+" LSP-related configuration.
 if has('nvim')
   " Sensible configurations for the built-in LSP.
   Plug 'neovim/nvim-lspconfig'
@@ -305,6 +309,8 @@ nnoremap <leader>cd :cd %:p:h<CR>:pwd<CR>
 " modified by any indent feature)
 set pastetoggle=<F2>
 
+" Format json files.
+map <leader>jf :%!python -m json.tool<cr>
 
 "----- misc -----"
 
@@ -399,6 +405,7 @@ if &runtimepath =~ 'pluged/lightline.vim'
         \ },
         \ 'colorscheme': 'gruvbox'
         \ }
+  " Set 'colorscheme' to 'gruvbox', 'onedark' or 'nightowl'. Maybe match the theme with whatever colorscheme is set?
 endif
 
 
@@ -407,6 +414,12 @@ set background=dark
 try
   colorscheme gruvbox
   let g:gitgutter_override_sign_column_highlight=1
+catch
+try
+  colorscheme onedark
+catch
+try
+  colorscheme night-owl
 catch
 try
   colorscheme dracula
@@ -423,6 +436,8 @@ try
   let g:solarized_visibility = "high"
   let g:solarized_contrast = "high"
 catch
+endtry
+endtry
 endtry
 endtry
 endtry
