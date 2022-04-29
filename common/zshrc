@@ -169,11 +169,33 @@ _evalcache rbenv init - --no-rehash
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "${SDKMAN_DIR}/bin/sdkman-init.sh" ]] && source "${SDKMAN_DIR}/bin/sdkman-init.sh"
 
-# AWS CLI completion
-if command_exists aws_completer; then
+# Check/load bash completions not available in zsh.
+check_load_brew_bash_completions() {
+  # TODO: what if no bash-specific completion exists?
   autoload -Uz bashcompinit && bashcompinit
-  complete -C aws_completer aws
-fi
+
+  if [[ ! -z "${brew_dir}" ]]; then
+    # Get bash completions for tools known to not have a zsh completion.
+    # This could be done for all bash completions not available as zsh competions, but... less is more.
+    local completions_bash=($(ls ${brew_dir}/etc/bash_completion.d/ | sed -e 's/\.bash$//'))
+    local completions_zsh=($(ls ${brew_dir}/share/zsh/site-functions | sed -e 's/^_//' -e 's/_/-/g' | tr -s '\n' ' '))
+
+    # add framing blanks in order to use various tools as "regexp" match.
+    local l1=" ${completions_bash[*]} "
+    local l2=" ${completions_zsh[*]} "
+    # TODO: check/fix loading completion for az.
+    for tool in "az"; do
+      if ! [[ ${l2} =~ " ${tool} " ]]; then
+        complete -C ${tool}
+      fi
+    done
+  fi
+
+  if command_exists aws_completer; then
+    complete -C aws_completer aws
+  fi
+}
+check_load_brew_bash_completions
 
 
 #########
