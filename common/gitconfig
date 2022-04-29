@@ -7,6 +7,8 @@
   email = "bogdan.popescu0905@gmail.com"
 [core]
   excludesfile = "~/.gitignore_global"
+  autocrlf = false
+  eol = lf
 [color]
   ui = true
   whitespace = red reverse
