@@ -210,6 +210,8 @@ check_load_brew_bash_completions() {
 }
 check_load_brew_bash_completions
 
+# Ripgrep
+export RIPGREP_CONFIG_PATH="${HOME}/.ripgreprc"
 
 #########
 # Shell config

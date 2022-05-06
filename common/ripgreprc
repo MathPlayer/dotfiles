@@ -1,0 +1,13 @@
+# Don't let ripgrep show really long lines to terminal; show a preview instead.
+--max-columns=150
+--max-columns-preview
+
+# Search case-insensitive if pattern is all lowercase.
+--smart-case
+
+# Search in hidden folders. Note: gitignore'd folders are skipped.
+--hidden
+
+# Exclude the '.git' folders since they're not ignored by gitignore :)
+--glob
+!.git/*
