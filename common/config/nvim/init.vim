@@ -15,6 +15,9 @@ source ~/.vimrc
 let g:neovim_python_env="~/.pyenv/versions/neovim"
 let g:python3_host_prog=g:neovim_python_env."/bin/python3"
 
+" Use a custom Node environment installed with nodenv.
+"let g:node_host_prog="~/.nodenv/versions/16.4.2/bin/node"
+
 "----- Terminal -----"
 
 " keybindings.
@@ -45,6 +48,9 @@ if &runtimepath =~ 'nvim-lspconfig'
       },
     on_attach = completion_callback
   }
+
+  lsp_config.bashls.setup{}
+  lsp_config.tsserver.setup{}
   lsp_config.clangd.setup {}
   lsp_config.yamlls.setup {
     settings = {
