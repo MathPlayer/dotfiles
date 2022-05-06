@@ -94,6 +94,9 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': 
 " Asciidoc
 Plug 'habamax/vim-asciidoctor'
 
+" CLI live preview
+Plug 'ellisonleao/glow.nvim'
+
 " File-line easy opening plugin
 Plug 'bogado/file-line'
 
