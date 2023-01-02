@@ -21,17 +21,18 @@ Plug 'trapd00r/vim-ansicolors' " recognize ANSI color esape sequences
 " Color themes
 Plug 'altercation/vim-colors-solarized'
 Plug 'dracula/vim', { 'as': 'dracula' }
-Plug 'tomasr/molokai'
 Plug 'morhetz/gruvbox'
-Plug 'arcticicestudio/nord-vim'
-Plug 'haishanh/night-owl.vim'
 Plug 'joshdick/onedark.vim'
 
 " File browser
 " All lazy load is commented out for the settings at the end of the file.
+if has('nvim')
+Plug 'kyazdani42/nvim-tree.lua'
+else
 Plug 'scrooloose/nerdtree' ", {'on': ['NERDTree', 'NERDTreeToggle', 'NERDTreeFind']}
 Plug 'Xuyuanp/nerdtree-git-plugin' ", {'on': ['NERDTree', 'NERDTreeToggle', 'NERDTreeFind']}
 Plug 'PhilRunninger/nerdtree-buffer-ops'
+endif
 
 " Better statusline/tabline.
 Plug 'itchyny/lightline.vim'
@@ -84,7 +85,6 @@ Plug 'tpope/vim-rhubarb'
 Plug 'airblade/vim-gitgutter'
 
 " Markdown
-Plug 'plasticboy/vim-markdown'
 Plug 'mzlogin/vim-markdown-toc'
 " If you don't have nodejs and yarn
 " use pre build, add 'vim-plug' to the filetype list so vim-plug can update this plugin
@@ -93,9 +93,6 @@ Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': 
 
 " Asciidoc
 Plug 'habamax/vim-asciidoctor'
-
-" CLI live preview
-Plug 'ellisonleao/glow.nvim'
 
 " File-line easy opening plugin
 Plug 'bogado/file-line'
@@ -112,12 +109,13 @@ Plug '~/.vim/my-configs'
 " Tags viewer.
 Plug 'liuchengxu/vista.vim'
 
+" Language grammar checker via languagetool.
+Plug 'dpelle/vim-LanguageTool'
+
 " LSP-related configuration.
 if has('nvim')
   " Sensible configurations for the built-in LSP.
   Plug 'neovim/nvim-lspconfig'
-  " Provide (auto)completion, including for LSP.
-  Plug 'nvim-lua/completion-nvim'
 endif
 
 call plug#end()
@@ -219,19 +217,19 @@ set smartcase
 
 "----- highlight colors -----"
 " change search highlight color
-highlight Search cterm=NONE ctermfg=black ctermbg=darkblue
+highlight Search cterm=NONE ctermfg=black ctermbg=darkblue gui=NONE guifg=black guibg=darkblue
 " change TODO highlight color
-highlight TODO cterm=NONE ctermfg=red ctermbg=black
+highlight TODO cterm=NONE ctermfg=red ctermbg=black gui=NONE guifg=red guibg=black
 " change bracket match highlight color
-highlight MatchParen ctermfg=red ctermbg=black
+highlight MatchParen ctermfg=red ctermbg=black guifg=red guibg=black
 " Reset bad spelling highlight, use only underline
 highlight clear SpellBad
 highlight SpellBad cterm=underline
 " Improve SignColumn color
-highlight SignColumn ctermbg=black guibg=darkgrey
-highlight SpecialKey cterm=NONE ctermfg=grey
+highlight SignColumn ctermbg=darkgrey guibg=darkgrey
+highlight SpecialKey cterm=NONE ctermfg=grey gui=NONE guifg=grey
 " tabline fill space
-"highlight TabLineFill ctermbg=black guibg=darkgrey
+"highlight TabLineFill ctermbg=black guibg=black
 
 
 "----- menu and status -----"
@@ -380,10 +378,14 @@ if &runtimepath =~ 'vim-rtags'
 endif
 
 if &runtimepath =~ 'leaderf'
-  " rg mappings
+  " Use CTRL+F to search in the directory the term where cursor is.
   noremap <C-F> :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR><CR>
   " Don't show dev icons.
   let g:Lf_ShowDevIcons=0
+endif
+
+if &runtimepath =~ 'vim-LanguageTool'
+  let g:languagetool_cmd='/usr/local/bin/languagetool'
 endif
 
 if &runtimepath =~ 'pluged/lightline.vim'
@@ -408,9 +410,9 @@ if &runtimepath =~ 'pluged/lightline.vim'
         \ },
         \ 'colorscheme': 'gruvbox'
         \ }
-  " Set 'colorscheme' to 'gruvbox', 'onedark' or 'nightowl'. Maybe match the theme with whatever colorscheme is set?
+  " Set 'colorscheme' to 'gruvbox' or 'onedark'.
+  " Maybe match the theme with whatever colorscheme is set?
 endif
-
 
 "----- Colorscheme (set at the end since it affects other plugin settings from above) -----"
 set background=dark
@@ -422,25 +424,13 @@ try
   colorscheme onedark
 catch
 try
-  colorscheme night-owl
-catch
-try
   colorscheme dracula
-catch
-try
-  " Use same background and differentiate only using colors in diff mode
-  let g:nord_uniform_diff_background = 1
-  " Enables background for the line number of the current line.
-  let g:nord_cursor_line_number_background = 1
-  colorscheme nord
 catch
 try
   colorscheme solarized
   let g:solarized_visibility = "high"
   let g:solarized_contrast = "high"
 catch
-endtry
-endtry
 endtry
 endtry
 endtry

@@ -39,14 +39,12 @@ if &runtimepath =~ 'nvim-lspconfig'
   " Load lsp and completion.
   lua << BLOCK
   lsp_config = require'lspconfig'
-  completion_callback = require'completion'.on_attach
 
   lsp_config.pylsp.setup {
     cmd_env = {
       VIRTUAL_ENV=vim.g.neovim_python_env,
       PATH=vim.g.neovim_python_env .. "/bin/" .. ":" .. vim.env.PATH
       },
-    on_attach = completion_callback
   }
 
   lsp_config.bashls.setup{}
@@ -55,8 +53,65 @@ if &runtimepath =~ 'nvim-lspconfig'
   lsp_config.yamlls.setup {
     settings = {
       yaml = {
+        trace = {
+          server = "verbose"
+        },
         schemas = {
-          ["azure-pipelines/yamlschema.json"] = "/azure-pipelines/**/*"
+          ["https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/main/service-schema.json"] = "/azure-pipelines/**/*",
+          ["/Users/popescub/work/.config/nvim/tomtom-ado-yamlschema.json"] = "/azure-pipelines/**/*",
+          ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
+          ["https://raw.githubusercontent.com/awslabs/goformation/master/schema/cloudformation.schema.json"] = "/navcloud-cluster.yml",
+          ["https://raw.githubusercontent.com/awslabs/goformation/master/schema/cloudformation.schema.json"] = "/**/cf-templates/*.yml"
+        },
+        customTags = {
+          "!And scalar",
+          "!And mapping",
+          "!And sequence",
+          "!If scalar",
+          "!If mapping",
+          "!If sequence",
+          "!Not scalar",
+          "!Not mapping",
+          "!Not sequence",
+          "!Equals scalar",
+          "!Equals mapping",
+          "!Equals sequence",
+          "!Or scalar",
+          "!Or mapping",
+          "!Or sequence",
+          "!FindInMap scalar",
+          "!FindInMap mappping",
+          "!FindInMap sequence",
+          "!Base64 scalar",
+          "!Base64 mapping",
+          "!Base64 sequence",
+          "!Cidr scalar",
+          "!Cidr mapping",
+          "!Cidr sequence",
+          "!Ref scalar",
+          "!Ref mapping",
+          "!Ref sequence",
+          "!Sub scalar",
+          "!Sub mapping",
+          "!Sub sequence",
+          "!GetAtt scalar",
+          "!GetAtt mapping",
+          "!GetAtt sequence",
+          "!GetAZs scalar",
+          "!GetAZs mapping",
+          "!GetAZs sequence",
+          "!ImportValue scalar",
+          "!ImportValue mapping",
+          "!ImportValue sequence",
+          "!Select scalar",
+          "!Select mapping",
+          "!Select sequence",
+          "!Split scalar",
+          "!Split mapping",
+          "!Split sequence",
+          "!Join scalar",
+          "!Join mapping",
+          "!Join sequence"
         }
       }
     }
@@ -97,3 +152,38 @@ BLOCK
   imap <s-tab> <Plug>(completion_smart_s_tab)
 endif
 
+if &runtimepath =~ 'nvim-tree'
+  lua << BLOCK
+  require'nvim-tree'.setup()
+BLOCK
+
+  " mappings
+  nnoremap <leader>nn :NvimTreeToggle<CR>
+  nnoremap <leader>nf :NvimTreeFindFile<CR>
+
+endif
+
+" if &runtimepath =~ 'vscode.nvim'
+"
+"   lua << BLOCK
+"   vim.o.background = 'dark'
+"   local c = require('vscode.colors')
+"   require('vscode').setup({
+"     -- Disable nvim-tree background color
+"     disable_nvimtree_bg = true,
+"
+"     -- Override colors (see ./lua/vscode/colors.lua)
+"     color_overrides = {
+"       vscLineNumber = '#FFFFFF',
+"     },
+"
+"     -- Override highlight groups (see ./lua/vscode/theme.lua)
+"     group_overrides = {
+"       -- this supports the same val table as vim.api.nvim_set_hl
+"       -- use colors from this colorscheme by requiring vscode.colors!
+"       Cursor = { fg=c.vscDarkBlue, bg=c.vscLightGreen, bold=true },
+"     }
+"   })
+" BLOCK
+"
+" endif

@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+# Use some common sense failsafe checks.
+set -eu
+
+# Global script variables.
+LOCAL_BIN_PATH="${HOME}/.bin"
+DOWNLOAD_DIR="${LOCAL_BIN_PATH}/.download"
+
+K8S_INSTALL_DIR="${LOCAL_BIN_PATH}/kubernetes"
+KUBECTL_BINARY="kubectl"
+KUBECTL_VERSION=""
+KUBECTL_CONVERT_BINARY="kubectl-convert"
+
+USAGE="$(basename "$0") [-h] [-i] [-c] [-v version]
+
+where:
+  -h  - Show this help message.
+  -c  - Cleans all installed versions.
+  -i  - Installs a new version.
+  -l  - Lists all available versions without installing anything.
+  -v version  - Installs the specified kubectl version."
+
+
+# Gets all tags from the repo of the form vX.Y.Z
+list_k8s() {
+  git ls-remote --tags "https://github.com/kubernetes/kubernetes" | rg -o '/v([0-9\.]*)$' -r 'v$1' | sort -V | uniq
+}
+
+# Removes the CLI symlinks and the install directory.
+clean_k8s() {
+  for binary in ${KUBECTL_BINARY} ${KUBECTL_CONVERT_BINARY}; do
+    find ${LOCAL_BIN_PATH} -type l -depth 1 -name "${KUBECTL_BINARY}-v[0-9]*" -exec unlink '{}' \; || true
+  done
+  rm -rf "${K8S_INSTALL_DIR}"
+}
+
+# Installs the latest kubernetes binaries.
+install_k8s() {
+  # Ensure the needed directories exist.
+  mkdir -p "${K8S_INSTALL_DIR}" "${DOWNLOAD_DIR}"
+
+  # Get the latest stable version if none is provided.
+  if [[ ! -n $KUBECTL_VERSION ]]; then 
+    KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
+  fi
+
+  # To be changed from AMD to ARM for M1.
+  KUBECTL_URL="https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/darwin/amd64/kubectl"
+  KUBECTL_SHA_URL="https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/darwin/amd64/kubectl.sha256"
+
+  echo "Downloading ${KUBECTL_BINARY} version ${KUBECTL_VERSION} from ${KUBECTL_URL}"
+  curl -L "${KUBECTL_URL}" -o "${DOWNLOAD_DIR}/${KUBECTL_BINARY}"
+  curl -L "${KUBECTL_SHA_URL}" -o "${DOWNLOAD_DIR}/${KUBECTL_BINARY}.sha256"
+  echo "$(cat "${DOWNLOAD_DIR}/${KUBECTL_BINARY}.sha256")  ${DOWNLOAD_DIR}/${KUBECTL_BINARY}" | shasum -a 256 --check
+
+  KUBECTL_CONVERT_URL="https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/darwin/amd64/kubectl-convert"
+  KUBECTL_CONVERT_SHA_URL="https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/darwin/amd64/kubectl-convert.sha256"
+
+  echo "Downloading ${KUBECTL_CONVERT_BINARY} version ${KUBECTL_VERSION} from ${KUBECTL_CONVERT_URL}"
+  curl -L "${KUBECTL_CONVERT_URL}" -o "${DOWNLOAD_DIR}/${KUBECTL_CONVERT_BINARY}"
+  curl -L "${KUBECTL_CONVERT_SHA_URL}" -o "${DOWNLOAD_DIR}/${KUBECTL_CONVERT_BINARY}.sha256"
+  echo "$(cat "${DOWNLOAD_DIR}/${KUBECTL_CONVERT_BINARY}.sha256")  ${DOWNLOAD_DIR}/${KUBECTL_CONVERT_BINARY}" | shasum -a 256 --check
+
+  # Move from Download and symlink binaries into $PATH.
+  for binary in ${KUBECTL_BINARY} ${KUBECTL_CONVERT_BINARY}; do
+    installed_binary=${K8S_INSTALL_DIR}/${binary}-${KUBECTL_VERSION}
+    mv ${DOWNLOAD_DIR}/${binary} ${installed_binary}
+    chmod +x ${installed_binary}
+    ln -sf ${installed_binary} "${LOCAL_BIN_PATH}/${binary}-${KUBECTL_VERSION}"
+    ln -sf "${LOCAL_BIN_PATH}/${binary}-${KUBECTL_VERSION}" "${LOCAL_BIN_PATH}/${binary}"
+  done
+
+  rm -r "${DOWNLOAD_DIR}" || true
+}
+
+# Parse CLI arguments.
+OPT_CLEAN=false
+OPT_INSTALL=false
+OPT_LIST=false
+while getopts "chilv:" opt; do
+  case $opt in
+    h) echo "$USAGE" && exit 0 ;;
+    c) OPT_CLEAN=true ;;
+    i) OPT_INSTALL=true ;;
+    l) OPT_LIST=true ;;
+    v) KUBECTL_VERSION=$OPTARG ;;
+    *) echo "$USAGE" >&2 && exit 1 ;;
+  esac
+done
+
+if $OPT_LIST; then
+  list_k8s
+fi
+
+if $OPT_CLEAN; then
+  clean_k8s
+fi
+
+if $OPT_INSTALL; then
+  install_k8s
+fi

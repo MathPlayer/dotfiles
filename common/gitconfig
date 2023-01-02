@@ -28,6 +28,8 @@
   mnemonicPrefix = True
   algorithm = minimal
   wsErrorHighlight = all
+[init]
+  defaultBranch = main
 [alias]
   st = status
   sh = show
@@ -103,6 +105,7 @@
   std = stash drop
   stl = stash list
   sts = stash show
+  stsp = stash show -p
 
   v = "! git --version"
   alias = "! git config --get-regexp 'alias.*' | grep -v '^alias.alias' | sed -e 's#^alias\\.##' -e 's# # = #' | sort"

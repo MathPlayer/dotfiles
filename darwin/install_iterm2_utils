@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# Use some common sense failsafe checks.
+set -eu
+
+# Global script variables.
+LOCAL_BIN_PATH="${HOME}/.bin"
+INSTALL_DIR="${LOCAL_BIN_PATH}/iterm2"
+
+BINARIES=(
+  "imgcat"
+  "imgls"
+  "it2dl"
+)
+
+clean_iterm2_utils() {
+  for binary in ${BINARIES[@]}; do
+    rm "${LOCAL_BIN_PATH}/${binary}" || true
+  done
+  rm -rf "${INSTALL_DIR}"
+}
+
+install_iterm2_utils() {
+  mkdir -p "${INSTALL_DIR}"
+  for binary in ${BINARIES[@]}; do
+    curl "https://iterm2.com/utilities/${binary}" -o "${INSTALL_DIR}/${binary}"
+    ln -sf "${INSTALL_DIR}/${binary}" "${LOCAL_BIN_PATH}/${binary}"
+  done
+}
+
+clean_iterm2_utils
+install_iterm2_utils

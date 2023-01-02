@@ -179,8 +179,8 @@ _evalcache rbenv init - --no-rehash
 # sdkman
 # TODO: check if this must be at the end of the file
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "${SDKMAN_DIR}/bin/sdkman-init.sh" ]] && source "${SDKMAN_DIR}/bin/sdkman-init.sh"
+#export SDKMAN_DIR="$HOME/.sdkman"
+#[[ -s "${SDKMAN_DIR}/bin/sdkman-init.sh" ]] && source "${SDKMAN_DIR}/bin/sdkman-init.sh"
 
 # Check/load bash completions not available in zsh.
 check_load_brew_bash_completions() {
@@ -210,8 +210,6 @@ check_load_brew_bash_completions() {
 }
 check_load_brew_bash_completions
 
-# Ripgrep
-export RIPGREP_CONFIG_PATH="${HOME}/.ripgreprc"
 
 #########
 # Shell config
@@ -333,6 +331,7 @@ _gnu_tools=(
   "find"
   "head"
   # "md5sum"
+  "mkdir"
   # "nohup"
   # "rm"
   # "rmdir"
@@ -364,6 +363,11 @@ if command_exists dircolors && [ -r "${HOME}/.dircolors" ]; then
   eval "$(dircolors -b "${HOME}/.dircolors")" || eval "$(dircolors -b)"
 fi
 
+# Custom config for VSCode.
+if [[ "$TERM_PROGRAM" == "vscode" ]]; then
+  bindkey -e
+fi
+
 # misc
 alias path="echo \${PATH} | tr ':' '\n'"
 alias zsh_fpath="echo \${fpath} | tr ' ' '\n'"
@@ -371,7 +375,16 @@ alias ftail='tail -f -n+1'
 alias myps='ps axo user,tty,ppid,pid,command | grep -vE "grep|ps axo" | grep -E "(USER\s*PPID)|${USER}"'
 alias mypsa='ps aux | grep -vE "grep|ps aux" | grep -E "(USER\s*PID)|${USER}"'
 alias logssh='ssh > >(tee '${HOME}'/ssh-$(date +"%Y-%m-%d-%H-%M").out) 2> >(tee ssh-$(date +"%Y-%m-%d-%H-%M").err >&2)'
+alias prettyjson='python -m json.tool'
 
+function caesar() {
+  in_text=$@
+  a=abcdefghijklmnopqrstuvwxyz
+  b=ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  for r in $(seq 0 25); do
+    sed "y/$a$b/${a:$r}${a:0:$r}${b:$r}${b:0:$r}/" <<< $in_text
+  done
+}
 
 #########
 # Work-related configuration.
