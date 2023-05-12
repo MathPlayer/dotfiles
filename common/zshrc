@@ -32,12 +32,8 @@ fi
 
 # Build an array of custom paths.
 typeset -a custom_paths=(
-  # Personal bin
-  "${HOME}/.bin"
+  "${HOME}/.rd/bin"
   # *env
-  "${HOME}/.pyenv/bin"
-  "${HOME}/.nodenv/bin"
-  "${HOME}/.rbenv/bin"
   # Rust
   "${HOME}/.cargo/bin"
   # Default folder for pip apps/binaries.
@@ -109,6 +105,9 @@ if ! zgenom saved; then
   # Load custom *env files when entering/exiting a folder
   zgenom load Tarrasch/zsh-autoenv
 
+  # Simpler alternative to cd ../../.. ... ../
+  zgenom load Tarrasch/zsh-bd
+
   # Recommend aliases when using full-blown commands
   zgenom load MichaelAquilina/zsh-you-should-use
 
@@ -132,7 +131,6 @@ if ! zgenom saved; then
   zgenom compile "$HOME/.zshrc"
 fi
 
-
 #########
 # Powerlevel10k theme
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -152,35 +150,8 @@ function kube-toggle() {
   fi
 }
 
-#########
-# Tools
-
-# Pyenv
-export PYENV_ROOT="$(pyenv root)"
-eval "$(pyenv init --path)"
-_evalcache pyenv init --no-rehash -
-(pyenv rehash &) 2> /dev/null
-# avoid double virtualenv name mention in prompt, see pyenv-virtualenv info message below:
-# pyenv-virtualenv: prompt changing will be removed from future release.
-# configure `export PYENV_VIRTUALENV_DISABLE_PROMPT=1' to simulate the behavior.
-export PYENV_VIRTUALENV_DISABLE_PROMPT=1
-
-# Nodenv
-_evalcache nodenv init --no-rehash -
-(nodenv rehash &) 2> /dev/null
-
-# Rbenv
-_evalcache rbenv init - --no-rehash
-(rbenv rehash &) 2> /dev/null
-# TODO: consider trying the compile part to make rbenv faster.
-# Last code snippet in first step from: https://github.com/rbenv/rbenv#basic-github-checkout
-# $ cd ~/.rbenv && src/configure && make -C src
-
-# sdkman
-# TODO: check if this must be at the end of the file
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-#export SDKMAN_DIR="$HOME/.sdkman"
-#[[ -s "${SDKMAN_DIR}/bin/sdkman-init.sh" ]] && source "${SDKMAN_DIR}/bin/sdkman-init.sh"
+# rtx :) https://github.com/jdxcode/rtx
+_evalcache rtx activate zsh
 
 # Check/load bash completions not available in zsh.
 check_load_brew_bash_completions() {
@@ -211,8 +182,7 @@ check_load_brew_bash_completions() {
 check_load_brew_bash_completions
 
 
-#########
-# Shell config
+#### Shell config
 
 # Change directories without "cd".
 setopt AUTO_CD
@@ -224,23 +194,28 @@ bindkey '^[[B' history-substring-search-down
 bindkey "\e\e[D" backward-word
 bindkey "\e\e[C" forward-word
 
-# Append history to file, as soon as possible.
-setopt INC_APPEND_HISTORY_TIME
-# Add timestamps in the history file.
-setopt EXTENDED_HISTORY
-# Ignore duplicates
-setopt HIST_IGNORE_ALL_DUPS
-# Ignore entries starting with space
-setopt HIST_IGNORE_SPACE
-# Expire the duplicate first.
-setopt HIST_EXPIRE_DUPS_FIRST
+# Shell history
+setopt INC_APPEND_HISTORY_TIME  # Append history to file, as soon as possible.
+setopt EXTENDED_HISTORY         # Add timestamps in the history file.
+setopt HIST_IGNORE_ALL_DUPS     # Ignore duplicates
+setopt HIST_IGNORE_SPACE        # Ignore entries starting with space
+setopt HIST_EXPIRE_DUPS_FIRST   # Expire the duplicate first.
+
 # Alias to reload history in the current shell.
 alias zsh_reload_history="fc -RI"
+
 # Keep 1M entries in the history
 export HISTFILE="${HOME}/.zsh_history"
 export HISTSIZE=1000000
 export SAVEHIST=$HISTSIZE
 
+# Directory stack
+setopt AUTO_PUSHD         # Push the current directory visited on the stack.
+setopt PUSHD_IGNORE_DUPS  # Do not store duplicates in the stack.
+setopt PUSHD_SILENT       # Do not print the directory stack after pushd or popd.
+
+alias dv='dirs -v'
+for index ({1..9}) alias "$index"="cd +${index}"; unset index
 
 #########
 # Misc
@@ -265,6 +240,10 @@ if command_exists nproc; then
   export MAKEFLAGS="-j $(nproc)"
 elif command_exists sysctl; then
   export MAKEFLAGS="-j $(sysctl -n hw.logicalcpu)"
+fi
+
+if command_exists rg; then
+  export RIPGREP_CONFIG_PATH=${HOME}/.ripgreprc
 fi
 
 # Set umask.
@@ -302,15 +281,18 @@ fi
 # Docker
 if command_exists docker; then
   alias d="docker"
-  alias dco="docker compose"
-  alias dcup="docker compose up"
-  alias dcupd="docker compose up -d"
-  alias dcdn="docker compose down"
-  alias dcps="docker compose ps"
-  alias dcpull="docker compose pull"
-  alias dcl="docker compose logs"
-  alias dclf="docker compose logs -f"
+
+  alias dco="docker-compose"
+  alias dcoup="docker-compose up"
+  alias dcoupd="docker-compose up -d"
+  alias dcodn="docker-compose down"
+  alias dcops="docker-compose ps"
+  alias dcopull="docker-compose pull"
+  alias dcol="docker-compose logs"
+  alias dcolf="docker-compose logs -f"
+
   alias dcstat="docker ps -q | xargs docker stats --no-stream"
+  alias dps="docker ps"
   alias dpsa="docker ps -a"
 fi
 
@@ -368,6 +350,18 @@ if [[ "$TERM_PROGRAM" == "vscode" ]]; then
   bindkey -e
 fi
 
+# (z)shell specific
+alias -g ...='../..'
+alias -g ....='../../..'
+alias -g .....='../../../..'
+alias -g C='| wc -l '
+alias -g H='| head '
+alias -g J='| jq '
+alias -g L='| less '
+alias -g R='| rg '
+alias -g S='| sort '
+alias -g T='| tail '
+
 # misc
 alias path="echo \${PATH} | tr ':' '\n'"
 alias zsh_fpath="echo \${fpath} | tr ' ' '\n'"
@@ -395,6 +389,15 @@ if [ -d "${_work_dir}" ]; then
   source_if_exists "${_work_dir}/.zshrc"
 fi
 unset _work_dir
+
+#########
+# Personal bin exported at the end to be first in PATH.
+export PATH="${HOME}/.bin:${PATH}"
+
+## Generic Linux-like exports
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$XDG_CONFIG_HOME/local/share"
+export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
 
 ########
 # Cleanup
