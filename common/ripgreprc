@@ -8,6 +8,10 @@
 # Search in hidden folders. Note: gitignore'd folders are skipped.
 --hidden
 
+# Filter cucumber feature files
+--type-add
+cucumber:*.feature
+
 # Exclude the '.git' folders since they're not ignored by gitignore :)
 --glob
 !.git/*

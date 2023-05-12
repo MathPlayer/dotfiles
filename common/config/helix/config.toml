@@ -1,0 +1,9 @@
+#theme = "snazzy_from_PR"
+theme = "gruvbox"
+
+[editor]
+bufferline = "always"
+color-modes = true
+
+[editor.lsp]
+display-messages = true

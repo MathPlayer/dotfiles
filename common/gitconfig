@@ -33,8 +33,10 @@
 [alias]
   st = status
   sh = show
+  shs = show --stat
 
   a = add
+  ap = add -p
   rm = remove
   r = reset
   rh = reset --hard
@@ -77,6 +79,8 @@
   pff = push --force
   psu = push --set-upstream
   psup = "! git push --set-upstream origin $(git branch --show-current)"
+
+  ma = merge --abort
 
   rb = rebase
   rbc = rebase --continue
