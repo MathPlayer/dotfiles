@@ -2,7 +2,7 @@
 
 This repository keep track of all configuration files used on all major operating systems used (Windows, Linux, OSX).
 
-# Prerequisites
+## Prerequisites
 
 You must have the following tools installed:
 
@@ -12,7 +12,7 @@ You must have the following tools installed:
 * vim or neovim
 * Python 3 (>= 3.6).
 
-# Installing
+## Installing
 
 In order to install the dotfiles, run from the root directory of the repository the setup script:
 
