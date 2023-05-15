@@ -103,22 +103,6 @@ def git_pull_or_clone(repo, base_dir, alt_name=None):
 def get_dependencies(deps_dir):
     """Updates all dependencies used by dotfiles using deps_dir as a base directory."""
 
-    # Install *env.
-    # TODO: Check if *env exists in the path and not from $HOME/.*env before cloning here and
-    # abort/warn with a message asking to uninstall the system one.
-    git_pull_or_clone('https://github.com/pyenv/pyenv.git', deps_dir)
-    git_pull_or_clone('https://github.com/pyenv/pyenv-virtualenv.git', deps_dir / 'pyenv' / 'plugins')
-
-    git_pull_or_clone('https://github.com/jenv/jenv.git', deps_dir)
-
-    git_pull_or_clone('https://github.com/rbenv/rbenv.git', deps_dir)
-    # The plugins path does not exist in the rbenv repository, add it explicitly.
-    git_pull_or_clone('https://github.com/rbenv/ruby-build.git', deps_dir / 'rbenv' / 'plugins')
-
-    git_pull_or_clone('https://github.com/nodenv/nodenv.git', deps_dir)
-    # The plugins path does not exist in the nodenv repository, add it explicitly.
-    git_pull_or_clone('https://github.com/nodenv/node-build.git', deps_dir / 'nodenv' / 'plugins')
-
     # Get the zsh plugin manager.
     git_pull_or_clone('https://github.com/jandamm/zgenom.git', deps_dir)
 
