@@ -1,5 +1,16 @@
 local wezterm = require 'wezterm'
 
+local font_family = ''
+
+if string.match(wezterm.target_triple, 'apple-darwin$') then
+  -- 'MesloLGS NF', -- From p10k
+  font_family = 'Hack Nerd Font Mono'
+elseif wezterm.target_triple == 'x86_64-unknown-linux-gnu' then
+  font_family = 'MesloLGS Nerd Font Mono'
+else
+  -- TODO: fill out some default for windows.
+end
+
 return {
   -- appearance
   -- color_scheme = 'Gruvbox dark, medium (base16)',
@@ -18,8 +29,7 @@ return {
 
   -- font
   font = wezterm.font_with_fallback {
-    -- 'MesloLGS NF', -- From p10k
-    'Hack Nerd Font Mono',
+    font_family
   },
   font_size = 14,
   line_height = 1.1,
