@@ -23,6 +23,7 @@ LOG = logging.getLogger('')
 
 def check_run():
     """Determine if the setup script is started from the root directory of the repository."""
+
     cmd = ['git', 'rev-parse', '--show-toplevel']
     directory = Path(subprocess.run(cmd, text=True, capture_output=True).stdout.rstrip())
 
@@ -31,14 +32,15 @@ def check_run():
         sys.exit(errno.EPERM)
 
 
-def get_os_type():
-    """Determine OS system type in order to install OS-specific files."""
+def get_os():
+    """Determine the OS system type."""
     return platform.system().lower()
 
 
 def do_copy(src, dst, bak, append=False):
-    """Copy file from src to dst, backing up to bak (if needed). If append is True, the file
-    content from src is appended to (a possible existing) dst."""
+    """Copy file from src to dst, backing up to bak (if needed).
+    If append is True, the file content from src is appended to dst."""
+
     if not dst.is_file():
         os.makedirs(dst.parent, exist_ok=True)
         LOG.debug(f"Destination file does not exist: '{dst}'.")
@@ -68,6 +70,7 @@ def do_copy(src, dst, bak, append=False):
 
 def install(src_dir, dst_dir, bak_dir=None, append=False, add_dot=False):
     """Installs files from src_dir to dst_dir."""
+
     dot = '.' if add_dot else ''
     LOG.info(f"{'Install from':13s}: '{src_dir}'")
     LOG.info(f"{'to':13s}: '{dst_dir}'")
@@ -100,6 +103,14 @@ def git_pull_or_clone(repo, base_dir, alt_name=None):
         subprocess.run(['git', 'clone', '--depth=1', repo, dst_dir], cwd=base_dir)
 
 
+def download_file(remote, local):
+    """Download a file from the remote URL to the local Path object."""
+    try:
+        urllib.request.urlretrieve(remote, local)
+    except urllib.request.URLError as e:
+        LOG.warning(f"Could not retrieve {remote} to {local}: {e}")
+
+
 def get_dependencies(deps_dir):
     """Updates all dependencies used by dotfiles using deps_dir as a base directory."""
 
@@ -108,12 +119,9 @@ def get_dependencies(deps_dir):
 
     # Retrieve dircolors.
     # TODO: Read https://github.com/trapd00r/LS_COLORS#zsh-integration-with-zplugin
-    try:
-        urllib.request.urlretrieve(
-            'https://raw.github.com/trapd00r/LS_COLORS/master/LS_COLORS',
-            deps_dir / 'dircolors')
-    except urllib.request.URLError as e:
-        LOG.warning("Could not retrive dircolors from github.")
+    download_file(
+        'https://raw.github.com/trapd00r/LS_COLORS/master/LS_COLORS',
+        deps_dir / 'dircolors')
 
 
 def main():
@@ -123,17 +131,24 @@ def main():
 
     # Parser-specific arguments
     dst_dir = Path.home()
-    parser = argparse.ArgumentParser(description="Installs dotfiles from this directory to a given directory.")
-    parser.add_argument('-d', '--directory', default=dst_dir, help="Installation directory; defaults to %(default)s.")
-    parser.add_argument('-v', '--verbose', action='store_true', help="Log this script actions at debug level.")
-    parser.add_argument('--skip-vim-plug-install', action='store_true', help="Do not call :PlugInstall in vim.")
+    parser = argparse.ArgumentParser(
+        description="Installs dotfiles from this directory to a given directory.")
+    parser.add_argument(
+        '-d', '--directory', default=dst_dir,
+        help="Installation directory; defaults to %(default)s.")
+    parser.add_argument(
+        '-v', '--verbose', action='store_true',
+        help="Log this script actions at debug level.")
+    parser.add_argument(
+        '--skip-nvim-setup', action='store_true',
+        help="Skip installing neovim plugins.")
 
     args = parser.parse_args()
 
     # Prepare install.
     LOG.setLevel(logging.DEBUG if args.verbose else logging.INFO)
 
-    # Trying to avoid using colons in path names, so not using isoformat.
+    # Use a non-iso format to avoid colons in path names.
     now = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')
     repo_dir = Path.cwd()
     dst_dir = Path(args.directory)
@@ -146,25 +161,22 @@ def main():
 
     # Merge dotfiles in auxilary dir.
     install(repo_dir / 'common', aux_dir)
-    install(repo_dir / get_os_type(), aux_dir, append=True)
+    install(repo_dir / get_os(), aux_dir, append=True)
 
     # Install all files.
     install(deps_dir, dst_dir, add_dot=True)
     install(aux_dir, dst_dir, bak_dir=bak_dir, add_dot=True)
 
-    if not args.skip_vim_plug_install:
-        # Install vim plugins using vim-plug.
-        for tool in ['nvim', 'vim']:
-            LOG.info(f"vim-plug install using {tool}")
-            vim_plug_install_cmd = [tool, '+silent', '+PlugInstall', '+qall']
-            try:
-                status = subprocess.run(vim_plug_install_cmd)
-                if status.returncode:
-                    LOG.warning(f"vim-plug install failed using {tool} (return code {status.returncode}).")
-                else:
-                    break
-            except OSError as e:
-                LOG.warning(f"vim-plug install failed using {tool}: {e.strerror}")
+    # Setup neovim.
+    if not args.skip_nvim_setup:
+        LOG.info("Install neovim plugins")
+        nvim_setup_cmd = ['nvim', '--headless', '+Lazy! sync', '+qall']
+        try:
+            status = subprocess.run(nvim_setup_cmd)
+            if status.returncode:
+                LOG.warning(f"Installing neovim plugins failed (return code {status.returncode}).")
+        except OSError as e:
+            LOG.warning(f"Installing neovim plugins failed: {e.strerror}")
 
     # Cleanup.
     shutil.rmtree(aux_dir)
