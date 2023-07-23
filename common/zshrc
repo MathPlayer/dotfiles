@@ -131,10 +131,7 @@ if ! zgenom saved; then
   zgenom compile "$HOME/.zshrc"
 fi
 
-#########
-# Powerlevel10k theme
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-source ~/.p10k.zsh
+
 
 function kube-toggle() {
   if (( ${+POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND} )); then
@@ -150,8 +147,15 @@ function kube-toggle() {
   fi
 }
 
+
+#########
+# Powerlevel10k theme
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+# TODO: check if possible to use _evalcache
+source ~/.p10k.zsh
+
 # rtx :) https://github.com/jdxcode/rtx
-_evalcache rtx activate zsh
+_evalcache rtx activate zsh && source ~/.p10k.rtx.zsh
 
 # Check/load bash completions not available in zsh.
 check_load_brew_bash_completions() {
