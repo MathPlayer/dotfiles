@@ -536,6 +536,7 @@ require('lazy').setup({
   { 'keith/xcconfig.vim', ft = 'xcconfig' },
   { 'cfdrake/vim-pbxproj',ft = 'pbxproj' },
   { 'vim-scripts/SWIG-syntax', ft = 'swig' },
+  { 'towolf/vim-helm', lazy = false }, -- Helm templates
 
 
   -- Javascript plugins
@@ -641,6 +642,13 @@ require('lazy').setup({
 
   -- extra config for lsp
   'neovim/nvim-lspconfig',
+
+  {
+    'scalameta/nvim-metals',
+    dependencies = {
+      'nvim-lua/plenary.nvim'
+    },
+  },
 })
 
 local ok, navic = pcall(require, 'nvim-navic')
@@ -663,71 +671,76 @@ if ok then
   lsp_config.tsserver.setup {}
   lsp_config.clangd.setup {}
   lsp_config.marksman.setup {}
-  lsp_config.yamlls.setup {
-    settings = {
-      yaml = {
-        --trace = {
-          --server = "verbose"
-        --},
-        schemas = {
-          ["https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/main/service-schema.json"] = "/azure-pipelines/**/*",
-          ["/Users/popescub/work/.config/nvim/tomtom-ado-yamlschema.json"] = "/azure-pipelines/**/*",
-          ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
-          ["https://raw.githubusercontent.com/awslabs/goformation/master/schema/cloudformation.schema.json"] = "/**/cf-templates/*.yml"
-        },
-        customTags = {
-          "!And scalar",
-          "!And mapping",
-          "!And sequence",
-          "!If scalar",
-          "!If mapping",
-          "!If sequence",
-          "!Not scalar",
-          "!Not mapping",
-          "!Not sequence",
-          "!Equals scalar",
-          "!Equals mapping",
-          "!Equals sequence",
-          "!Or scalar",
-          "!Or mapping",
-          "!Or sequence",
-          "!FindInMap scalar",
-          "!FindInMap mappping",
-          "!FindInMap sequence",
-          "!Base64 scalar",
-          "!Base64 mapping",
-          "!Base64 sequence",
-          "!Cidr scalar",
-          "!Cidr mapping",
-          "!Cidr sequence",
-          "!Ref scalar",
-          "!Ref mapping",
-          "!Ref sequence",
-          "!Sub scalar",
-          "!Sub mapping",
-          "!Sub sequence",
-          "!GetAtt scalar",
-          "!GetAtt mapping",
-          "!GetAtt sequence",
-          "!GetAZs scalar",
-          "!GetAZs mapping",
-          "!GetAZs sequence",
-          "!ImportValue scalar",
-          "!ImportValue mapping",
-          "!ImportValue sequence",
-          "!Select scalar",
-          "!Select mapping",
-          "!Select sequence",
-          "!Split scalar",
-          "!Split mapping",
-          "!Split sequence",
-          "!Join scalar",
-          "!Join mapping",
-          "!Join sequence"
-        }
-      }
-    }
+  lsp_config.helm_ls.setup {
+    filetypes = {"helm"},
+    cmd = {"helm_ls", "serve"},
   }
+  -- lsp_config.yamlls.setup {
+  --   filetypes = { "yaml", "yaml.docker-compose" },
+  --   settings = {
+  --     yaml = {
+  --       --trace = {
+  --         --server = "verbose"
+  --       --},
+  --       schemas = {
+  --         ["https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/main/service-schema.json"] = "/azure-pipelines/**/*",
+  --         ["/Users/popescub/work/.config/nvim/tomtom-ado-yamlschema.json"] = "/azure-pipelines/**/*",
+  --         ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
+  --         ["https://raw.githubusercontent.com/awslabs/goformation/master/schema/cloudformation.schema.json"] = "/**/cf-templates/*.yml",
+  --       },
+  --       customTags = {
+  --         "!And scalar",
+  --         "!And mapping",
+  --         "!And sequence",
+  --         "!If scalar",
+  --         "!If mapping",
+  --         "!If sequence",
+  --         "!Not scalar",
+  --         "!Not mapping",
+  --         "!Not sequence",
+  --         "!Equals scalar",
+  --         "!Equals mapping",
+  --         "!Equals sequence",
+  --         "!Or scalar",
+  --         "!Or mapping",
+  --         "!Or sequence",
+  --         "!FindInMap scalar",
+  --         "!FindInMap mappping",
+  --         "!FindInMap sequence",
+  --         "!Base64 scalar",
+  --         "!Base64 mapping",
+  --         "!Base64 sequence",
+  --         "!Cidr scalar",
+  --         "!Cidr mapping",
+  --         "!Cidr sequence",
+  --         "!Ref scalar",
+  --         "!Ref mapping",
+  --         "!Ref sequence",
+  --         "!Sub scalar",
+  --         "!Sub mapping",
+  --         "!Sub sequence",
+  --         "!GetAtt scalar",
+  --         "!GetAtt mapping",
+  --         "!GetAtt sequence",
+  --         "!GetAZs scalar",
+  --         "!GetAZs mapping",
+  --         "!GetAZs sequence",
+  --         "!ImportValue scalar",
+  --         "!ImportValue mapping",
+  --         "!ImportValue sequence",
+  --         "!Select scalar",
+  --         "!Select mapping",
+  --         "!Select sequence",
+  --         "!Split scalar",
+  --         "!Split mapping",
+  --         "!Split sequence",
+  --         "!Join scalar",
+  --         "!Join mapping",
+  --         "!Join sequence"
+  --       }
+  --     }
+  --   }
+  -- }
 
   -- Signs not added when moving from init.vim to init.lua
   -- sign define LspDiagnosticsSignError text=🔴
