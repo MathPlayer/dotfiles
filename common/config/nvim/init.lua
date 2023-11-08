@@ -215,7 +215,8 @@ augroup END
 
 ------- Key mappings
 vim.keymap.set('n', ' ', '<Nop>', {desc = 'Ignore SPACE in normal mode since it gets set to LEADER.'})
-vim.g.mapleader = " "
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
 
 vim.keymap.set('n', ';', ':', {desc = 'More efficient command calling via :'})
 vim.keymap.set('c', 'w!!', ' w !sudo tee % >/dev/null', {desc = 'Write a file with sudo'})
@@ -253,14 +254,14 @@ vim.cmd('autocmd TermOpen * setlocal listchars= nonumber norelativenumber signco
 ---- plugin settings
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
+  vim.fn.system {
     'git',
     'clone',
     '--filter=blob:none',
     'https://github.com/folke/lazy.nvim.git',
     '--branch=stable', -- latest stable release
     lazypath,
-  })
+  }
 end
 vim.opt.rtp:prepend(lazypath)
 
@@ -365,46 +366,6 @@ require('lazy').setup({
     end,
   },
 
-  -- Code outline
-  {
-    'stevearc/aerial.nvim',
-    opts = {
-      -- optionally use on_attach to set keymaps when aerial has attached to a buffer
-      on_attach = function(bufnr)
-        -- Jump forwards/backwards with '{' and '}'
-        vim.keymap.set('n', '{', '<cmd>AerialPrev<cr>', {buffer = bufnr})
-        vim.keymap.set('n', '}', '<cmd>AerialNext<cr>', {buffer = bufnr})
-      end,
-      -- Don't show it for certain elements
-      ignore = {
-        buftypes = {
-          'special',
-          'nofile',
-          'terminal',
-        },
-        filetypes = {
-          'help',
-          'lazy',
-          'nvimtree',
-        },
-      },
-    },
-    keys = {
-      { '<leader>aa', '<cmd>AerialToggle!<cr>' },
-    },
-  },
-  {
-    'SmiteshP/nvim-navic',
-    dependencies = {
-      'neovim/nvim-lspconfig'
-    },
-    opts = {
-      lsp = {
-        auto_attach = true,
-      },
-    },
-  },
-
   -- File browser
   {
     'nvim-tree/nvim-tree.lua',
@@ -501,8 +462,10 @@ require('lazy').setup({
   {
     'lukas-reineke/indent-blankline.nvim',
     opts = {
+      char = '┊',
       show_current_context = true,
       show_current_context_start = true,
+      show_trailing_blankline_indent = false,
     },
   },
 
@@ -511,6 +474,9 @@ require('lazy').setup({
 
   -- highlight the word under cursor
   'itchyny/vim-cursorword',
+
+  -- Show you pending keybinds
+  { 'folke/which-key.nvim', opts = {} },
 
   -- Toggle using mouse in vim or not
   'nvie/vim-togglemouse',
@@ -527,6 +493,9 @@ require('lazy').setup({
 
   -- file-line easy opening
   'lervag/file-line',
+
+  -- detect tabstop and shiftwidth automatically
+  'tpope/vim-sleuth',
 
   -- compare directories in vim
   'will133/vim-dirdiff',
@@ -571,6 +540,13 @@ require('lazy').setup({
     'lewis6991/gitsigns.nvim',
     opts = {
       -- Copied from https://github.com/lewis6991/gitsigns.nvim#keymaps
+      signs = {
+        add = { text = '+' },
+        change = { text = '~' },
+        delete = { text = '_' },
+        topdelete = { text = '‾' },
+        changedelete = { text = '~' },
+      },
       on_attach = function(bufnr)
         local gs = package.loaded.gitsigns
 
@@ -594,17 +570,19 @@ require('lazy').setup({
         end, {expr=true})
 
         -- Actions
-        map({'n', 'v'}, '<leader>ha', gs.stage_hunk)
-        map({'n', 'v'}, '<leader>hr', gs.reset_hunk)
-        map({'n', 'v'}, '<leader>hrs', gs.undo_stage_hunk)
-        map('n', '<leader>hS', gs.stage_buffer)
-        map('n', '<leader>hR', gs.reset_buffer)
-        map('n', '<leader>hp', gs.preview_hunk)
-        map('n', '<leader>hb', function() gs.blame_line{full=true} end)
-        map('n', '<leader>tb', gs.toggle_current_line_blame)
-        map('n', '<leader>hd', gs.diffthis)
-        map('n', '<leader>hD', function() gs.diffthis('~') end)
-        map('n', '<leader>td', gs.toggle_deleted)
+        map({'n', 'v'}, '<leader>ga', gs.stage_hunk)
+        map({'n', 'v'}, '<leader>gr', gs.reset_hunk)
+        map({'n', 'v'}, '<leader>grs', gs.undo_stage_hunk)
+        map('n', '<leader>gS', gs.stage_buffer)
+        map('n', '<leader>gR', gs.reset_buffer)
+        map('n', '<leader>gp', gs.prev_hunk, desc = '[G]it go to [P]revious Hunk')
+        map('n', '<leader>gn', gs.next_hunk, desc = '[G]it go to [N]ext Hunk')
+        map('n', '<leader>gph', gs.preview_hunk, desc = '[G]it [P]review [H]unk')
+        map('n', '<leader>gb', function() gs.blame_line{full=true} end, desc = '[G]it [B]lame')
+        map('n', '<leader>gbt', gs.toggle_current_line_blame, desc = '[G]it [B]lame [T]oggle')
+        map('n', '<leader>gd', gs.diffthis)
+        map('n', '<leader>gD', function() gs.diffthis('~') end)
+        map('n', '<leader>gdt', gs.toggle_deleted)
 
         -- Text object
         map({'o', 'x'}, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
@@ -641,7 +619,37 @@ require('lazy').setup({
   },
 
   -- extra config for lsp
-  'neovim/nvim-lspconfig',
+  { -- XXX: config taken from kickstart.nvim
+    'neovim/nvim-lspconfig',
+    dependencies = {
+      -- Automatically install LSPs to stdpath for neovim
+      { 'williamboman/mason.nvim', config = true },
+      'williamboman/mason-lspconfig.nvim',
+
+      -- Useful status updates for LSP
+      -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
+      { 'j-hui/fidget.nvim', tag = 'legacy', opts = {} },
+
+      -- Additional lua configuration, makes nvim stuff amazing!
+      'folke/neodev.nvim',
+    },
+  },
+
+  -- Autocompletion
+  { -- XXX: taken from kickstart.nvim
+    'hrsh7th/nvim-cmp',
+    dependencies = {
+      -- Snippet Engine & its associated nvim-cmp source
+      'L3MON4D3/LuaSnip',
+      'saadparwaiz1/cmp_luasnip',
+
+      -- Adds LSP completion capabilities
+      'hrsh7th/cmp-nvim-lsp',
+
+      -- Adds a number of user-friendly snippets
+      'rafamadriz/friendly-snippets',
+    },
+  },
 
   {
     'scalameta/nvim-metals',
@@ -649,6 +657,51 @@ require('lazy').setup({
       'nvim-lua/plenary.nvim'
     },
   },
+  {
+    "williamboman/mason.nvim",
+    build = ":MasonUpdate" -- :MasonUpdate updates registry contents
+  },
+
+  -- Code outline
+  {
+    'stevearc/aerial.nvim',
+    opts = {
+      -- optionally use on_attach to set keymaps when aerial has attached to a buffer
+      on_attach = function(bufnr)
+        -- Jump forwards/backwards with '{' and '}'
+        vim.keymap.set('n', '{', '<cmd>AerialPrev<cr>', {buffer = bufnr})
+        vim.keymap.set('n', '}', '<cmd>AerialNext<cr>', {buffer = bufnr})
+      end,
+      -- Don't show it for certain elements
+      ignore = {
+        buftypes = {
+          'special',
+          'nofile',
+          'terminal',
+        },
+        filetypes = {
+          'help',
+          'lazy',
+          'nvimtree',
+        },
+      },
+    },
+    keys = {
+      { '<leader>aa', '<cmd>AerialToggle!<cr>' },
+    },
+  },
+  {
+    'SmiteshP/nvim-navic',
+    dependencies = {
+      'neovim/nvim-lspconfig'
+    },
+    opts = {
+      lsp = {
+        auto_attach = true,
+      },
+    },
+  },
+
 })
 
 local ok, navic = pcall(require, 'nvim-navic')
