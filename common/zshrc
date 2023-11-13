@@ -32,8 +32,6 @@ fi
 
 # Build an array of custom paths.
 typeset -a custom_paths=(
-  "${HOME}/.rd/bin"
-  # *env
   # Rust
   "${HOME}/.cargo/bin"
   # Default folder for pip apps/binaries.
@@ -61,6 +59,7 @@ for custom_path in ${custom_paths[@]}; do
     prepend_to_path="${prepend_to_path}:${custom_path}"
   fi
 done
+
 if [ ! -z "${prepend_to_path}" ]; then
   export PATH="${prepend_to_path#:}:${PATH}"
 fi
@@ -68,8 +67,6 @@ unset prepend_to_path
 unset custom_paths
 
 
-#########
-# zgenom
 
 # The SSH plugin requires this setting before loading
 zstyle :omz:plugins:ssh-agent agent-forwarding on
@@ -97,9 +94,10 @@ if ! zgenom saved; then
   # ZSH only matches the first word in commands using up-line-or-search/down-line-or-search.
   zgenom load zsh-users/zsh-history-substring-search
 
+  # Best ZSH theme :)
   zgenom load romkatv/powerlevel10k powerlevel10k
 
-  # enhance *env tools with "eval" commands down in the file
+  # Cache "eval" loads to improve shell startup time. Useful if the "eval" stays the same for long periods of time.
   zgenom load mroth/evalcache
 
   # Load custom *env files when entering/exiting a folder
@@ -110,16 +108,17 @@ if ! zgenom saved; then
 
   # Recommend aliases when using full-blown commands
   zgenom load MichaelAquilina/zsh-you-should-use
+  export YSU_MESSAGE_POSITION="after"
+  export YSU_MODE="ALL"
 
-  # Autocomplete random commands having help messages.
-  # zgenom load RobSis/zsh-completion-generator
+  # zgenom load marlonrichert/zsh-autocomplete
 
-  #zgenom load marlonrichert/zsh-autocomplete
-
-  # Handle ssh-agent starting
-  # TODO: use 'zgenom ohmyzsh' to load the base?
-  zgenom ohmyzsh plugins/ssh-agent
-
+  # OMZ
+  zgenom ohmyzsh
+  zgenom ohmyzsh plugins/ssh-agent # Handle ssh-agent starting
+  zgenom ohmyzsh plugins/azure
+  zgenom ohmyzsh plugins/terraform
+  zgenom load bjkavan/terragrunt-oh-my-zsh-plugin
   # TODO: find more (useful) plugins
   # - dircolors
   # - integration with KeePassXC
@@ -128,6 +127,7 @@ if ! zgenom saved; then
   zgenom save
 
   # Compile local zsh files.
+  # TODO: should I compile all files?
   zgenom compile "$HOME/.zshrc"
 fi
 
@@ -154,38 +154,10 @@ function kube-toggle() {
 # TODO: check if possible to use _evalcache
 source ~/.p10k.zsh
 
-# rtx :) https://github.com/jdxcode/rtx
+# rtx better than asdf :) https://github.com/jdxcode/rtx
 _evalcache rtx activate zsh && source ~/.p10k.rtx.zsh
-
-# Check/load bash completions not available in zsh.
-check_load_brew_bash_completions() {
-  # TODO: what if no bash-specific completion exists?
-  autoload -Uz bashcompinit && bashcompinit
-
-  # Commented out for shpeed
-  #if [[ ! -z "${brew_dir}" ]]; then
-  #  # Get bash completions for tools known to not have a zsh completion.
-  #  # This could be done for all bash completions not available as zsh competions, but... less is more.
-  #  local completions_bash=($(ls ${brew_dir}/etc/bash_completion.d/ | sed -e 's/\.bash$//'))
-  #  local completions_zsh=($(ls ${brew_dir}/share/zsh/site-functions | sed -e 's/^_//' -e 's/_/-/g' | tr -s '\n' ' '))
-
-  #  # add framing blanks in order to use various tools as "regexp" match.
-  #  local l1=" ${completions_bash[*]} "
-  #  local l2=" ${completions_zsh[*]} "
-  #  # TODO: check/fix loading completion for az.
-  #  for tool in "az"; do
-  #    if ! [[ ${l2} =~ " ${tool} " ]]; then
-  #      complete -C ${tool}
-  #    fi
-  #  done
-  #fi
-
-  if [ -f "${HOME}/.bin/aws_completer" ]; then
-    complete -C aws_completer aws
-  fi
-}
-check_load_brew_bash_completions
-
+# A hacky way to get it. "rtx which java" doesn't seem to give a good result during initialization.
+export JAVA_HOME="/Users/popescub/.config/local/share/rtx/installs/java/latest"
 
 #### Shell config
 
@@ -198,7 +170,6 @@ bindkey '^[[B' history-substring-search-down
 # Use ALT/Option + left/right arrows to jump between words.
 bindkey "\e\e[D" backward-word
 bindkey "\e\e[C" forward-word
-
 # Shell history
 setopt INC_APPEND_HISTORY_TIME  # Append history to file, as soon as possible.
 setopt EXTENDED_HISTORY         # Add timestamps in the history file.
@@ -222,6 +193,8 @@ setopt PUSHD_SILENT       # Do not print the directory stack after pushd or popd
 alias dv='dirs -v'
 for index ({1..9}) alias "$index"="cd +${index}"; unset index
 
+alias cs=coursier
+
 #########
 # Misc
 
@@ -234,11 +207,9 @@ export LC_CTYPE="en_US.UTF-8"
 export LESS="-RFX"
 
 # Set text editors.
-command_exists vim && export EDITOR="vim"
-command_exists nvim && export EDITOR="nvim"
-if [ ! -z "${EDITOR}" ]; then
-  export VISUAL="${EDITOR}"
-fi
+#export EDITOR="vim"
+export EDITOR="nvim"
+export VISUAL="${EDITOR}"
 
 # Set make flags with a default cpu count.
 if command_exists nproc; then
@@ -403,6 +374,7 @@ export PATH="${HOME}/.bin:${PATH}"
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$XDG_CONFIG_HOME/local/share"
 export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
+
 
 ########
 # Cleanup
