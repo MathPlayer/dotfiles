@@ -238,6 +238,7 @@
     .shorten_folder_marker
     .svn
     .terraform
+    .rtx.toml
     CVS
     Cargo.toml
     composer.json
