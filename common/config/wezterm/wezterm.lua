@@ -18,6 +18,7 @@ return {
 
   -- font
   font = wezterm.font_with_fallback {
+    -- 'MesloLGS NF', -- From p10k
     'Hack Nerd Font Mono',
   },
   font_size = 14,
