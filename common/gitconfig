@@ -37,12 +37,14 @@
   shs = show --stat
 
   a = add
-  ap = add -p
+  ap = add --patch
   rm = remove
   r = reset
   rh = reset --hard
   rs = restore
+  rsp = restore --patch
   rss = restore --staged
+  rssp = restore --staged --patch
 
   d = diff
   dn = diff --no-index
@@ -101,7 +103,7 @@
 
   cl = clone --recurse-submodules
   fa = fetch --prune --all --tags --recurse-submodules --force
-  rv = remote -v
+  rv = remote --verbose
   rmv = remote rename
 
   sta = stash push
@@ -110,7 +112,7 @@
   std = stash drop
   stl = stash list
   sts = stash show
-  stsp = stash show -p
+  stsp = stash show --patch
 
   v = "! git --version"
   alias = "! git config --get-regexp 'alias.*' | grep -v '^alias.alias' | sed -e 's#^alias\\.##' -e 's# # = #' | sort"
