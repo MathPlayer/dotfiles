@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -eu
+
+if [ $(uname -s) != "Darwin" ]; then
+  echo >&2 "Useless script on non-macOS devices."
+  exit 1
+fi
+
+if [ $# -ne 1 -o ! -d "$1" ]; then
+  echo >&2 "Usage: $0 <path-to-dot-app>"
+  exit 1
+fi
+
+set -x
+sudo xattr -r -d com.apple.quarantine "$1"
