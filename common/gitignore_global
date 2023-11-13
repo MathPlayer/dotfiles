@@ -68,6 +68,10 @@ node_modules/
 # yaml azure-pipelines schemas
 azure-pipelines/yamlschema.json
 
-# my own temp files
-b.c.p.*
-*bogdan.json
+# Used by nektos/act.
+.secrets
+
+# my personal temp files
+.personal.tmp.*
+personal.tmp.*
+*.personal.tmp.json
