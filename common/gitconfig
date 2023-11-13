@@ -28,6 +28,7 @@
   mnemonicPrefix = True
   algorithm = minimal
   wsErrorHighlight = all
+  colormoved = plain
 [init]
   defaultBranch = main
 [alias]
