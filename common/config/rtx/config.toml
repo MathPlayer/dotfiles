@@ -1,0 +1,30 @@
+[settings]
+experimental = false
+
+[tools]
+# Languages
+java = "latest"
+node = "lts"
+python = "3"
+# Git
+delta = "latest"
+github-cli = "latest"
+gitui = "latest"
+lefthook = "latest"
+# Build
+gradle = "latest"
+maven = "latest"
+# Scala
+coursier = "latest"
+sbt = "latest"
+scala-cli = "latest"
+# Cloud and infra
+awscli = "latest"
+eksctl = "latest"
+kubectl = "latest"
+kubectx = "latest"
+kubelogin = "latest"
+minikube = "latest"
+terraform = "latest"
+# Stable enough for me to use it as a daily driver.
+neovim = "nightly"

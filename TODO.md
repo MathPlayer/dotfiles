@@ -8,7 +8,6 @@
     - Gather a list of tools to use and how they load their completion.
   - git: make sure delta is installed.
   - rtx
-    - add config file with common tools to have installed.
     - install the latest tools on setup.
 - Repository related
   - Check if other dotfiles solutions work better.
