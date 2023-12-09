@@ -1,8 +1,10 @@
+
 #
 # $HOME/.ssh/config
 #
 
 # Any include directive must at the top, otherwise it won't work.
+Include ~/.colima/ssh_config  # TODO: might be valid only if colima is installed. Test it out on Linux/WSL.
 Include ~/work/.ssh/config
 Include ~/personal/.ssh/config
 
