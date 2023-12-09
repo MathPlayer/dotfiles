@@ -196,8 +196,7 @@ require('lazy').setup({
     'luukvbaal/statuscol.nvim',
     config = function()
       local builtin = require('statuscol.builtin')
-      require('statuscol').setup(
-      {
+      require('statuscol').setup({
         relculright = true,
         segments = {
           {text = {builtin.lnumfunc, ' '}, click = 'v:lua.ScLa'},
@@ -205,7 +204,7 @@ require('lazy').setup({
           {text = {'%s'}, click = 'v:lua.ScSa'},
         }
       })
-      end
+    end
   },
   {
     'kevinhwang91/nvim-ufo',
@@ -327,6 +326,9 @@ require('lazy').setup({
   -- see: https://github.com/iamcco/markdown-preview.nvim/issues/50
   { 'iamcco/markdown-preview.nvim', build = ':call mkdp#util#install()', ft = 'markdown' },
 
+  -- asciidoc
+  { 'tigion/nvim-asciidoc-preview', ft = 'asciidoc' },
+
   -- my own
   { dir = '~/.vim/my-configs' },
 
@@ -335,7 +337,6 @@ require('lazy').setup({
     'dpelle/vim-LanguageTool',
     init = function()
       vim.g.languagetool_cmd = '/usr/local/bin/languagetool'  -- installed with brew on macos
-
     end,
   },
 
@@ -357,15 +358,25 @@ require('lazy').setup({
   },
 
   -- Autocompletion
-  { -- XXX: taken from kickstart.nvim
+  {
+    'L3mon4d3/LuaSnip',
+    version = 'v2.*',
+    build = 'make install_jsregexp', -- optional
+  },
+  {
     'hrsh7th/nvim-cmp',
     dependencies = {
-      -- Snippet Engine & its associated nvim-cmp source
+      -- Snippet engine & its associated nvim-cmp source
       'L3MON4D3/LuaSnip',
       'saadparwaiz1/cmp_luasnip',
 
       -- Adds LSP completion capabilities
+      'neovim/nvim-lspconfig',
       'hrsh7th/cmp-nvim-lsp',
+
+      -- Other useful sources
+      'hrsh7th/cmp-buffer',
+      'FelipeLema/cmp-async-path',
 
       -- Adds a number of user-friendly snippets
       'rafamadriz/friendly-snippets',
@@ -477,6 +488,38 @@ require('lazy').setup({
       auto_open = false,
       auto_close = true,
     },
+  },
+
+  -- {
+  --   'Exafunction/codeium.vim',
+  --   config = function ()
+  --     map('i', '<M-CR>', function () return vim.fn['codeium#Accept']() end, { expr = true })
+  --     map('i', '<c-;>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
+  --     map('i', '<c-,>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
+  --     map('i', '<c-x>', function() return vim.fn['codeium#Clear']() end, { expr = true })
+  --   end
+  -- },
+
+  {
+    'zbirenbaum/copilot.lua',
+    event = 'InsertEnter',
+    cmd = 'Copilot',
+    config = function()
+      require('copilot').setup({
+        panel = {
+          enabled = false,
+        },
+        suggestion = {
+          enabled = false,
+        },
+      })
+    end
+  },
+  {
+    'zbirenbaum/copilot-cmp',
+    config = function()
+      require('copilot_cmp').setup()
+    end
   },
 
 })
@@ -672,7 +715,7 @@ augroup filetypedetect
   au! BufRead, BufNewFile *.xcconfig set filetype=xcconfig
 augroup END
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-  ]])
+]])
 
 -- [[ Key mappings ]]
 
@@ -869,6 +912,7 @@ local servers = {
   --     telemetry = { enable = false },
   --   },
   -- },
+  lemminx = {},
   marksman = {},
   pylsp = {
     cmd_env = {
@@ -975,9 +1019,16 @@ mason_lspconfig.setup_handlers {
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
 local cmp = require('cmp')
+
 local luasnip = require('luasnip')
 require('luasnip.loaders.from_vscode').lazy_load()
 luasnip.config.setup {}
+
+local has_words_before = function()
+  if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then return false end
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_text(0, line-1, 0, line-1, col, {})[1]:match("^%s*$") == nil
+end
 
 cmp.setup {
   snippet = {
@@ -986,44 +1037,59 @@ cmp.setup {
     end,
   },
   mapping = cmp.mapping.preset.insert {
-    ['<C-n>'] = cmp.mapping.select_next_item(),
-    ['<C-p>'] = cmp.mapping.select_prev_item(),
+    ['<C-n>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
+    ['<C-p>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }),
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete {},
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-e>'] = cmp.mapping.abort(),
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
-    ['<Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_locally_jumpable() then
-        luasnip.expand_or_jump()
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-    ['<S-Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.locally_jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
+    ['<Tab>'] = cmp.mapping(
+      function(fallback)
+        if cmp.visible() and has_words_before() then
+          cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+        elseif luasnip.expand_or_locally_jumpable() then
+          luasnip.expand_or_jump()
+        else
+          fallback()
+        end
+      end,
+      { 'i', 's' }),
+    ['<S-Tab>'] = cmp.mapping(
+      function(fallback)
+        if cmp.visible() then
+          cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
+        elseif luasnip.locally_jumpable(-1) then
+          luasnip.jump(-1)
+        else
+          fallback()
+        end
+      end,
+      { 'i', 's' }),
   },
   sources = {
-    { name = 'nvim_lsp' },
-    { name = 'luasnip' },
+    -- copilots
+    { name = 'copilot', group_index = 2 },
+    -- { name = 'codeium' },
+
+    { name = 'nvim_lsp' },  -- LSP
+
+    { name = 'async_path', option = { trailing = true } }, -- path completion
+    { name = 'buffer' }, -- buffer completion
+    { name = 'luasnip' }, -- snippets
   },
+  -- experimental = {
+  --   ghost_text = true,
+  -- }
 }
+
+-- TODO: copy more from the example config at https://github.com/hrsh7th/nvim-cmp
 
 -- [[ mini.trailspace ]]
 require('mini.trailspace').setup()
-
-
 
 
 -- if &runtimepath =~ 'vscode.nvim'
