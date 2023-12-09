@@ -195,6 +195,12 @@ for index ({1..9}) alias "$index"="cd +${index}"; unset index
 
 alias cs=coursier
 
+alias width="tput cols"
+alias height="tput lines"
+alias cols="tput cols"
+alias rows="tput lines"
+
+
 #########
 # Misc
 
@@ -233,8 +239,8 @@ ulimit -n 2048
 # Aliases.
 
 # list
-if command_exists exa; then
-  alias ls="exa --group-directories-first"
+if command_exists eza; then
+  alias ls="eza --group-directories-first"
   alias l="ls"
   alias ll="ls -l"
   alias la="ls -a"
