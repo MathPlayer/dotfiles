@@ -33,8 +33,8 @@
   defaultBranch = main
 [alias]
   st = status
-  sh = show
-  shs = show --stat
+  sh = show --show-signature
+  shs = show --stat --show-signature
 
   a = add
   ap = add --patch
@@ -95,6 +95,8 @@
   cpc = cherry-pick --continue
   cps = cherry-pick --skip
   cpa = cherry-pick --abort
+
+  logs = log --show-signature
 
   lg = log --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %Cred%d%Creset %s %C(bold blue)[%an]'
   lg5 = log -n 5 --date=short --pretty=format:'%C(yellow)%h%Creset - %C(green)(%ad)%Creset | %C(blue)%s%Creset %C(bold magenta)[%an]%Creset %C(bold red)%d%Creset'
