@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Removes all empty directories from inside a given directory.
+
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <directory>"
+    exit 1
+fi
+
+BASE=$1
+find "$BASE" -type d -empty -print0 | xargs -0 &>/dev/null rmdir -p

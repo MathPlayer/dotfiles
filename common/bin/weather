@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# Get the weather data for every hour for the curent day and the location provided as argument.
+
+location=$1
+result=$(curl -s "v2d.wttr.in/$location")
+echo "$result"

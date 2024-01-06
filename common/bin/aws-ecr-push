@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Pushes the newest tag (by creation date) of a Docker image to an Amazon ECR repository.
+#
+# Usage: ./push_to_ecr.sh local_image ecr_repo ecr_tag
+
+set -eu
+
+# CLI args
+if [ "$#" -ne 3 ]; then
+    echo "Usage: $0 <local_image> <ecr_repo> <ecr_tag>"
+    exit 1
+fi
+local_image="$1"
+ecr_repo="$2"
+ecr_tag="$3"
+
+aws_account_id=$(aws sts get-caller-identity --query Account --output text)
+ecr_image="${aws_account_id}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ecr_repo}:${ecr_tag}"
+aws ecr get-login-password --region "${AWS_REGION}" | docker login --username AWS --password-stdin "${aws_account_id}".dkr.ecr."${AWS_REGION}".amazonaws.com
+
+docker_newest_tag=$(docker images --format "{{.Tag}}\t{{.CreatedAt}}" "${local_image}" | sort -k2 -r | head -n1 | cut -f1)
+docker tag "${local_image}:${docker_newest_tag}" "${ecr_image}"
+docker push "${ecr_image}"

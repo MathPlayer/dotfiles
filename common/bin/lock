@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+macos-lock() {
+  m lock || echo >&2 "Install m-cli first: https://github.com/rgcr/m-cli"
+}
+
+linux-lock() {
+  # Find more of them
+  i3lock || slock
+}
+
+os=$(uname -s)
+if [[ $os = Darwin ]]; then
+  macos-lock
+elif [[ $os = Linux ]]; then
+  linux-lock
+else
+  echo "Unsupported OS: $os"
+  exit 1
+fi
