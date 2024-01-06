@@ -68,7 +68,7 @@
   b = branch
   bd = branch --delete
   bdf = branch --delete --force
-  bm = branch --move
+  bmv = branch --move
   br = branch --remotes
   bv = branch -vv
   sw = switch
@@ -106,6 +106,7 @@
   cl = clone --recurse-submodules
   fa = fetch --prune --all --tags --recurse-submodules --force
   rv = remote --verbose
+  ra = remote add
   rmv = remote rename
 
   sta = stash push
