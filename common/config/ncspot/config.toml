@@ -1,0 +1,87 @@
+use_nerdfont = true
+
+##
+## Theme from https://github.com/hrkfdn/ncspot/pull/40#issuecomment-1547011507
+##
+
+[theme]
+background = "#282C34"
+primary = "#ABB2BF"
+secondary = "#5C6370"
+title = "#98C379"
+playing = "61AFF0"
+playing_selected = "61AFF0"
+playing_bg = "#282C34"
+highlight = "#98C379"
+highlight_bg = "#5C6370"
+error = "#282C34"
+error_bg = "#E06C75"
+statusbar = "#282C34"
+statusbar_progress = "#98C379"
+statusbar_bg = "#98C379"
+cmdline = "#282C34"
+cmdline_bg = "#E5C07B"
+search_match = "#E06C75"
+
+
+##
+## Theme part taken from https://github.com/BachoSeven/dotfiles/blob/master/.config/ncspot/config.toml
+##
+
+# Gruvbox dark [ originally based on base16 by Dawid Kurek (dawikur@gmail.com) ]
+#[theme]
+#background = "default"
+#primary = "#a89984"
+#secondary = "#928374"
+#title = "#8ec07c"
+#playing = "#689d6a"
+#playing_bg = "#383838"
+#playing_selected = "#ebdbb2"
+#highlight = "#d5c4a1"
+#highlight_bg = "#484848"
+#error = "#fbf1c7"
+#error_bg = "#cc241d"
+#statusbar_progress = "#458588"
+#statusbar_bg = "#282828"
+#statusbar = "#98971a"
+#cmdline = "#d5c4a1"
+#cmdline_bg = "#383838"
+#search_match = "#fabd2f"
+
+## Base16 solarized dark, originally from https://github.com/gidsi/base16-ncspot
+# [theme]
+# background = "#002b36"
+# primary = "#eee8d5"
+# secondary = "#2aa198"
+# title = "#859900"
+# playing = "#268bd2"
+# playing_selected = "light green"
+# playing_bg = "#002b36"
+# highlight = "#93a1a1"
+# highlight_bg = "#484848"
+# error = "#93a1a1"
+# error_bg = "#fdf6e3"
+# statusbar = "#002b36"
+# statusbar_progress = "#dc322f"
+# statusbar_bg = "#859900"
+# cmdline = "#93a1a1"
+# cmdline_bg = "#002b36"
+
+## Spotify
+# [theme]
+# background = "black"
+# primary = "light white"
+# secondary = "light black"
+# title = "green"
+# playing = "green"
+# playing_selected = "light green"
+# playing_bg = "black"
+# highlight = "light white"
+# highlight_bg = "#484848"
+# error = "light white"
+# error_bg = "red"
+# statusbar = "black"
+# statusbar_progress = "green"
+# statusbar_bg = "green"
+# cmdline = "light white"
+# cmdline_bg = "black"
