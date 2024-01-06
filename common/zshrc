@@ -156,6 +156,9 @@ source ~/.p10k.zsh
 # mise (previously named rtx) as a better alternative to asdf :) https://github.com/jdx/mise
 _evalcache mise activate zsh && source ~/.p10k.mise.zsh
 
+# Hook direnv into zsh. TODO: check if installed.
+_evalcache direnv hook zsh
+
 #### Shell config
 
 # Change directories without "cd".
