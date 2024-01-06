@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+#
+# Convenience script to fetch all repositories for a given directory.
+# Usage:
+# sync-all-repos <path-to-base-directory>
+# sync-all-repos .
+
+set -u
+
+BASE_DIR="$1"
+if [[ ! -d "$BASE_DIR" ]]; then
+  echo "Invalid directory: $BASE_DIR"
+  exit 1
+fi
+
+for repo_dir in "$BASE_DIR"/*; do
+  if [[ ! -d "$repo_dir/.git" ]]; then
+    continue
+  fi
+
+  echo "Processing $repo_dir"
+  (
+    cd "$repo_dir" || exit
+    if ! git wip; then
+      echo "No changes to WIP"
+      unwip=0
+    fi
+    git pull --rebase
+    if [[ $unwip -eq 0 ]]; then
+      if ! git unwip; then
+        echo >&2 "Could not unwip. Check the state."
+      fi
+    fi
+  )
+done
