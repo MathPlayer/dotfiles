@@ -923,13 +923,13 @@ local servers = {
   tsserver = {},
   terraformls = {},
   tflint = {},
-  -- yamlls = {
-  --   filetypes = { "yaml", "yaml.docker-compose" },
-  --   settings = {
-  --     yaml = {
-  --       trace = {
-  --         server = "verbose"
-  --       },
+  yamlls = {
+    filetypes = { "yaml", "yaml.docker-compose" },
+    settings = {
+      yaml = {
+        trace = {
+          server = "verbose"
+        },
   --       schemas = {
   --         ["https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/main/service-schema.json"] = "/azure-pipelines/**/*",
   --         ["/Users/popescub/work/.config/nvim/tomtom-ado-yamlschema.json"] = "/azure-pipelines/**/*",
@@ -986,9 +986,9 @@ local servers = {
   --         "!Join mapping",
   --         "!Join sequence"
   --       }
-  --     }
-  --   }
-  -- }
+      }
+    }
+  }
 }
 
 -- Setup neovim lua configuration
