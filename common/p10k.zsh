@@ -239,6 +239,7 @@
     .svn
     .terraform
     .rtx.toml
+    .mise.toml
     CVS
     Cargo.toml
     composer.json

@@ -4,7 +4,6 @@
 #
 # The shebang is needed only to set the filetype automatically, not for executing the file.
 
-
 #########
 # Use zprof for debugging startup performance. Keep comented. Nice to have around.
 # zmodload zsh/zprof
@@ -154,10 +153,8 @@ function kube-toggle() {
 # TODO: check if possible to use _evalcache
 source ~/.p10k.zsh
 
-# rtx better than asdf :) https://github.com/jdxcode/rtx
-_evalcache rtx activate zsh && source ~/.p10k.rtx.zsh
-# A hacky way to get it. "rtx which java" doesn't seem to give a good result during initialization.
-export JAVA_HOME="/Users/popescub/.config/local/share/rtx/installs/java/latest"
+# mise (previously named rtx) as a better alternative to asdf :) https://github.com/jdx/mise
+_evalcache mise activate zsh && source ~/.p10k.mise.zsh
 
 #### Shell config
 
