@@ -41,7 +41,7 @@ install_k8s() {
   mkdir -p "${K8S_INSTALL_DIR}" "${DOWNLOAD_DIR}"
 
   # Get the latest stable version if none is provided.
-  if [[ ! -n $KUBECTL_VERSION ]]; then 
+  if [[ -z $KUBECTL_VERSION ]]; then
     KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
   fi
 
@@ -65,9 +65,9 @@ install_k8s() {
   # Move from Download and symlink binaries into $PATH.
   for binary in ${KUBECTL_BINARY} ${KUBECTL_CONVERT_BINARY}; do
     installed_binary=${K8S_INSTALL_DIR}/${binary}-${KUBECTL_VERSION}
-    mv ${DOWNLOAD_DIR}/${binary} ${installed_binary}
-    chmod +x ${installed_binary}
-    ln -sf ${installed_binary} "${LOCAL_BIN_PATH}/${binary}-${KUBECTL_VERSION}"
+    mv "${DOWNLOAD_DIR}/${binary}" "${installed_binary}"
+    chmod +x "${installed_binary}"
+    ln -sf "${installed_binary}" "${LOCAL_BIN_PATH}/${binary}-${KUBECTL_VERSION}"
     ln -sf "${LOCAL_BIN_PATH}/${binary}-${KUBECTL_VERSION}" "${LOCAL_BIN_PATH}/${binary}"
   done
 

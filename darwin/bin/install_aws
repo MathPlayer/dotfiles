@@ -30,7 +30,7 @@ where:
 
 # Removes the CLI symlinks and the install directory.
 clean_cli() {
-  for binary in ${CLI_BINARIES[@]}; do
+  for binary in "${CLI_BINARIES[@]}"; do
     rm "${LOCAL_BIN_PATH}/${binary}" || true
   done
   rm -rf "${CLI_INSTALL_DIR}"
@@ -43,7 +43,7 @@ install_cli() {
 
   # Save the XML installation file.
   XML_FILE="${DOWNLOAD_DIR}/AWSCLI2.xml"
-  cat >${XML_FILE} << EOF
+  cat >"${XML_FILE}" << EOF
   <?xml version="1.0" encoding="UTF-8"?>
   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
   <plist version="1.0">
@@ -71,7 +71,7 @@ EOF
     -applyChoiceChangesXML "${XML_FILE}"
 
   # Symlink binaries into $PATH folder.
-  for binary in ${CLI_BINARIES[@]}; do
+  for binary in "${CLI_BINARIES[@]}"; do
     ln -sf "${CLI_INSTALL_DIR}/${binary}" "${LOCAL_BIN_PATH}/${binary}"
   done
 
@@ -93,7 +93,7 @@ install_ssm() {
   SSM_NAME="sessionmanager-bundle"
   LOCAL_SSM_ZIP="${DOWNLOAD_DIR}/${SSM_NAME}.zip"
   curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/mac/sessionmanager-bundle.zip" \
-    -o ${LOCAL_SSM_ZIP}
+    -o "${LOCAL_SSM_ZIP}"
   unzip "${LOCAL_SSM_ZIP}" -d "${DOWNLOAD_DIR}"
 
   # Install.

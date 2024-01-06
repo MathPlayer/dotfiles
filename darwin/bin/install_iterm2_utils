@@ -14,7 +14,7 @@ BINARIES=(
 )
 
 clean_iterm2_utils() {
-  for binary in ${BINARIES[@]}; do
+  for binary in "${BINARIES[@]}"; do
     rm "${LOCAL_BIN_PATH}/${binary}" || true
   done
   rm -rf "${INSTALL_DIR}"
@@ -22,7 +22,7 @@ clean_iterm2_utils() {
 
 install_iterm2_utils() {
   mkdir -p "${INSTALL_DIR}"
-  for binary in ${BINARIES[@]}; do
+  for binary in "${BINARIES[@]}"; do
     curl "https://iterm2.com/utilities/${binary}" -o "${INSTALL_DIR}/${binary}"
     ln -sf "${INSTALL_DIR}/${binary}" "${LOCAL_BIN_PATH}/${binary}"
   done
