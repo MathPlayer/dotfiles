@@ -1,27 +1,28 @@
 use_nerdfont = true
+notify = true
 
 ##
 ## Theme from https://github.com/hrkfdn/ncspot/pull/40#issuecomment-1547011507
 ##
 
-[theme]
-background = "#282C34"
-primary = "#ABB2BF"
-secondary = "#5C6370"
-title = "#98C379"
-playing = "61AFF0"
-playing_selected = "61AFF0"
-playing_bg = "#282C34"
-highlight = "#98C379"
-highlight_bg = "#5C6370"
-error = "#282C34"
-error_bg = "#E06C75"
-statusbar = "#282C34"
-statusbar_progress = "#98C379"
-statusbar_bg = "#98C379"
-cmdline = "#282C34"
-cmdline_bg = "#E5C07B"
-search_match = "#E06C75"
+# [theme]
+# background = "#282C34"
+# primary = "#ABB2BF"
+# secondary = "#5C6370"
+# title = "#98C379"
+# playing = "61AFF0"
+# playing_selected = "61AFF0"
+# playing_bg = "#282C34"
+# highlight = "#98C379"
+# highlight_bg = "#5C6370"
+# error = "#282C34"
+# error_bg = "#E06C75"
+# statusbar = "#282C34"
+# statusbar_progress = "#98C379"
+# statusbar_bg = "#98C379"
+# cmdline = "#282C34"
+# cmdline_bg = "#E5C07B"
+# search_match = "#E06C75"
 
 
 ##
@@ -68,20 +69,20 @@ search_match = "#E06C75"
 # cmdline_bg = "#002b36"
 
 ## Spotify
-# [theme]
-# background = "black"
-# primary = "light white"
-# secondary = "light black"
-# title = "green"
-# playing = "green"
-# playing_selected = "light green"
-# playing_bg = "black"
-# highlight = "light white"
-# highlight_bg = "#484848"
-# error = "light white"
-# error_bg = "red"
-# statusbar = "black"
-# statusbar_progress = "green"
-# statusbar_bg = "green"
-# cmdline = "light white"
-# cmdline_bg = "black"
+[theme]
+background = "black"
+primary = "light white"
+secondary = "light black"
+title = "green"
+playing = "green"
+playing_selected = "light green"
+playing_bg = "black"
+highlight = "light white"
+highlight_bg = "#484848"
+error = "light white"
+error_bg = "red"
+statusbar = "black"
+statusbar_progress = "green"
+statusbar_bg = "green"
+cmdline = "light white"
+cmdline_bg = "black"
