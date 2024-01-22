@@ -51,6 +51,11 @@ return {
       mods = 'SUPER|SHIFT',
       action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' },
     },
+    {
+      key = 'Space',
+      mods = 'SUPER|SHIFT',
+      action = wezterm.action.PaneSelect,
+    }
   },
 
   -- misc
