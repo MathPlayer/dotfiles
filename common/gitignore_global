@@ -17,6 +17,7 @@
 .ruby-version
 .tool-versions
 .rtx.toml
+.mise.toml
 
 # YCM
 .ycm_extra_conf.py
@@ -39,6 +40,9 @@ compile_commands.json
 # Java compiled files
 *.class
 *.classpath
+
+# Kotlin lsp
+kls_database.db
 
 # C/C++ LSP info
 .ccls-cache/
