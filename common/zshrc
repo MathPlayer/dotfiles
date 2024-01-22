@@ -177,6 +177,9 @@ setopt HIST_IGNORE_ALL_DUPS     # Ignore duplicates
 setopt HIST_IGNORE_SPACE        # Ignore entries starting with space
 setopt HIST_EXPIRE_DUPS_FIRST   # Expire the duplicate first.
 
+# TODO: test zsh with a better mv tool.
+# autoload zmv
+
 # Alias to reload history in the current shell.
 alias zsh_reload_history="fc -RI"
 
