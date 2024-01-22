@@ -1,6 +1,0 @@
-python   3.11.2
-nodejs   lts
-eksctl   0.136.0
-kubectx  0.9.4
-ruby     2.7.3
-minikube latest
