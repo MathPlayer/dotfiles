@@ -1,8 +1,11 @@
+
 local wezterm = require 'wezterm'
 
 local font_family = ''
 
-if string.match(wezterm.target_triple, 'apple-darwin$') then
+-- For some reason, the string.match part stopped working.
+-- if string.match(wezterm.target_triple, 'apple-darwin') then
+if wezterm.target_triple:match('apple') then
   -- 'MesloLGS NF', -- From p10k
   font_family = 'Hack Nerd Font Mono'
 elseif wezterm.target_triple == 'x86_64-unknown-linux-gnu' then
