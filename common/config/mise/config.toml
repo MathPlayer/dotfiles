@@ -1,5 +1,5 @@
 [settings]
-experimental = false
+experimental = true
 
 [tools]
 # Languages
@@ -32,3 +32,4 @@ glow = "latest"
 
 # Stable enough for me to use it as a daily driver.
 neovim = "nightly"
+tree-sitter = "latest"
