@@ -245,6 +245,10 @@ if command_exists eza; then
   alias ll="ls -l"
   alias la="ls -a"
   alias lla="ls -la"
+  alias lt="eza -T"
+  alias lta="eza -Ta"
+  alias ltl="eza -Tl"
+  alias ltla="eza -Tla"
 fi
 
 # git
