@@ -29,7 +29,7 @@ return {
 
   -- font
   font = wezterm.font_with_fallback {
-    font_family
+    font_family,
   },
   font_size = 14,
   line_height = 1.1,
