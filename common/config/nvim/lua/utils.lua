@@ -1,5 +1,8 @@
 return {
   HOME = os.getenv('HOME'),
+
+  is_work_machine = os.getenv('MACHINE_TYPE') == 'work',
+
   map = function(mode, keys, func, desc, extra_opts)
     extra_opts = extra_opts or {}
     if desc then
