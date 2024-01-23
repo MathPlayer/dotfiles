@@ -6,7 +6,7 @@ macos-lock() {
 
 linux-lock() {
   # Find more of them
-  i3lock || slock
+  loginctl lock-session || i3lock --color=000000 || slock
 }
 
 os=$(uname -s)
