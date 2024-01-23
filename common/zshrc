@@ -21,10 +21,16 @@ fi
 source "${HOME}/.bin/commands.sh"
 
 ########
-# Cache (home)brew path.
-if command_exists brew; then
-  brew_dir="$(brew --prefix)"
+# Preliminary setup.
+OS_NAME="$(uname -s)"
+
+if [[ ${OS_NAME} = Darwin ]]; then
+  # Cache (home)brew path.
+  if command_exists brew; then
+    BREW_DIR="$(brew --prefix)"
+  fi
 fi
+
 
 #########
 # Custom paths.
@@ -38,16 +44,16 @@ typeset -a custom_paths=(
   # TODO: ruby/gem default folder for apps/binaries.
 )
 
-if [ ! -z ${brew_dir} ]; then
+if [ ! -z ${BREW_DIR} ]; then
   # TODO: Check if /usr/local/bin is already in $PATH.
   # If brew is installed in the default path, this adds a duplicate.
   custom_paths+=(
-    "${brew_dir}/bin"
-    "${brew_dir}/sbin"
-    "${brew_dir}/opt/python/libexec/bin"
-    "${brew_dir}/opt/curl/bin"
-    "${brew_dir}/opt/sqlite/bin"
-    "${brew_dir}/opt/llvm/bin"
+    "${BREW_DIR}/bin"
+    "${BREW_DIR}/sbin"
+    "${BREW_DIR}/opt/python/libexec/bin"
+    "${BREW_DIR}/opt/curl/bin"
+    "${BREW_DIR}/opt/sqlite/bin"
+    "${BREW_DIR}/opt/llvm/bin"
   )
 fi
 
@@ -66,9 +72,8 @@ unset prepend_to_path
 unset custom_paths
 
 
-
-# The SSH plugin requires this setting before loading
-zstyle :omz:plugins:ssh-agent agent-forwarding on
+# The OMZ SSH plugin requires some settings before loading. Used only on macOS.
+[[ ${OS_NAME} = Darwin ]] && zstyle :omz:plugins:ssh-agent agent-forwarding on
 
 # load zgenom
 source "${HOME}/.zgenom/zgenom.zsh"
@@ -82,6 +87,7 @@ if ! zgenom saved; then
 
   # zgenom load zsh-users/zsh-syntax-highlighting
   zgenom load zdharma-continuum/fast-syntax-highlighting
+  zle_highlight=('past:none') # Change pasted text highlighting. From https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/25#issuecomment-1094035433
 
   # Enhanced filetype highlighting
   zgenom load trapd00r/zsh-syntax-highlighting-filetypes
@@ -114,7 +120,7 @@ if ! zgenom saved; then
 
   # OMZ
   zgenom ohmyzsh
-  zgenom ohmyzsh plugins/ssh-agent # Handle ssh-agent starting
+  [[ $OS_NAME = Darwin ]] && ohmyzsh plugins/ssh-agent # Handle ssh-agent starting
   zgenom ohmyzsh plugins/azure
   zgenom ohmyzsh plugins/terraform
   zgenom load bjkavan/terragrunt-oh-my-zsh-plugin
@@ -390,10 +396,13 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$XDG_CONFIG_HOME/local/share"
 export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
 
+[[ $OS_NAME != Darwin ]] && export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+
 
 ########
 # Cleanup
-unset brew_dir
+unset BREW_DIR
+unset OS_NAME
 
 #########
 # Use zprof for debugging startup performance. Keep comented. Nice to have around.
