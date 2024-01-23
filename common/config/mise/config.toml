@@ -1,6 +1,3 @@
-[settings]
-experimental = true
-
 [tools]
 # Languages
 go = "latest"
@@ -29,7 +26,8 @@ minikube = "latest"
 terraform = "latest"
 # Misc
 glow = "latest"
+tree-sitter = "latest"
+shellcheck = "latest"
 
 # Stable enough for me to use it as a daily driver.
 neovim = "nightly"
-tree-sitter = "latest"
