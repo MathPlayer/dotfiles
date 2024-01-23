@@ -47,6 +47,7 @@ kls_database.db
 # C/C++ LSP info
 .ccls-cache/
 .clangd/
+.cache/
 
 # sbt/bloop
 .bsp/
