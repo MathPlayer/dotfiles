@@ -372,6 +372,8 @@ function caesar() {
 #########
 # Work-related configuration.
 
+export MACHINE_TYPE="personal"  # To be set to "work" by the ~/work/.zshrc.
+
 _work_dir="${HOME}/work"
 if [ -d "${_work_dir}" ]; then
   export MY_WORK_DIR="${_work_dir}"
