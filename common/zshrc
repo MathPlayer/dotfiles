@@ -2,13 +2,14 @@
 #
 # ~/.zshrc
 #
-# The shebang is needed only to set the filetype automatically, not for executing the file.
+# NOTE:
+# The shebang is needed only to set the filetype automatically,
+# not for executing the file.
+#
 
-#########
-# Use zprof for debugging startup performance. Keep comented. Nice to have around.
+# Use zprof for debugging startup performance. Keep commented. Nice to have around.
 # zmodload zsh/zprof
 
-#########
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -16,78 +17,40 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-#########
-# Load my functions.
-source "${HOME}/.bin/commands.sh"
 
-########
-# Preliminary setup.
+## Preliminary setup.
+
 OS_NAME="$(uname -s)"
 
-if [[ ${OS_NAME} = Darwin ]]; then
-  # Cache (home)brew path.
-  if command_exists brew; then
-    BREW_DIR="$(brew --prefix)"
-  fi
-fi
+## Generic Linux-like exports
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$XDG_CONFIG_HOME/local/share"
+export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
 
+# Load my functions. TODO: check if some/all can be removed.
+source "${HOME}/.bin/commands.sh"
 
-#########
-# Custom paths.
-
-# Build an array of custom paths.
-typeset -a custom_paths=(
-  # Rust
-  "${HOME}/.cargo/bin"
-  # Default folder for pip apps/binaries.
-  "${HOME}/.local/bin"
-  # TODO: ruby/gem default folder for apps/binaries.
-)
-
-if [ ! -z ${BREW_DIR} ]; then
-  # TODO: Check if /usr/local/bin is already in $PATH.
-  # If brew is installed in the default path, this adds a duplicate.
-  custom_paths+=(
-    "${BREW_DIR}/bin"
-    "${BREW_DIR}/sbin"
-    "${BREW_DIR}/opt/python/libexec/bin"
-    "${BREW_DIR}/opt/curl/bin"
-    "${BREW_DIR}/opt/sqlite/bin"
-    "${BREW_DIR}/opt/llvm/bin"
-  )
-fi
-
-# Prepend the custom paths to PATH.
-prepend_to_path=""
-for custom_path in ${custom_paths[@]}; do
-  if [ -d "${custom_path}" ]; then
-    prepend_to_path="${prepend_to_path}:${custom_path}"
-  fi
-done
-
-if [ ! -z "${prepend_to_path}" ]; then
-  export PATH="${prepend_to_path#:}:${PATH}"
-fi
-unset prepend_to_path
-unset custom_paths
-
-
-# The OMZ SSH plugin requires some settings before loading. Used only on macOS.
+# The oh-my-zsh SSH plugin requires some settings before loading. Used only on macOS.
 [[ ${OS_NAME} = Darwin ]] && zstyle :omz:plugins:ssh-agent agent-forwarding on
 
-# load zgenom
+
+## zgenom
+
 source "${HOME}/.zgenom/zgenom.zsh"
 
-# Check for plugin and zgenom updates every 7 days. This does not increase the startup time.
+# Check for plugin and zgenom updates every 7 days.
+# This does not increase the startup time.
 zgenom autoupdate --background
 
-# create the zgenom init script if it doesn't exist
+# Create the zgenom initialization script if it doesn't exist.
 if ! zgenom saved; then
   echo "Creating a zgenom save"
 
   # zgenom load zsh-users/zsh-syntax-highlighting
   zgenom load zdharma-continuum/fast-syntax-highlighting
-  zle_highlight=('past:none') # Change pasted text highlighting. From https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/25#issuecomment-1094035433
+  # Change pasted text highlighting. From:
+  # https://github.com/zdharma-continuum/fast-syntax-highlighting/issues/25#issuecomment-1094035433
+  zle_highlight=('paste:none')
 
   # Enhanced filetype highlighting
   zgenom load trapd00r/zsh-syntax-highlighting-filetypes
@@ -95,20 +58,22 @@ if ! zgenom saved; then
   zgenom load zsh-users/zsh-completions
   zgenom load zsh-users/zsh-autosuggestions
 
-  # Provide susbtring search in history.
+  # Provide substring search in history.
   # ZSH only matches the first word in commands using up-line-or-search/down-line-or-search.
   zgenom load zsh-users/zsh-history-substring-search
 
   # Best ZSH theme :)
   zgenom load romkatv/powerlevel10k powerlevel10k
 
-  # Cache "eval" loads to improve shell startup time. Useful if the "eval" stays the same for long periods of time.
+  # Cache "eval" loads to improve shell startup time.
+  # Useful if the "eval" stays the same for long periods of time.
   zgenom load mroth/evalcache
 
   # Load custom *env files when entering/exiting a folder
+  # TODO: consider replacing with direnv.
   zgenom load Tarrasch/zsh-autoenv
 
-  # Simpler alternative to cd ../../.. ... ../
+  # Alternatives to cd ../../.. ... ../
   zgenom load Tarrasch/zsh-bd
 
   # Recommend aliases when using full-blown commands
@@ -116,19 +81,27 @@ if ! zgenom saved; then
   export YSU_MESSAGE_POSITION="after"
   export YSU_MODE="ALL"
 
+  # Real-time, type-ahead completions and suggestions.
+  # NOTE: Commented out since I find it too disruptive.
   # zgenom load marlonrichert/zsh-autocomplete
 
-  # OMZ
+  # Oh-my-zsh
   zgenom ohmyzsh
-  [[ $OS_NAME = Darwin ]] && ohmyzsh plugins/ssh-agent # Handle ssh-agent starting
-  zgenom ohmyzsh plugins/azure
-  zgenom ohmyzsh plugins/terraform
-  zgenom load bjkavan/terragrunt-oh-my-zsh-plugin
+  if [[ $OS_NAME = Darwin ]]; then
+    zgenom ohmyzsh plugins/ssh-agent # Handle ssh-agent starting
+    zgenom ohmyzsh plugins/brew # Useful for completions of brew tools.
+  fi
+
+  # TODO: use more configuration variables to filter out these server-side plugins.
+  #zgenom ohmyzsh plugins/azure
+  #zgenom ohmyzsh plugins/terraform
+  #zgenom load bjkavan/terragrunt-oh-my-zsh-plugin
+
   # TODO: find more (useful) plugins
   # - dircolors
   # - integration with KeePassXC
 
-  # save all to init script
+  # save all to initialization script
   zgenom save
 
   # Compile local zsh files.
@@ -136,36 +109,13 @@ if ! zgenom saved; then
   zgenom compile "$HOME/.zshrc"
 fi
 
-
-
-function kube-toggle() {
-  if (( ${+POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND} )); then
-    MY_POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND="${POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND}"
-    unset POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND
-  else
-    POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND="${MY_POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND}"
-  fi
-  p10k reload
-  if zle; then
-    zle push-input
-    zle accept-line
-  fi
-}
-
-
-#########
 # Powerlevel10k theme
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+# To customize the prompt, run `p10k configure` or edit ~/.p10k.zsh.
 # TODO: check if possible to use _evalcache
 source ~/.p10k.zsh
 
-# mise (previously named rtx) as a better alternative to asdf :) https://github.com/jdx/mise
-_evalcache mise activate zsh && source ~/.p10k.mise.zsh
 
-# Hook direnv into zsh. TODO: check if installed.
-_evalcache direnv hook zsh
-
-#### Shell config
+## Shell configuration
 
 # Change directories without "cd".
 setopt AUTO_CD
@@ -209,10 +159,6 @@ alias height="tput lines"
 alias cols="tput cols"
 alias rows="tput lines"
 
-
-#########
-# Misc
-
 # Set language defaults.
 export LC_ALL="en_US.UTF-8"
 export LANG="en_US.UTF-8"
@@ -244,8 +190,62 @@ umask 027
 ulimit -n 2048
 
 
-#########
-# Aliases.
+## Custom PATH adjustments
+
+# Build an array of custom paths.
+typeset -a custom_paths=(
+  # Rust
+  "${HOME}/.cargo/bin"
+  # Default folder for pip apps/binaries.
+  "${HOME}/.local/bin"
+  # TODO: ruby/gem default folder for apps/binaries.
+)
+
+if [ ! -z ${HOMEBREW_PREFIX} ]; then
+  custom_paths+=(
+    "${HOMEBREW_PREFIX}/opt/python/libexec/bin"
+    "${HOMEBREW_PREFIX}/opt/curl/bin"
+    "${HOMEBREW_PREFIX}/opt/sqlite/bin"
+    "${HOMEBREW_PREFIX}/opt/llvm/bin"
+  )
+fi
+
+# Prepend the custom paths to PATH.
+prepend_to_path=""
+for custom_path in ${custom_paths[@]}; do
+  if [ -d "${custom_path}" ]; then
+    prepend_to_path="${prepend_to_path}:${custom_path}"
+  fi
+done
+
+if [ ! -z "${prepend_to_path}" ]; then
+  export PATH="${prepend_to_path#:}:${PATH}"
+fi
+unset prepend_to_path
+unset custom_paths
+
+
+## Tool setup
+
+# mise as a better alternative to asdf :) https://github.com/jdx/mise
+# Powerlevel10k doesn't support mise, the additional file replaces ASDF prompts.
+_evalcache mise activate zsh && source ~/.p10k.mise.zsh
+
+# Hook direnv into zsh.
+# TODO: check if installed.
+_evalcache direnv hook zsh
+
+
+## Completions.
+
+# Load git-extras zsh-completions (assuming git-extras is installed with brew).
+# TODO: check if it's possible to use evalcache
+if [[ ! -z {HOMEBREW_PREFIX} ]]; then
+  source "${HOMEBREW_PREFIX}/opt/git-extras/share/git-extras/git-extras-completion.zsh"
+fi
+
+
+## Aliases.
 
 # list
 if command_exists eza; then
@@ -340,11 +340,6 @@ if command_exists dircolors && [ -r "${HOME}/.dircolors" ]; then
   eval "$(dircolors -b "${HOME}/.dircolors")" || eval "$(dircolors -b)"
 fi
 
-# Custom config for VSCode.
-if [[ "$TERM_PROGRAM" == "vscode" ]]; then
-  bindkey -e
-fi
-
 # (z)shell specific
 alias -g ...='../..'
 alias -g ....='../../..'
@@ -366,6 +361,7 @@ alias mypsa='ps aux | grep -vE "grep|ps aux" | grep -E "(USER\s*PID)|${USER}"'
 alias logssh='ssh > >(tee '${HOME}'/ssh-$(date +"%Y-%m-%d-%H-%M").out) 2> >(tee ssh-$(date +"%Y-%m-%d-%H-%M").err >&2)'
 alias prettyjson='python -m json.tool'
 
+# Print all Caesar rotations for a given text.
 function caesar() {
   in_text=$@
   a=abcdefghijklmnopqrstuvwxyz
@@ -375,8 +371,29 @@ function caesar() {
   done
 }
 
-#########
-# Work-related configuration.
+# List all zsh completions.
+function zsh_comps() {
+  for command completion in ${(kv)_comps:#-*(-|-,*)}; do
+    printf "%-32s %s\n" $command $completion
+  done | sort
+}
+
+# Toggle the K8s context shown in the prompt.
+function kube-toggle() {
+  if (( ${+POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND} )); then
+    MY_POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND="${POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND}"
+    unset POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND
+  else
+    POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND="${MY_POWERLEVEL9K_KUBECONTEXT_SHOW_ON_COMMAND}"
+  fi
+  p10k reload
+  if zle; then
+    zle push-input
+    zle accept-line
+  fi
+}
+
+## Personal/work configuration
 
 export MACHINE_TYPE="personal"  # To be set to "work" by the ~/work/.zshrc.
 
@@ -387,23 +404,23 @@ if [ -d "${_work_dir}" ]; then
 fi
 unset _work_dir
 
-#########
 # Personal bin exported at the end to be first in PATH.
 export PATH="${HOME}/.bin:${PATH}"
 
-## Generic Linux-like exports
-export XDG_CONFIG_HOME="$HOME/.config"
-export XDG_DATA_HOME="$XDG_CONFIG_HOME/local/share"
-export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
+
+## Misc
 
 [[ $OS_NAME != Darwin ]] && export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 
+# Custom config for VSCode.
+if [[ "$TERM_PROGRAM" == "vscode" ]]; then
+  bindkey -e
+fi
 
-########
-# Cleanup
-unset BREW_DIR
+
+## Cleanup
 unset OS_NAME
 
-#########
-# Use zprof for debugging startup performance. Keep comented. Nice to have around.
+
+# Use zprof for debugging startup performance. Keep commented. Nice to have around.
 # zprof
