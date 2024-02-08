@@ -3,6 +3,31 @@ local wezterm = require 'wezterm'
 
 local font_family = ''
 
+-- Sync theme with system appearance.
+-- Snippet taken from https://wezfurlong.org/wezterm/config/lua/wezterm.gui/get_appearance.html
+-- wezterm.gui is not available to the mux server, so take care to
+-- do something reasonable when this config is evaluated by the mux
+local function get_appearance()
+  if wezterm.gui then
+    return wezterm.gui.get_appearance()
+  end
+  return 'Dark'
+end
+
+local function scheme_for_appearance(appearance)
+  if appearance:find 'Dark' then
+    -- color_scheme = 'Builtin Solarized Dark'
+    -- color_scheme = 'Gruvbox dark, medium (base16)',
+    color_scheme = 'OneDark (base16)'
+  else
+    -- color_scheme = 'Builtin Solarized Light'
+    -- color_scheme = 'Gruvbox light, medium (base16)',
+    color_scheme = 'One Light (base16)'
+  end
+  return color_scheme
+end
+
+
 -- For some reason, the string.match part stopped working.
 -- if string.match(wezterm.target_triple, 'apple-darwin') then
 if wezterm.target_triple:match('apple') then
@@ -16,8 +41,7 @@ end
 
 return {
   -- appearance
-  -- color_scheme = 'Gruvbox dark, medium (base16)',
-  color_scheme = 'OneDark (base16)',
+  color_scheme = scheme_for_appearance(get_appearance()),
 
   colors = {
     -- The color of the scrollbar "thumb"; the portion that represents the current viewport
