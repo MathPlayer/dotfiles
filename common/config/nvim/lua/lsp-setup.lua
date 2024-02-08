@@ -14,7 +14,7 @@ local servers = {
     filetypes = { "helm" },
     cmd = { "helm_ls", "serve" },
   },
-  kotlin_language_server = {},
+  -- kotlin_language_server = {},
   lemminx = {},
   marksman = {},
   pylsp = {

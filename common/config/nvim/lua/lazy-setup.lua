@@ -110,7 +110,7 @@ require('lazy').setup({
   { 'nvim-tree/nvim-web-devicons', lazy = true },
 
   -- Tint the current / active window
-  { 'levouh/tint.nvim', config = true },
+  -- { 'levouh/tint.nvim', config = true },
 
   { 'Bekaboo/dropbar.nvim' },
 

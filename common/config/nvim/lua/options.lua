@@ -23,6 +23,13 @@ vim.opt.number = true
 -- ... except when on quickfix
 vim.cmd('autocmd FileType qf setlocal nonumber')
 
+---- spelling
+vim.opt.spell = true
+vim.opt.spelllang = 'en_us'
+vim.opt.spelloptions = 'camel'
+vim.cmd[[highlight SpellBad gui=undercurl guisp=LightGreen]]
+
+
 ---- search
 -- highlight the search phrase
 vim.opt.hlsearch = true
@@ -91,9 +98,6 @@ set showbreak=\\   " the spaces are needed
 "----- highlight colors -----"
 " change search highlight color
 highlight Search cterm=NONE ctermfg=black ctermbg=darkyellow gui=NONE guifg=black guibg=darkyellow
-" Reset bad spelling highlight, use only underline
-highlight clear SpellBad
-highlight SpellBad cterm=underline
 " highlight trailing whitespace as errors
 " highlight default link ExtraWhitespace Error
 " highlight ExtraWhitespace ctermbg=darkred guibg=darkred
