@@ -14,6 +14,7 @@
   - rtx
     - install the latest tools on setup.
   - get LS_COLORS from remote.
+  - wezterm terminfo download/setup as mentioned in the comment (see config.term).
 
 - Repository related
   - Check if other dotfiles solutions work better.

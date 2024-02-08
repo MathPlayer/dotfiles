@@ -85,4 +85,13 @@ return {
   -- misc
   hide_tab_bar_if_only_one_tab = true,
   enable_scroll_bar = true,
+
+  -- set a custom TERM for better handling of certain modern features like undercurl and similar.
+  -- requires also to get a specific terminfo config for wezterm in ~/.terminfo.
+  -- From: https://wezfurlong.org/wezterm/config/lua/config/term.html, the snippet run:
+  --   tempfile=$(mktemp) \
+  --   && curl -o $tempfile https://raw.githubusercontent.com/wez/wezterm/main/termwiz/data/wezterm.terminfo \
+  --   && tic -x -o ~/.terminfo $tempfile \
+  --   && rm $tempfile
+  term = "wezterm",
 }
