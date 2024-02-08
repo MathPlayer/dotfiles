@@ -10,7 +10,9 @@
       - Gather a list of tools to use and how they load their completion.
   - Rust/cargo
     - Ensure ~/.cargo/bin in PATH
-  - git: make sure delta is installed.
+  - git
+    - make sure delta is installed.
+    - set up git commit signing OR at least documment the steps.
   - rtx
     - install the latest tools on setup.
   - get LS_COLORS from remote.

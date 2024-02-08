@@ -9,6 +9,11 @@
   excludesfile = "~/.gitignore_global"
   autocrlf = false
   eol = lf
+[commit]
+  gpgsign = true
+  tagsign = true
+[gpg]
+  format = ssh
 [color]
   ui = true
   whitespace = red reverse
