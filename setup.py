@@ -65,7 +65,7 @@ def do_copy(src, dst, bak, append=False):
     else:
         with dst.open('a') as dst_f:
             dst_f.write(src.open().read())
-            LOG.debug("Write done: '{dst}'.")
+            LOG.debug(f"Write done: '{dst}'.")
 
 
 def install(src_dir, dst_dir, bak_dir=None, append=False, add_dot=False):
@@ -148,7 +148,7 @@ def main():
     # Prepare install.
     LOG.setLevel(logging.DEBUG if args.verbose else logging.INFO)
 
-    # Use a non-iso format to avoid colons in path names.
+    # Use a non-ISO format to avoid colons in path names.
     now = datetime.datetime.now().strftime('%Y-%m-%d_%H%M%S')
     repo_dir = Path.cwd()
     dst_dir = Path(args.directory)
@@ -159,7 +159,7 @@ def main():
     deps_dir = repo_dir / '.deps'
     get_dependencies(deps_dir)
 
-    # Merge dotfiles in auxilary dir.
+    # Merge dotfiles in an auxiliary directory.
     install(repo_dir / 'common', aux_dir)
     install(repo_dir / get_os(), aux_dir, append=True)
 
