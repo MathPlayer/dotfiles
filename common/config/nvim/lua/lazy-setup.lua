@@ -445,7 +445,7 @@ require('lazy').setup({
 
   {
     'Exafunction/codeium.nvim',
-    cond = not require('utils').is_work_machine, -- Not yet vetoed by the company.
+    cond = not require('utils').useCodeium,
     dependencies = {
       'nvim-lua/plenary.nvim',
       'hrsh7th/nvim-cmp',
@@ -457,7 +457,7 @@ require('lazy').setup({
     'zbirenbaum/copilot.lua',
     -- Better to check if there's a token available. From work I have some, for personal purposes I
     -- won't get one.
-    cond = require('utils').is_work_machine,
+    cond = require('utils').useGithubCopilot,
     event = 'InsertEnter',
     cmd = 'Copilot',
     config = function()
@@ -473,9 +473,7 @@ require('lazy').setup({
   },
   {
     'zbirenbaum/copilot-cmp',
-    -- Better to check if there's a token available. From work I have some, for personal purposes I
-    -- won't get one.
-    cond = require('utils').is_work_machine,
+    cond = require('utils').useGithubCopilot,
     config = function()
       require('copilot_cmp').setup()
     end,

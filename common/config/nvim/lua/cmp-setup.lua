@@ -50,17 +50,19 @@ cmp.setup {
       end,
       { 'i', 's' }),
   },
-  sources = {
-    -- copilots
-    -- { name = 'copilot', group_index = 2 },
-    { name = 'codeium' },
+  sources = vim.tbl_extend('force',
+    {
+      { name = 'nvim_lsp' },  -- LSP
 
-    { name = 'nvim_lsp' },  -- LSP
-
-    { name = 'async_path', option = { trailing = true } }, -- path completion
-    { name = 'buffer' }, -- buffer completion
-    { name = 'luasnip' }, -- snippets
-  },
+      { name = 'async_path', option = { trailing = true } }, -- path completion
+      { name = 'buffer' }, -- buffer completion
+      { name = 'luasnip' }, -- snippets
+    },
+    -- Use at most one copilot.
+    (require('utils').useGithubCopilot and {{ name = 'copilot', group_index = 2 }}) or
+    (require('utils').useCodeium and {{ name = 'codeium' }}) or
+    {}
+  ),
   -- experimental = {
   --   ghost_text = true,
   -- }
