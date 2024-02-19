@@ -19,6 +19,8 @@
   - wezterm terminfo download/setup as mentioned in the comment (see config.term).
   - bat
     - Change theme dynamically based on the system theme/appearance.
+  - arkenfox
+    - set/update the user.js config for firefox and/or thunderbird
 
 - Repository related
   - Check if other dotfiles solutions work better.
