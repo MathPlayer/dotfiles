@@ -78,6 +78,9 @@ azure-pipelines/yamlschema.json
 # Used by nektos/act.
 .secrets
 
+# used by draw.io
+.*drawio.bkp
+
 # my personal temp files
 .personal.tmp.*
 personal.tmp.*
