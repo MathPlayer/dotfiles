@@ -17,6 +17,8 @@
     - install the latest tools on setup.
   - get LS_COLORS from remote.
   - wezterm terminfo download/setup as mentioned in the comment (see config.term).
+  - bat
+    - Change theme dynamically based on the system theme/appearance.
 
 - Repository related
   - Check if other dotfiles solutions work better.
