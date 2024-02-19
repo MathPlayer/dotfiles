@@ -113,6 +113,8 @@
   rv = remote --verbose
   ra = remote add
   rmv = remote rename
+  rro = remote remove origin
+  rso = remote show origin
 
   sta = stash push
   staa = stash apply
