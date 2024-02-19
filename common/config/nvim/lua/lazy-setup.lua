@@ -112,8 +112,6 @@ require('lazy').setup({
   -- Tint the current / active window
   -- { 'levouh/tint.nvim', config = true },
 
-  { 'Bekaboo/dropbar.nvim' },
-
   -- Better statusline / tabline
   {
     'nvim-lualine/lualine.nvim',
@@ -309,6 +307,32 @@ require('lazy').setup({
       'nvim-lua/plenary.nvim',
     },
   },
+
+  -- Breadcrumbs
+  {
+    'Bekaboo/dropbar.nvim',
+    config = function()
+      require('dropbar').setup()
+      -- Workaround for the background color issue (always black).
+      vim.cmd [[
+        highlight WinBar guibg=None
+        highlight WinBarNC guibg=None
+      ]]
+    end
+  },
+
+  -- Extra LSP features like breadcrumbs, call hierarchy, better UI for renaming, etc.
+  -- {
+  --   'nvimdev/lspsaga.nvim',
+  --   config = function()
+  --       require('lspsaga').setup({})
+  --   end,
+  --   dependencies = {
+  --       'nvim-treesitter/nvim-treesitter',
+  --       'nvim-tree/nvim-web-devicons',
+  --   }
+  -- },
+
 
   -- Autocompletion
   {
