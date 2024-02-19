@@ -70,11 +70,7 @@ if ! zgenom saved; then
   zgenom load mroth/evalcache
 
   # Load custom *env files when entering/exiting a folder
-  # TODO: consider replacing with direnv.
   zgenom load Tarrasch/zsh-autoenv
-
-  # Alternatives to cd ../../.. ... ../
-  zgenom load Tarrasch/zsh-bd
 
   # Recommend aliases when using full-blown commands
   zgenom load MichaelAquilina/zsh-you-should-use
@@ -86,10 +82,13 @@ if ! zgenom saved; then
   # zgenom load marlonrichert/zsh-autocomplete
 
   # Oh-my-zsh
-  zgenom ohmyzsh
+  # Note: loading the base library is recommended, but it's slower.
+  # In case of weird behavior, resort to loading it + removing the full path for modules:
+  # - Add 'zgenom ohmyzsh'.
+  # - Change 'zgenom ohmyzsh <path/to/plugin/file.zsh>' to 'zgenom ohmyzsh plugins/<plugin>'.
   if [[ $OS_NAME = Darwin ]]; then
-    zgenom ohmyzsh plugins/ssh-agent # Handle ssh-agent starting
-    zgenom ohmyzsh plugins/brew # Useful for completions of brew tools.
+    zgenom ohmyzsh plugins/ssh-agent/ssh-agent.plugin.zsh # Handle ssh-agent starting
+    zgenom ohmyzsh plugins/brew/brew.plugin.zsh # Useful for completions of brew tools.
   fi
 
   # TODO: use more configuration variables to filter out these server-side plugins.
@@ -105,7 +104,6 @@ if ! zgenom saved; then
   zgenom save
 
   # Compile local zsh files.
-  # TODO: should I compile all files?
   zgenom compile "$HOME/.zshrc"
 fi
 
@@ -173,13 +171,13 @@ export EDITOR="nvim"
 export VISUAL="${EDITOR}"
 
 # Set make flags with a default cpu count.
-if command_exists nproc; then
+if [[ ! -z "${commands[nproc]}" ]]; then
   export MAKEFLAGS="-j $(nproc)"
-elif command_exists sysctl; then
+elif [[ ! -z "${commands[sysctl]}" ]]; then
   export MAKEFLAGS="-j $(sysctl -n hw.logicalcpu)"
 fi
 
-if command_exists rg; then
+if [[ ! -z "${commands[rg]}" ]] ; then
   export RIPGREP_CONFIG_PATH=${HOME}/.ripgreprc
 fi
 
@@ -248,7 +246,7 @@ fi
 ## Aliases.
 
 # list
-if command_exists eza; then
+if [[ ! -z "${commands[eza]}" ]]; then
   alias ls="eza --group-directories-first"
   alias l="ls"
   alias ll="ls -l"
@@ -261,20 +259,29 @@ if command_exists eza; then
 fi
 
 # git
-if command_exists git; then
+if [[ ! -z "${commands[git]}" ]]; then
   alias g="git"
-  # Convert any git alias from .gitconfig (`git <alias>` gets aliased into shell as `g<alias>`).
-  #
-  # Idea for improvement: extract the alias itself below.
-  # Current: `which gst` shows `gst: aliased to git st`.
-  # Desired: `which gst` shows `gst: aliased to git status`.
-  for alias in ${${${(0)"$(git config -z --get-regexp '^alias.')"}%%$'\n'*}#alias.}; do
-    alias g$alias="git $alias"
-  done
+  eval $(awk '
+    /^\[alias\]/ { aliasSection = 1; next }
+    /^\[/ { aliasSection = 0; next }
+    aliasSection && !/^#/ && /=/ {
+      i = index($0, "=");
+      if (i) {
+        name = substr($0, 1, i - 1);
+        gsub(/[ \t]*/, "", name);
+        #
+        # TODO: extend to include the value in the git alias.
+        # The value can be an external command or include all kinds of quotes,
+        # so it should be escaped.
+        #
+        print "alias g" name "=\"git " name "\"";
+      }
+    }
+    ' ~/.gitconfig)
 fi
 
 # Docker
-if command_exists docker; then
+if [[ ! -z "${commands[docker]}" ]] ; then
   alias d="docker"
 
   alias dco="docker-compose"
@@ -323,7 +330,7 @@ _gnu_tools=(
   # "yes"
 )
 for _tool in ${_gnu_tools[@]}; do
-  command_exists "g${_tool}" && alias ${_tool}="g${_tool}"
+  test -z "${commands[g${_tool}]}" || alias ${_tool}="g${_tool}"
 done
 
 # Enhance generic tools.
@@ -332,13 +339,18 @@ alias du='du -h'
 alias less='less -F'
 # Add automatic color output for some tools.
 for _tool in "grep" "fgrep" "egrep" "diff"; do
-  command_exists ${_tool} --color=auto && alias ${_tool}="${_tool} --color=auto"
+  if [[ ! -z $(command -v ${_tool} --color=auto 2>&1) ]]; then
+    alias ${_tool}="${_tool} --color=auto"
+  fi
 done
 
 # Load dircolors if existing. XXX: Find a better way to do this.
-if command_exists dircolors && [ -r "${HOME}/.dircolors" ]; then
-  eval "$(dircolors -b "${HOME}/.dircolors")" || eval "$(dircolors -b)"
-fi
+for _tool in "dircolors" "gdircolors"; do
+  if [[ ! -z "${commands[$_tool]}" ]] && [ -r "${HOME}/.dircolors" ]; then
+    eval "$($_tool -b "${HOME}/.dircolors")" || eval "$($_tool -b)"
+  fi
+done
+unset _tool
 
 # (z)shell specific
 alias -g ...='../..'
@@ -363,9 +375,10 @@ alias prettyjson='python -m json.tool'
 
 # Print all Caesar rotations for a given text.
 function caesar() {
-  in_text=$@
-  a=abcdefghijklmnopqrstuvwxyz
-  b=ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  local in_text=$@
+  local a=abcdefghijklmnopqrstuvwxyz
+  local b=ABCDEFGHIJKLMNOPQRSTUVWXYZ
+  local r
   for r in $(seq 0 25); do
     sed "y/$a$b/${a:$r}${a:0:$r}${b:$r}${b:0:$r}/" <<< $in_text
   done
@@ -373,8 +386,10 @@ function caesar() {
 
 # List all zsh completions.
 function zsh_comps() {
-  for command completion in ${(kv)_comps:#-*(-|-,*)}; do
-    printf "%-32s %s\n" $command $completion
+  local cmd
+  local comp
+  for cmd comp in ${(kv)_comps:#-*(-|-,*)}; do
+    printf "%-32s %s\n" $cmd $comp
   done | sort
 }
 
