@@ -2,6 +2,7 @@
 # Languages
 go = "latest"
 java = "temurin"
+kotlin = "latest"
 lua = "latest"
 node = "lts"
 python = "3"
