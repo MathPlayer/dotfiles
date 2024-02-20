@@ -117,12 +117,6 @@ def get_dependencies(deps_dir):
     # Get the zsh plugin manager.
     git_pull_or_clone('https://github.com/jandamm/zgenom.git', deps_dir)
 
-    # Retrieve dircolors.
-    # TODO: Read https://github.com/trapd00r/LS_COLORS#zsh-integration-with-zplugin
-    download_file(
-        'https://raw.github.com/trapd00r/LS_COLORS/master/LS_COLORS',
-        deps_dir / 'dircolors')
-
 
 def main():
     """Method to execute when script is called."""

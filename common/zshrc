@@ -97,7 +97,6 @@ if ! zgenom saved; then
   #zgenom load bjkavan/terragrunt-oh-my-zsh-plugin
 
   # TODO: find more (useful) plugins
-  # - dircolors
   # - integration with KeePassXC
 
   # save all to initialization script
@@ -310,7 +309,6 @@ _gnu_tools=(
   # "chmod"
   # "chown"
   # "cut"
-  "dircolors"
   # "dirname"
   "find"
   "head"
@@ -337,20 +335,22 @@ done
 alias df='df -h'
 alias du='du -h'
 alias less='less -F'
-# Add automatic color output for some tools.
+
+# Enhance color output for some tools.
 for _tool in "grep" "fgrep" "egrep" "diff"; do
   if [[ ! -z $(command -v ${_tool} --color=auto 2>&1) ]]; then
     alias ${_tool}="${_tool} --color=auto"
   fi
 done
-
-# Load dircolors if existing. XXX: Find a better way to do this.
-for _tool in "dircolors" "gdircolors"; do
-  if [[ ! -z "${commands[$_tool]}" ]] && [ -r "${HOME}/.dircolors" ]; then
-    eval "$($_tool -b "${HOME}/.dircolors")" || eval "$($_tool -b)"
-  fi
-done
 unset _tool
+
+if [[ ! -z "${commands[vivid]}" ]]; then
+  # Theme switch for ls. Assume dark is needed.
+  # TODO: find a better way to do this (maybe using the xterm escape sequence for background).
+  alias theme-dark="export LS_COLORS=$(vivid generate one-dark)"
+  alias theme-light="export LS_COLORS=$(vivid generate one-light)"
+  theme-dark
+fi
 
 # (z)shell specific
 alias -g ...='../..'
