@@ -469,7 +469,7 @@ require('lazy').setup({
 
   {
     'Exafunction/codeium.nvim',
-    cond = not require('utils').useCodeium,
+    cond = require('utils').useCodeium,
     dependencies = {
       'nvim-lua/plenary.nvim',
       'hrsh7th/nvim-cmp',
