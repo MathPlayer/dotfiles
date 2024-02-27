@@ -345,11 +345,19 @@ done
 unset _tool
 
 if [[ ! -z "${commands[vivid]}" ]]; then
-  # Theme switch for ls. Assume dark is needed.
-  # TODO: find a better way to do this (maybe using the xterm escape sequence for background).
-  alias theme-dark="export LS_COLORS=$(vivid generate one-dark)"
-  alias theme-light="export LS_COLORS=$(vivid generate one-light)"
-  theme-dark
+  # Theme switch for ls.
+  theme_dark() {
+    export LS_COLORS="$(vivid generate one-dark)"
+    export BAT_THEME="OneHalfDark"
+  }
+  theme_light() {
+    export LS_COLORS="$(vivid generate one-light)"
+    export BAT_THEME="OneHalfLight"
+  }
+
+  # Assume dark is needed.
+  # TODO: find a way to decide for dark/light, maybe using the color escape sequences.
+  theme_dark
 fi
 
 # (z)shell specific
