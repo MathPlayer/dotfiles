@@ -232,6 +232,9 @@ _evalcache mise activate zsh && source ~/.p10k.mise.zsh
 # TODO: check if installed.
 _evalcache direnv hook zsh
 
+# Testing zoxide.
+_evalcache zoxide init zsh
+
 
 ## Completions.
 
