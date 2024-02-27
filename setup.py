@@ -134,6 +134,9 @@ def main():
         '-v', '--verbose', action='store_true',
         help="Log this script actions at debug level.")
     parser.add_argument(
+        '-o', '--offline', action='store_true',
+        help="Run in offline-mode, skipping any online actions.")
+    parser.add_argument(
         '--skip-nvim-setup', action='store_true',
         help="Skip installing neovim plugins.")
 
@@ -151,7 +154,8 @@ def main():
 
     # Update all dependencies.
     deps_dir = repo_dir / '.deps'
-    get_dependencies(deps_dir)
+    if not args.offline:
+        get_dependencies(deps_dir)
 
     # Merge dotfiles in an auxiliary directory.
     install(repo_dir / 'common', aux_dir)
@@ -162,7 +166,7 @@ def main():
     install(aux_dir, dst_dir, bak_dir=bak_dir, add_dot=True)
 
     # Setup neovim.
-    if not args.skip_nvim_setup:
+    if not args.offline and args.skip_nvim_setup:
         LOG.info("Install neovim plugins")
         nvim_setup_cmd = ['nvim', '--headless', '+Lazy! sync', '+qall']
         try:
