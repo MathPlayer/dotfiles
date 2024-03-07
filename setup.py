@@ -166,7 +166,7 @@ def main():
     install(aux_dir, dst_dir, bak_dir=bak_dir, add_dot=True)
 
     # Setup neovim.
-    if not args.offline and args.skip_nvim_setup:
+    if not args.offline and not args.skip_nvim_setup:
         LOG.info("Install neovim plugins")
         nvim_setup_cmd = ['nvim', '--headless', '+Lazy! sync', '+qall']
         try:
