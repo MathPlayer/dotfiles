@@ -30,6 +30,7 @@ terraform = "latest"
 glow = "latest"
 tree-sitter = "latest"
 shellcheck = "latest"
+pipx = "latest"
 
 # Stable enough for me to use it as a daily driver.
 neovim = "nightly"
