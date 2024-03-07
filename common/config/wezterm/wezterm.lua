@@ -16,8 +16,11 @@ end
 -- Determines the font to use based on the operating system.
 local font = 'JetBrains Mono'
 if wezterm.target_triple:find('apple') then
-  -- font = 'MesloLGS NF', -- From p10k
+  -- font = 'MesloLGS NF' -- From p10k
   font = 'Hack Nerd Font Mono'
+  -- font = 'MonaspiceNe Nerd Font Mono'
+  -- font = 'Monoid Nerd Font Mono'
+  ;
 elseif wezterm.target_triple == 'x86_64-unknown-linux-gnu' then
   font = 'MesloLGS Nerd Font Mono'
 end
