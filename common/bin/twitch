@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#
+# Starts a Twitch stream in mpv using streamlink.
+#
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: twitch [channel]"
+  exit 1
+fi
+
+for tool in streamlink mpv; do
+  if ! command -v $tool &> /dev/null; then
+    echo >&2 "Error: $tool is not installed. Install it and try again."
+    exit 1
+  fi
+done
+
+streamlink -p mpv "twitch.tv/$1" best &

@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Check for correct number of arguments
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <path-to-mkv-file>"
+    exit 1
+fi
+
+MKV_FILE=$1
+SUBTITLE_TRACK_ID=-1
+SUBTITLE_FORMAT=""
+OUTPUT_SUBTITLE_FILE="converted_subtitle.srt"
+
+check_required_tools() {
+    for tool in mkvmerge mkvextract ffmpeg catt; do
+        if ! command -v $tool &> /dev/null; then
+            echo >&2 "Error: $tool is not installed. Install it and try again."
+            exit 1
+        fi
+    done
+}
+
+extract_subtitle_info() {
+    info=$(mkvmerge -i "$MKV_FILE")
+
+    SUBTITLE_INFO=$(echo "$info" | grep "subtitles" | head -n 1)
+    if [ -z "$SUBTITLE_INFO" ]; then
+        echo "No subtitle track found."
+        exit 1
+    fi
+
+    SUBTITLE_TRACK_ID=$(echo "$SUBTITLE_INFO" | grep -oP 'Track ID \d+' | grep -oP '\d+')
+    SUBTITLE_FORMAT=$(echo "$SUBTITLE_INFO" | grep -oP '\(([^)]+)\)$' | tr -d '()')
+}
+
+process_subtitles() {
+    TEMP_SUBTITLE_FILE="temp_subtitle.$SUBTITLE_FORMAT"
+    mkvextract tracks "$MKV_FILE" "$SUBTITLE_TRACK_ID":"$TEMP_SUBTITLE_FILE"
+
+    # Convert subtitle to SRT and add black background.
+    #ffmpeg -i "$TEMP_SUBTITLE_FILE" -vf "subtitles='$TEMP_SUBTITLE_FILE':force_style='BackColour=&H80000000,BorderStyle=4'" "$OUTPUT_SUBTITLE_FILE"
+    ffmpeg -i "$TEMP_SUBTITLE_FILE" -vf "subtitles='$TEMP_SUBTITLE_FILE':force_style='Box=1,BoxColor=&H80000000,BorderStyle=4,Fontsize=24,PrimaryColour=&Hffffff&'" -c:a copy "$OUTPUT_SUBTITLE_FILE"
+
+    rm "$TEMP_SUBTITLE_FILE"
+}
+
+cast_video() {
+    echo "Cast the file $MKV_FILE"
+    echo "Use subs from $OUTPUT_SUBTITLE_FILE"
+    catt cast -s "$OUTPUT_SUBTITLE_FILE" "$MKV_FILE"
+}
+
+# Main process
+check_required_tools
+extract_subtitle_info
+process_subtitles
+cast_video

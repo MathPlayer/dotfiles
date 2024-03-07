@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+# TODO: This URL points to subsplease, so only their torrents will be used.
+# Adjust it to be more generic or given as CLI argument.
+URL='https://nyaa.si/user/subsplease?f=0&c=0_0&s=seeders&o=desc'
+QBITTORRENT_URL='http://127.0.0.1:38080'
+RESOLUTION='1080p'
+
+# Encode a text to be added in a URL query.
+# Usage: url_encode <string>
+urlencode() {
+    python3 -c "import sys, urllib.parse as ul; print(ul.quote_plus(sys.argv[1]))" "$1"
+}
+
+# Gets the first magnet link from a page.
+# Usage: fetch_magnet_link <search_text> <URL>
+fetch_magnet_link() {
+    local -r encoded_text=$(urlencode "$1")
+    local -r webpage_content=$(curl -s "$2&q=$encoded_text")
+    echo "$webpage_content" | grep -o 'magnet:[^"]*' | grep -m 1 -i "$RESOLUTION"
+}
+
+# Save a cookie file for qBittorrent based on provided username and password.
+# Usage: authenticate_qbittorrent <username> <password> <cookie_file>.
+authenticate_qbittorrent() {
+    local username="$1"
+    local password="$2"
+    local cookie_file="$3"
+
+    # Authenticate and save cookie
+    curl -s -X POST "$QBITTORRENT_URL/api/v2/auth/login" \
+        --data "username=$username&password=$password" \
+        --cookie-jar "$cookie_file"
+}
+
+# Function to add magnet link to qBittorrent
+# Usage: add_magnet_to_qbittorrent <magnet_link> <cookie_file> <save_path>
+add_magnet_to_qbittorrent() {
+    local magnet_link="$1"
+    local cookie_file="$2"
+    local save_path="$3"
+
+    mkdir -p "$save_path"
+    curl -s -X POST "$QBITTORRENT_URL/api/v2/torrents/add" \
+        --data "urls=$magnet_link&savepath=$save_path" \
+        --cookie "$cookie_file"
+}
+
+# CLI parsing with environment variable defaults.
+SEARCH_TEXT=${SEARCH_TEXT:-}
+QBITTORRENT_USERNAME=${QBITTORRENT_USERNAME:-}
+QBITTORRENT_PASSWORD=${QBITTORRENT_PASSWORD:-}
+DOWNLOAD_PATH=${DOWNLOAD_PATH:-}
+
+while getopts "s:u:p:d:" opt; do
+  case $opt in
+    s) SEARCH_TEXT=$OPTARG ;;
+    u) QBITTORRENT_USERNAME=$OPTARG ;;
+    p) QBITTORRENT_PASSWORD=$OPTARG ;;
+    d) DOWNLOAD_PATH=$OPTARG ;;
+    \?) echo "Invalid option -$OPTARG" >&2; exit 1 ;;
+  esac
+done
+
+# Check if all required arguments are provided.
+if [[ -z "$SEARCH_TEXT" || -z "$QBITTORRENT_USERNAME" || -z "$QBITTORRENT_PASSWORD" || -z "$DOWNLOAD_PATH" ]]; then
+    echo "Usage: $0 -s <search_text> -u <qbittorrent_username> -p <qbittorrent_password> -d <download_path>"
+    exit 1
+fi
+
+COOKIE_FILE="$(mktemp)"
+
+MAGNET_LINK=$(fetch_magnet_link "$SEARCH_TEXT" "$URL")
+
+authenticate_qbittorrent "$QBITTORRENT_USERNAME" "$QBITTORRENT_PASSWORD" "$COOKIE_FILE"
+add_magnet_to_qbittorrent "$MAGNET_LINK" "$COOKIE_FILE" "$DOWNLOAD_PATH"
+
+rm "$COOKIE_FILE"
