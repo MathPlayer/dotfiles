@@ -1,5 +1,6 @@
 # TODO items for this repo
 
+
 - Config related
   - zsh:
     - Load CLI completions for tools.
@@ -16,7 +17,9 @@
     - set up git commit signing OR at least document the steps.
   - rtx
     - install the latest tools on setup.
-  - wezterm terminfo download/setup as mentioned in the comment (see config.term).
+  - wezterm:
+    - terminfo download/setup as mentioned in the comment (see config.term).
+    - config for windows/panels/...
   - bat
     - Change theme dynamically based on the system theme/appearance.
       For now, the change is handled through zshrc aliases. For macOS, you could use:
@@ -28,6 +31,7 @@
         echo "Theme: Light" # set light theme, etc.
       fi
       ```
+    - Create cheatsheet with bat usage from: <https://github.com/sharkdp/bat?tab=readme-ov-file>
 
   - arkenfox
     - set/update the user.js config for firefox and/or thunderbird
@@ -58,6 +62,7 @@
         - maybe better? (g) sed/mkdir/etc.
   - Neovim:
     - Create Python virtualenv + install requirements
+    - More tooling, including LSP servers that might be needed to be installed manually.
   - pipx and useful ones
 
 - Others
