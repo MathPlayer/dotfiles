@@ -16,3 +16,4 @@ for tool in streamlink mpv; do
 done
 
 streamlink -p mpv "twitch.tv/$1" best &
+# streamlink "twitch.tv/$1" best &
