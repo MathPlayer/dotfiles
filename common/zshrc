@@ -31,7 +31,7 @@ export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
 source "${HOME}/.bin/commands.sh"
 
 # The oh-my-zsh SSH plugin requires some settings before loading. Used only on macOS.
-[[ ${OS_NAME} = Darwin ]] && zstyle :omz:plugins:ssh-agent agent-forwarding on
+[[ $OS_NAME = Darwin ]] && zstyle :omz:plugins:ssh-agent agent-forwarding on
 
 
 ## zgenom
@@ -198,7 +198,7 @@ typeset -a custom_paths=(
   # TODO: ruby/gem default folder for apps/binaries.
 )
 
-if [ ! -z ${HOMEBREW_PREFIX} ]; then
+if [[ $OS_NAME = Darwin && ! -z ${HOMEBREW_PREFIX} ]]; then
   custom_paths+=(
     "${HOMEBREW_PREFIX}/opt/python/libexec/bin"
     "${HOMEBREW_PREFIX}/opt/curl/bin"
@@ -240,7 +240,7 @@ _evalcache zoxide init zsh
 
 # Load git-extras zsh-completions (assuming git-extras is installed with brew).
 # TODO: check if it's possible to use evalcache
-if [[ ! -z {HOMEBREW_PREFIX} ]]; then
+if [[ $OS_NAME = Darwin && ! -z {HOMEBREW_PREFIX} ]]; then
   source "${HOMEBREW_PREFIX}/opt/git-extras/share/git-extras/git-extras-completion.zsh"
 fi
 
@@ -427,6 +427,9 @@ _work_dir="${HOME}/work"
 if [ -d "${_work_dir}" ]; then
   export MY_WORK_DIR="${_work_dir}"
   source_if_exists "${_work_dir}/.zshrc"
+else
+  export MY_WORK_DIR="${HOME}/code"
+  export USE_CODEIUM="true"
 fi
 unset _work_dir
 
